@@ -1,3 +1,7 @@
 Dependencias 
 pyqt5
 poppler-qt5
+
+---------
+
+Widget de PDF da internet não é muito bom, considerar fazer outro

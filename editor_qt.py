@@ -2,6 +2,7 @@ import sys
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import Qt, QProcess, QUrl
 from popplerqt5 import Poppler
+from PDFWidget import PDFScrolledWidget
 
 class Editor(QtWidgets.QTextEdit):
     def __init__(self, parent = None):
@@ -37,7 +38,7 @@ class Main(QtWidgets.QMainWindow):
     def initUI(self):
         self.splitter = QtWidgets.QSplitter(self)
         self.text = Editor()
-        self.pdf_viewer = PdfViewer()
+        self.pdf_viewer = PDFScrolledWidget("docs/fisica.pdf")
         
         self.setCentralWidget(self.splitter)
         self.splitter.addWidget(self.text)
