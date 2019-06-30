@@ -6,16 +6,6 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import Qt, QProcess, QUrl
 from PyQt5.QtGui import QDesktopServices
 
-class Editor(QtWidgets.QTextEdit):
-    def __init__(self, parent = None):
-        QtWidgets.QTextEdit.__init__(self, parent)
-        self.setMinimumSize(400, 300)
-
-class PdfViewer(QtWidgets.QWidget):
-    def __init__(self, parent = None):
-        QtWidgets.QWidget.__init__(self, parent)
-        self.setMinimumSize(400, 300)
-
 class Main(QtWidgets.QMainWindow):
     def __init__(self, parent = None):
         QtWidgets.QMainWindow.__init__(self, parent)
@@ -43,15 +33,23 @@ class Main(QtWidgets.QMainWindow):
 
     def initUI(self):
         self.splitter	= QtWidgets.QSplitter(self)
-        self.text	= Editor()
+        self.text	= QtWidgets.QTextEdit()
         self.cursor	= self.text.textCursor()
-        self.bt		= QtWidgets.QPushButton(self.text)
-        self.b2 	= QtWidgets.QPushButton()
         
-        self.b2.show()
+        self.btn_box	= QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, self.text)
+        self.btn_open	= QtWidgets.QPushButton()
+        self.btn_text 	= QtWidgets.QPushButton()
         
-        self.bt.clicked.connect(self.runProcess)
-        self.b2.clicked.connect(self.getText)
+        self.btn_open.setText("Abrir Visualizador");
+        self.btn_text.setText("Enviar Texto");
+        
+        self.btn_open.clicked.connect(self.runProcess)
+        self.btn_text.clicked.connect(self.getText)
+        
+        self.btn_box.addWidget(self.btn_open)
+        self.btn_box.addWidget(self.btn_text)
+        
+        self.text.setLayout(self.btn_box)
         
         self.setCentralWidget(self.splitter)
         self.splitter.addWidget(self.text)
