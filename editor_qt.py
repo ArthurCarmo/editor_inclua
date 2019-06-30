@@ -5,7 +5,6 @@ import subprocess
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import Qt, QProcess, QUrl
 from PyQt5.QtGui import QDesktopServices
-from pyvirtualdisplay import Display
 
 class Editor(QtWidgets.QTextEdit):
     def __init__(self, parent = None):
@@ -27,7 +26,6 @@ class Main(QtWidgets.QMainWindow):
         self.multiple_meaning	= []
         self.automaton		= ahocorasick.Automaton()
         
-        self.display = Display(visible=1, size=(640, 480))
         self.initUI()
         
     def initToolbar(self):
@@ -50,9 +48,11 @@ class Main(QtWidgets.QMainWindow):
         self.bt		= QtWidgets.QPushButton(self.text)
         self.b2 	= QtWidgets.QPushButton()
         
-        self.bt.clicked.connect(self.runProcess)
         self.b2.show()
+        
+        self.bt.clicked.connect(self.runProcess)
         self.b2.clicked.connect(self.getText)
+        
         self.setCentralWidget(self.splitter)
         self.splitter.addWidget(self.text)
         self.initToolbar()
@@ -76,8 +76,7 @@ class Main(QtWidgets.QMainWindow):
     def runProcess(self):
         print(subprocess.call(["ls", "-l"]))
         self.xeyes.start("xeyes")
-        self.xeyes.setWindowFlags(QtCore.Qt.WindowStaysOnTopHint)
-        document = QUrl("file:///home/arthur/Documents/editor_inclua/docs/fisica.pdf")
+        document = QUrl("./docs/fisica.pdf")
         QDesktopServices.openUrl(document)
 
     def onFinished(self):
