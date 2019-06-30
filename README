@@ -1,6 +1,7 @@
 Dependencias 
 pyqt5
 poppler-qt5
+pyahocorasick
 
 ---------
 
