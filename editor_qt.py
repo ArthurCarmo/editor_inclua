@@ -6,8 +6,6 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import Qt, QProcess, QUrl
 from PyQt5.QtGui import QDesktopServices
 
-import re
-
 class EHighlighter(QtGui.QSyntaxHighlighter):
     def __init__(self, parent):
         self.parent = parent
@@ -76,7 +74,7 @@ class EHighlighter(QtGui.QSyntaxHighlighter):
         #print(text)
 
 
-
+import socket
 
 class Main(QtWidgets.QMainWindow):
     def __init__(self, parent = None):
@@ -84,7 +82,9 @@ class Main(QtWidgets.QMainWindow):
         self.xephyr 		= QProcess(self)
         self.xeyes 		    = QProcess(self)
         self.window_manager	= QProcess(self)
-        
+        self.HOST = '0.0.0.0'
+        self.PORT = 5555
+        self.socket
         self.initUI()
     
     def initToolbar(self):
