@@ -6,17 +6,87 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import Qt, QProcess, QUrl
 from PyQt5.QtGui import QDesktopServices
 
+import re
+
+class EHighlighter(QtGui.QSyntaxHighlighter):
+    def __init__(self, parent):
+        self.parent = parent
+        QtGui.QSyntaxHighlighter.__init__(self, parent)
+        self.known_words= ahocorasick.Automaton()
+        f = open("palavras")
+        for w in f.read().splitlines():
+            self.known_words.add_word(w, len(w))
+        self.known_words.make_automaton()
+        self.tags = ["<", ">", "[", "]"]
+        self.commands = ["__save", "__stop", \
+            "__rec", "__last"]
+        self.incomplete_keywords = ["i", "im", "img"]
+        self.keywords = ["img0", "img1", "img2", "img3"]
+        
+    def highlightBlock(self, text):
+        cl_known	= QtGui.QColor(0x000000)
+        cl_unknown	= QtGui.QColor(0xFF0000)
+        cl_tag	    = QtGui.QColor(0x000088)
+        cl_cmd      = QtGui.QColor(0x2200FF)
+        cl_wkblue   = QtGui.QColor(0x000077)
+
+        known       = QtGui.QTextCharFormat()
+        unknown     = QtGui.QTextCharFormat()
+        tag         = QtGui.QTextCharFormat()
+        cmd         = QtGui.QTextCharFormat()
+        hitting     = QtGui.QTextCharFormat()
+
+        known.setForeground(cl_known)
+        unknown.setForeground(cl_unknown)
+        tag.setForeground(cl_tag)
+        cmd.setForeground(cl_cmd)
+        hitting.setForeground(cl_wkblue)
+
+        cmd.setFontWeight(QtGui.QFont.Bold)
+
+        word  = QtCore.QRegularExpression("[^<>\\[\\]=\\(\\).,;\\s\\n]+")
+        tags  = QtCore.QRegularExpression("[<>\\[\\]]")
+        links = QtCore.QRegularExpression("=.+?>")
+
+        i = word.globalMatch(text)
+        while i.hasNext():
+            match = i.next()
+            end = match.capturedStart() + match.capturedLength()
+            w = text[match.capturedStart():end]
+            if w in self.known_words:
+                self.setFormat(match.capturedStart(), match.capturedLength(), known)
+            elif w in self.commands:
+                self.setFormat(match.capturedStart(), match.capturedLength(), cmd)
+            elif w in self.keywords:
+                self.setFormat(match.capturedStart(), match.capturedLength(), tag)
+            elif w in self.incomplete_keywords:
+                self.setFormat(match.capturedStart(), match.capturedLength(), hitting)
+            else:
+                self.setFormat(match.capturedStart(), match.capturedLength(), unknown)
+        
+        i = tags.globalMatch(text)
+        while i.hasNext():
+            match = i.next()
+            self.setFormat(match.capturedStart(), match.capturedLength(), tag)
+        
+        i = links.globalMatch(text)
+        while i.hasNext():
+            match = i.next()
+            self.setFormat(match.capturedStart()+1, match.capturedLength()-1, cmd)
+        #print(text)
+
+
+
+
 class Main(QtWidgets.QMainWindow):
     def __init__(self, parent = None):
         QtWidgets.QMainWindow.__init__(self, parent)
         self.xephyr 		= QProcess(self)
-        self.xeyes 		= QProcess(self)
+        self.xeyes 		    = QProcess(self)
         self.window_manager	= QProcess(self)
-        self.unique_meaning	= ahocorasick.Automaton()
-        self.multiple_meaning	= ahocorasick.Automaton()
         
         self.initUI()
-        
+    
     def initToolbar(self):
         self.toolbar = self.addToolBar("Options")
         self.addToolBarBreak()
@@ -32,24 +102,25 @@ class Main(QtWidgets.QMainWindow):
 
     def initUI(self):
         self.splitter	= QtWidgets.QSplitter(self)
-        self.text	= QtWidgets.QTextEdit()
-        
+        self.text	    = QtWidgets.QTextEdit()
+        highlighter     = EHighlighter(self.text.document())
         self.btn_box	= QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, self.text)
+
         btn_open	= QtWidgets.QPushButton()
         btn_text 	= QtWidgets.QPushButton()
-        show_cursor	= QtWidgets.QPushButton()
+        btn_show_cursor	= QtWidgets.QPushButton()
         
         btn_open.setText("Abrir Visualizador")
         btn_text.setText("Enviar Texto")
-        show_cursor.setText("Posições do cursor")
+        btn_show_cursor.setText("Posições do cursor")
         
         btn_open.clicked.connect(self.runProcess)
         btn_text.clicked.connect(self.getText)
-        show_cursor.clicked.connect(self.print_cursor)
+        btn_show_cursor.clicked.connect(self.print_cursor)
         
         self.btn_box.addWidget(btn_open)
         self.btn_box.addWidget(btn_text)
-        self.btn_box.addWidget(show_cursor)
+        self.btn_box.addWidget(btn_show_cursor)
         
         self.text.setLayout(self.btn_box)
         
@@ -72,32 +143,17 @@ class Main(QtWidgets.QMainWindow):
         cursor = self.text.textCursor()
         if cursor.hasSelection():
     	        text = cursor.selection().toPlainText()
-        else: #Deixa o texto alternando vermelho e preto
+        else:
                 text = self.text.toPlainText()
-                init_pos = cursor.position()
-                cursor.movePosition(cursor.Start)
-                k = 1
-                while cursor.movePosition(cursor.NextWord, cursor.KeepAnchor) :
-                        cursor.movePosition(cursor.StartOfWord)
-                        if k % 2 == 1:
-                            cursor.select(cursor.WordUnderCursor)
-                            self.text.setTextCursor(cursor)
-                            red = QtGui.QColor(0xFF0000)
-                            self.text.setTextColor(red)
-                       	else :
-                      	    cursor.select(cursor.WordUnderCursor)
-                      	    self.text.setTextCursor(cursor)
-                      	    black = QtGui.QColor(0x0)
-                      	    self.text.setTextColor(black)
-                        print("word:", cursor.selection().toPlainText(), end="|")
-                        print(cursor.anchor(), cursor.position())
-                        cursor.clearSelection()
-                        k+=1
-                cursor.setPosition(init_pos)
-                self.text.setFocus()
-                self.text.setTextCursor(cursor)
         print(text)
     
+    def is_whole_word(self, text, start, end):
+        if start > 0 and (text[start-1].isalpha() or text[start-1] == "_") :
+            return False
+        if end+1 < len(text) and (text[end+1].isalpha() or text[end+1] == "_") :
+            return False
+        return True
+
     def runProcess(self):
         print(subprocess.call(["ls", "-l"]))
         self.xeyes.start("xeyes")
@@ -115,6 +171,7 @@ class Main(QtWidgets.QMainWindow):
         exit()
 
 def main():
+    global app
     app = QtWidgets.QApplication(sys.argv)
     main = Main()
     main.show()
