@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+unityVideo/videoCreator_Data/Bundles/*
+
 # C extensions
 *.so
 

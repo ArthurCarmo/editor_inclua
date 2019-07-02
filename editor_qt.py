@@ -1,11 +1,15 @@
 import sys
 import ahocorasick
-import subprocess
+import re
 
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import Qt, QProcess, QUrl
 from PyQt5.QtGui import QDesktopServices
+from pyvirtualdisplay import Display
 
+commands = ["__save", "__stop", \
+			"__rec", "__last"]
+			
 class EHighlighter(QtGui.QSyntaxHighlighter):
 	def __init__(self, parent):
 		self.parent = parent
@@ -16,8 +20,7 @@ class EHighlighter(QtGui.QSyntaxHighlighter):
 			self.known_words.add_word(w, len(w))
 		self.known_words.make_automaton()
 		self.tags = ["<", ">", "[", "]"]
-		self.commands = ["__save", "__stop", \
-			"__rec", "__last"]
+		
 		self.incomplete_keywords = ["i", "im", "img", "\\i", "\\im", "\\img"]
 		self.keywords = ["img0", "img1", "img2", "img3", \
 				 "\\img0", "\\img1", "\\img2", "\\img3"]
@@ -54,7 +57,7 @@ class EHighlighter(QtGui.QSyntaxHighlighter):
 			w = text[match.capturedStart():end]
 			if w in self.known_words:
 				self.setFormat(match.capturedStart(), match.capturedLength(), known)
-			elif w in self.commands:
+			elif w in commands:
 				self.setFormat(match.capturedStart(), match.capturedLength(), cmd)
 			elif w in self.keywords:
 				self.setFormat(match.capturedStart(), match.capturedLength(), tag)
@@ -81,16 +84,19 @@ class Main(QtWidgets.QMainWindow):
 	def __init__(self, parent = None):
 		QtWidgets.QMainWindow.__init__(self, parent)
 		self.xephyr 		= QProcess(self)
-		self.xeyes 			= QProcess(self)
+		self.avatar 		= QProcess(self)
 		self.window_manager	= QProcess(self)
+		
+		self.display = Display(visible=1, size=(640, 480))
+		
 		self.HOST = '0.0.0.0'
 		self.PORT = 5555
-		self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		self.initUI()
 	
 	def startCommunication(self):
 		try:
-			self.socket.connect(HOST, PORT)
+			self.sock.connect((self.HOST, self.PORT))
 		except:
 			print("Servidor não encontrado")
 	
@@ -154,10 +160,18 @@ class Main(QtWidgets.QMainWindow):
 		cursor = self.text.textCursor()
 		if cursor.hasSelection():
 				text = cursor.selection().toPlainText()
-				try:
-					self.socket.send(text)
-				except:
-					print("Não há conexação com o servidor")
+				text = self.cleanText(text)
+				blocks = self.getCommandBlocks(text)
+				#try:
+				i = 0
+				for msg in blocks:
+					i += 1
+					print(str(i) + ":", end="")
+					print(msg)
+					self.sock.send(msg.encode('utf-8'))
+					self.sock.recv(2048)
+				#except:
+				#	print("Não há conexação com o servidor")
 		else:
 				text = self.text.toPlainText()
 		print(text)
@@ -170,19 +184,34 @@ class Main(QtWidgets.QMainWindow):
 		return True
 
 	def runProcess(self):
-		print(subprocess.call(["ls", "-l"]))
-		self.xeyes.start("xeyes")
 		document = QUrl("./docs/fisica.pdf")
 		QDesktopServices.openUrl(document)
+		self.display.start()
+		self.avatar.start("./unityVideo/videoCreator.x86_64 teste_renderer 1 30 32 37 -screen-fullscreen 0 -screen-quality Fantastic -force-opengl")
 
-	def onFinished(self):
-		print("Exit")
-		exit()
+	def cleanText(self, text):
+		text = re.sub(r'[\n,\';]+', ' ', text)
+		return text
+	
+	def getCommandBlocks(self, text):
+		patterns = "("
+		i = 0
+		for cmd in commands:
+			if i == 0:
+				patterns += cmd
+				i = 1
+			else:
+				patterns += "|" + cmd
+		
+		patterns += ")"
+		blocks = re.split(patterns, text)
+		return list(filter(lambda a: a != "", blocks))
 
 	def __del__(self):
 		print("Destrutor")
-		self.xeyes.kill()
+		self.avatar.kill()
 		self.xephyr.kill()
+		self.display.stop()
 		exit()
 
 def main():
