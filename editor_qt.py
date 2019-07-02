@@ -84,8 +84,14 @@ class Main(QtWidgets.QMainWindow):
         self.window_manager	= QProcess(self)
         self.HOST = '0.0.0.0'
         self.PORT = 5555
-        self.socket
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.initUI()
+    
+    def startCommunication(self):
+        try:
+            self.socket.connect(HOST, PORT)
+        except:
+            print("Servidor não encontrado")
     
     def initToolbar(self):
         self.toolbar = self.addToolBar("Options")
@@ -108,10 +114,12 @@ class Main(QtWidgets.QMainWindow):
 
         btn_open	= QtWidgets.QPushButton()
         btn_text 	= QtWidgets.QPushButton()
+        btn_conn 	= QtWidgets.QPushButton()
         btn_show_cursor	= QtWidgets.QPushButton()
         
         btn_open.setText("Abrir Visualizador")
         btn_text.setText("Enviar Texto")
+        btn_show_cursor.setText("Conectar")
         btn_show_cursor.setText("Posições do cursor")
         
         btn_open.clicked.connect(self.runProcess)
