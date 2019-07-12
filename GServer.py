@@ -2,7 +2,7 @@ import socket
 import GSyntax
 
 from time import sleep
-from PyQt5 import QtGui, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, QProcess
 from subprocess import Popen, PIPE
 
@@ -29,7 +29,15 @@ def getServerWidget(title):
 	winId = int(stdout, 16)
 	new_window = QtGui.QWindow.fromWinId(winId)
 	new_window.setFlags(Qt.FramelessWindowHint);
-	serverWidget = QtWidgets.QWidget.createWindowContainer(new_window)
+	
+	game_widget = QtWidgets.QWidget.createWindowContainer(new_window)
+	serverWidget = QtWidgets.QGraphicsView()
+	serverWidget.setMinimumSize(QtCore.QSize(640, 480))
+	serverWidget.setMaximumSize(QtCore.QSize(640, 480))
+	
+	game_box = QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, serverWidget)
+	game_box.addWidget(game_widget)
+	
 	return serverWidget
 
 def startCommunication():

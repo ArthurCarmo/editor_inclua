@@ -95,15 +95,7 @@ class Main(QtWidgets.QMainWindow):
 #		self.xephyr.start("/home/arthur/Documents/editor_inclua/unityVideo/videoCreator.x86_64 teste_renderer 1 30 32 37 -screen-fullscreen 0 -screen-quality Fantastic -force-opengl")
 		
 		server_widget = GServer.getServerWidget(xephyr_title)
-		
-		game_widget = QtWidgets.QGraphicsView()
-		game_widget.setMinimumSize(QtCore.QSize(640, 480))
-		game_widget.setMaximumSize(QtCore.QSize(640, 480))
-		
-		game_box = QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, game_widget)
-		game_box.addWidget(server_widget)
-		
-		self.splitter.addWidget(game_widget)
+		self.splitter.addWidget(server_widget)
 		
 	
 	def __del__(self):
