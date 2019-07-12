@@ -1,84 +1,13 @@
-import sys
-import ahocorasick
 import re
+import sys
+import GServer
+import ahocorasick
 
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import Qt, QProcess, QUrl
 from PyQt5.QtGui import QDesktopServices
 from pyvirtualdisplay import Display
-
-commands = ["__save", "__stop", \
-			"__rec", "__last"]
-			
-class EHighlighter(QtGui.QSyntaxHighlighter):
-	def __init__(self, parent):
-		self.parent = parent
-		QtGui.QSyntaxHighlighter.__init__(self, parent)
-		self.known_words= ahocorasick.Automaton()
-		f = open("palavras")
-		for w in f.read().splitlines():
-			self.known_words.add_word(w, len(w))
-		self.known_words.make_automaton()
-		self.tags = ["<", ">", "[", "]"]
-		
-		self.incomplete_keywords = ["i", "im", "img", "\\i", "\\im", "\\img"]
-		self.keywords = ["img0", "img1", "img2", "img3", \
-				 "\\img0", "\\img1", "\\img2", "\\img3"]
-		
-	def highlightBlock(self, text):
-		cl_known	= QtGui.QColor(0x000000)
-		cl_unknown	= QtGui.QColor(0xFF0000)
-		cl_tag		= QtGui.QColor(0x000088)
-		cl_cmd	  = QtGui.QColor(0x2200FF)
-		cl_wkblue   = QtGui.QColor(0x000077)
-
-		known	   = QtGui.QTextCharFormat()
-		unknown	 = QtGui.QTextCharFormat()
-		tag		 = QtGui.QTextCharFormat()
-		cmd		 = QtGui.QTextCharFormat()
-		hitting	 = QtGui.QTextCharFormat()
-
-		known.setForeground(cl_known)
-		unknown.setForeground(cl_unknown)
-		tag.setForeground(cl_tag)
-		cmd.setForeground(cl_cmd)
-		hitting.setForeground(cl_wkblue)
-
-		cmd.setFontWeight(QtGui.QFont.Bold)
-
-		word  = QtCore.QRegularExpression("[^<>\\[\\]=\\(\\).,;\\s\\n]+")
-		tags  = QtCore.QRegularExpression("[<>\\[\\]]")
-		links = QtCore.QRegularExpression("=.+?>")
-
-		i = word.globalMatch(text)
-		while i.hasNext():
-			match = i.next()
-			end = match.capturedStart() + match.capturedLength()
-			w = text[match.capturedStart():end]
-			if w in self.known_words:
-				self.setFormat(match.capturedStart(), match.capturedLength(), known)
-			elif w in commands:
-				self.setFormat(match.capturedStart(), match.capturedLength(), cmd)
-			elif w in self.keywords:
-				self.setFormat(match.capturedStart(), match.capturedLength(), tag)
-			elif w in self.incomplete_keywords:
-				self.setFormat(match.capturedStart(), match.capturedLength(), hitting)
-			else:
-				self.setFormat(match.capturedStart(), match.capturedLength(), unknown)
-		
-		i = tags.globalMatch(text)
-		while i.hasNext():
-			match = i.next()
-			self.setFormat(match.capturedStart(), match.capturedLength(), tag)
-		
-		i = links.globalMatch(text)
-		while i.hasNext():
-			match = i.next()
-			self.setFormat(match.capturedStart()+1, match.capturedLength()-2, cmd)
-		#print(text)
-
-
-import socket
+from GSyntax import GSyntaxHighlighter
 
 class Main(QtWidgets.QMainWindow):
 	def __init__(self, parent = None):
@@ -86,19 +15,8 @@ class Main(QtWidgets.QMainWindow):
 		self.xephyr 		= QProcess(self)
 		self.avatar 		= QProcess(self)
 		self.window_manager	= QProcess(self)
-		
-		self.display = Display(visible=1, size=(640, 480))
-		
-		self.HOST = '0.0.0.0'
-		self.PORT = 5555
-		self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+		self.display = Display(visible=0, size=(640, 480))
 		self.initUI()
-	
-	def startCommunication(self):
-		try:
-			self.sock.connect((self.HOST, self.PORT))
-		except:
-			print("Servidor não encontrado")
 	
 	def initToolbar(self):
 		self.toolbar = self.addToolBar("Options")
@@ -116,9 +34,9 @@ class Main(QtWidgets.QMainWindow):
 	def initUI(self):
 		self.splitter	= QtWidgets.QSplitter(self)
 		self.text	= QtWidgets.QTextEdit()
-		highlighter	 = EHighlighter(self.text.document())
+		highlighter	= GSyntaxHighlighter(self.text.document())
 		self.btn_box	= QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, self.text)
-
+		
 		btn_open	= QtWidgets.QPushButton()
 		btn_text 	= QtWidgets.QPushButton()
 		btn_conn 	= QtWidgets.QPushButton()
@@ -131,7 +49,7 @@ class Main(QtWidgets.QMainWindow):
 		
 		btn_open.clicked.connect(self.runProcess)
 		btn_text.clicked.connect(self.getText)
-		btn_conn.clicked.connect(self.startCommunication)
+		btn_conn.clicked.connect(GServer.startCommunication)
 		btn_show_cursor.clicked.connect(self.print_cursor)
 		
 		self.btn_box.addWidget(btn_open)
@@ -143,6 +61,7 @@ class Main(QtWidgets.QMainWindow):
 		
 		self.setCentralWidget(self.splitter)
 		self.splitter.addWidget(self.text)
+		
 		self.initToolbar()
 		self.initFormatbar()
 		self.initMenubar()
@@ -159,59 +78,38 @@ class Main(QtWidgets.QMainWindow):
 	def getText(self):
 		cursor = self.text.textCursor()
 		if cursor.hasSelection():
-				text = cursor.selection().toPlainText()
-				text = self.cleanText(text)
-				blocks = self.getCommandBlocks(text)
-				#try:
-				i = 0
-				for msg in blocks:
-					i += 1
-					print(str(i) + ":", end="")
-					print(msg)
-					self.sock.send(msg.encode('utf-8'))
-					self.sock.recv(2048)
-				#except:
-				#	print("Não há conexação com o servidor")
+			text = cursor.selection().toPlainText()
+			GServer.send(text)
 		else:
-				text = self.text.toPlainText()
+			text = self.text.toPlainText()
 		print(text)
 	
-	def is_whole_word(self, text, start, end):
-		if start > 0 and (text[start-1].isalpha() or text[start-1] == "_") :
-			return False
-		if end+1 < len(text) and (text[end+1].isalpha() or text[end+1] == "_") :
-			return False
-		return True
-
 	def runProcess(self):
 		document = QUrl("./docs/fisica.pdf")
 		QDesktopServices.openUrl(document)
-		self.display.start()
-		self.avatar.start("./unityVideo/videoCreator.x86_64 teste_renderer 1 30 32 37 -screen-fullscreen 0 -screen-quality Fantastic -force-opengl")
-
-	def cleanText(self, text):
-		text = re.sub(r'[\n,\';]+', ' ', text)
-		return text
-	
-	def getCommandBlocks(self, text):
-		patterns = "("
-		i = 0
-		for cmd in commands:
-			if i == 0:
-				patterns += cmd
-				i = 1
-			else:
-				patterns += "|" + cmd
 		
-		patterns += ")"
-		blocks = re.split(patterns, text)
-		return list(filter(lambda a: a != "", blocks))
-
+		xephyr_title = "GXEPHYRSV"
+		self.xephyr.start("Xephyr -ac -br -screen 640x480 :100 -title " + xephyr_title)
+		
+#		xephyr_title= "VLibrasVideoMaker"
+#		self.xephyr.start("/home/arthur/Documents/editor_inclua/unityVideo/videoCreator.x86_64 teste_renderer 1 30 32 37 -screen-fullscreen 0 -screen-quality Fantastic -force-opengl")
+		
+		server_widget = GServer.getServerWidget(xephyr_title)
+		
+		game_widget = QtWidgets.QGraphicsView()
+		game_widget.setMinimumSize(QtCore.QSize(640, 480))
+		game_widget.setMaximumSize(QtCore.QSize(640, 480))
+		
+		game_box = QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, game_widget)
+		game_box.addWidget(server_widget)
+		
+		self.splitter.addWidget(game_widget)
+		
+	
 	def __del__(self):
 		print("Destrutor")
 		self.avatar.kill()
 		self.xephyr.kill()
-		self.display.stop()
 		exit()
 
 def main():
