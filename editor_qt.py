@@ -68,7 +68,7 @@ class Main(QtWidgets.QMainWindow):
 
 		self.statusbar = self.statusBar()
 
-		self.setGeometry(0, 0, 800, 600)
+		self.setGeometry(0, 0, 1024, 480)
 		self.setWindowTitle("Inclua")
 
 	def print_cursor(self):
@@ -95,6 +95,9 @@ class Main(QtWidgets.QMainWindow):
 #		self.xephyr.start("/home/arthur/Documents/editor_inclua/unityVideo/videoCreator.x86_64 teste_renderer 1 30 32 37 -screen-fullscreen 0 -screen-quality Fantastic -force-opengl")
 		
 		server_widget = GServer.getServerWidget(xephyr_title)
+		
+		server_widget.setMinimumSize(QtCore.QSize(640, 480))
+		server_widget.setMaximumSize(QtCore.QSize(640, 480))
 		self.splitter.addWidget(server_widget)
 		
 	

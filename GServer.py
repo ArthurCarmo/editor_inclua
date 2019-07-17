@@ -32,8 +32,6 @@ def getServerWidget(title):
 	
 	game_widget = QtWidgets.QWidget.createWindowContainer(new_window)
 	serverWidget = QtWidgets.QGraphicsView()
-	serverWidget.setMinimumSize(QtCore.QSize(640, 480))
-	serverWidget.setMaximumSize(QtCore.QSize(640, 480))
 	
 	game_box = QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, serverWidget)
 	game_box.addWidget(game_widget)
