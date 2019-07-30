@@ -34,8 +34,13 @@ class Main(QtWidgets.QMainWindow):
 	def initUI(self):
 		self.splitter	= QtWidgets.QSplitter(self)
 		self.text	= QtWidgets.QTextEdit()
-		highlighter	= GSyntaxHighlighter(self.text.document())
+		self.highlighter= GSyntaxHighlighter(self.text.document())
 		self.btn_box	= QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, self.text)
+		
+		# Setup do widget com o display virtual
+		self.server_widget = GServer.getServerWidget(self.xephyr, "GXEPHYRSV")
+		self.server_widget.setMinimumSize(QtCore.QSize(640, 480))
+		self.server_widget.setMaximumSize(QtCore.QSize(640, 480))
 		
 		btn_open	= QtWidgets.QPushButton()
 		btn_text 	= QtWidgets.QPushButton()
@@ -61,6 +66,7 @@ class Main(QtWidgets.QMainWindow):
 		
 		self.setCentralWidget(self.splitter)
 		self.splitter.addWidget(self.text)
+		self.splitter.addWidget(self.server_widget)
 		
 		self.initToolbar()
 		self.initFormatbar()
@@ -70,10 +76,13 @@ class Main(QtWidgets.QMainWindow):
 
 		self.setGeometry(0, 0, 1024, 480)
 		self.setWindowTitle("Inclua")
+		
+		self.toggleVisible(self.server_widget)
 
 	def print_cursor(self):
 		cursor = self.text.textCursor()
 		print("position:%2d\nachor:%5d\n" % (cursor.position(), cursor.anchor()))
+		self.toggleVisible(self.server_widget)
 
 	def getText(self):
 		cursor = self.text.textCursor()
@@ -83,23 +92,16 @@ class Main(QtWidgets.QMainWindow):
 		else:
 			text = self.text.toPlainText()
 		print(text)
-	
+		
 	def runProcess(self):
 		document = QUrl("./docs/fisica.pdf")
 		QDesktopServices.openUrl(document)
 		
-		xephyr_title = "GXEPHYRSV"
-		self.xephyr.start("Xephyr -ac -br -screen 640x480 :100 -title " + xephyr_title)
-		
-#		xephyr_title= "VLibrasVideoMaker"
-#		self.xephyr.start("/home/arthur/Documents/editor_inclua/unityVideo/videoCreator.x86_64 teste_renderer 1 30 32 37 -screen-fullscreen 0 -screen-quality Fantastic -force-opengl")
-		
-		server_widget = GServer.getServerWidget(xephyr_title)
-		
-		server_widget.setMinimumSize(QtCore.QSize(640, 480))
-		server_widget.setMaximumSize(QtCore.QSize(640, 480))
-		self.splitter.addWidget(server_widget)
-		
+	def toggleVisible(self, widget):
+		if widget.isVisible():
+			widget.hide()
+		else:
+			widget.show()
 	
 	def __del__(self):
 		print("Destrutor")

@@ -10,10 +10,9 @@ HOST = '0.0.0.0'
 PORT = 5555
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-def getServerWidget(title):
-#	if serverWidget is not None:
-#		return serverWidget
-	
+def getServerWidget(process, title):
+	process.start("Xephyr -ac -br -screen 640x480 :100 -title " + title)
+#	self.xephyr.start("/home/arthur/Documents/editor_inclua/unityVideo/videoCreator.x86_64 teste_renderer 1 30 32 37 -screen-fullscreen 0 -screen-quality Fantastic -force-opengl")
 	tries = 0
 	stdout = b''
 	while stdout == b'':
