@@ -10,11 +10,15 @@ HOST = '0.0.0.0'
 PORT = 5555
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+# Inicia o display virtual Xephyr em um widget
 def getServerWidget(process, title):
 	process.start("Xephyr -ac -br -screen 640x480 :100 -title " + title)
 #	self.xephyr.start("/home/arthur/Documents/editor_inclua/unityVideo/videoCreator.x86_64 teste_renderer 1 30 32 37 -screen-fullscreen 0 -screen-quality Fantastic -force-opengl")
 	tries = 0
 	stdout = b''
+	
+	# Espera inicialização do Xephyr e
+	# extrai o winId da janela do display virtual
 	while stdout == b'':
 		sleep(1)
 		if tries == 10:
@@ -27,11 +31,17 @@ def getServerWidget(process, title):
 	stdout = stdout.splitlines()[0]
 	winId = int(stdout, 16)
 	new_window = QtGui.QWindow.fromWinId(winId)
-	new_window.setFlags(Qt.FramelessWindowHint);
+	
+	# FramelessWindow permite "colar" a janela do servidor na janela do editor
+	new_window.setFlags(Qt.FramelessWindowHint)
 	
 	game_widget = QtWidgets.QWidget.createWindowContainer(new_window)
+	
+	# O widget que recebe o vídeo deve ser algum widget que tenha
+	# informações visuais, como o textEdit ou o graphicsView
 	serverWidget = QtWidgets.QGraphicsView()
 	
+	# De fato "cola" a janela do servidor dentro de um widget
 	game_box = QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, serverWidget)
 	game_box.addWidget(game_widget)
 	

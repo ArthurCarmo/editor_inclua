@@ -34,14 +34,17 @@ class Main(QtWidgets.QMainWindow):
 	def initUI(self):
 		self.splitter	= QtWidgets.QSplitter(self)
 		self.text	= QtWidgets.QTextEdit()
-		self.highlighter= GSyntaxHighlighter(self.text.document())
 		self.btn_box	= QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, self.text)
+		
+		# Única chamada necessária para o SyntaxHighlighter
+		highlighter	= GSyntaxHighlighter(self.text.document())
 		
 		# Setup do widget com o display virtual
 		self.server_widget = GServer.getServerWidget(self.xephyr, "GXEPHYRSV")
 		self.server_widget.setMinimumSize(QtCore.QSize(640, 480))
 		self.server_widget.setMaximumSize(QtCore.QSize(640, 480))
 		
+		# Setup dos botões
 		btn_open	= QtWidgets.QPushButton()
 		btn_text 	= QtWidgets.QPushButton()
 		btn_conn 	= QtWidgets.QPushButton()
@@ -53,7 +56,7 @@ class Main(QtWidgets.QMainWindow):
 		btn_show_cursor.setText("Posições do cursor")
 		
 		btn_open.clicked.connect(self.runProcess)
-		btn_text.clicked.connect(self.getText)
+		btn_text.clicked.connect(self.sendText)
 		btn_conn.clicked.connect(GServer.startCommunication)
 		btn_show_cursor.clicked.connect(self.print_cursor)
 		
@@ -62,12 +65,17 @@ class Main(QtWidgets.QMainWindow):
 		self.btn_box.addWidget(btn_conn)
 		self.btn_box.addWidget(btn_show_cursor)
 		
+		# Isso pode estar errado, coloca o layout
+		# do btn_box no widget do editor de texto
 		self.text.setLayout(self.btn_box)
 		
+		# Widget que aparece na janela é o splitter
+		# os outros são adicionados a ele
 		self.setCentralWidget(self.splitter)
 		self.splitter.addWidget(self.text)
 		self.splitter.addWidget(self.server_widget)
 		
+		# Init
 		self.initToolbar()
 		self.initFormatbar()
 		self.initMenubar()
@@ -77,14 +85,14 @@ class Main(QtWidgets.QMainWindow):
 		self.setGeometry(0, 0, 1024, 480)
 		self.setWindowTitle("Inclua")
 		
+		# Força o widget a atualizar
 		self.toggleVisible(self.server_widget)
 
 	def print_cursor(self):
 		cursor = self.text.textCursor()
 		print("position:%2d\nachor:%5d\n" % (cursor.position(), cursor.anchor()))
-		self.toggleVisible(self.server_widget)
 
-	def getText(self):
+	def sendText(self):
 		cursor = self.text.textCursor()
 		if cursor.hasSelection():
 			text = cursor.selection().toPlainText()
