@@ -3,9 +3,10 @@ import sys
 import GServer
 import ahocorasick
 
-from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5 import QtGui, QtCore, QtWidgets, QtWebEngineWidgets
 from PyQt5.QtCore import Qt, QProcess, QUrl
 from PyQt5.QtGui import QDesktopServices
+
 from pyvirtualdisplay import Display
 from GSyntax import GSyntaxHighlighter
 
@@ -35,10 +36,19 @@ class Main(QtWidgets.QMainWindow):
 		self.splitter	= QtWidgets.QSplitter(self)
 		self.text	= QtWidgets.QTextEdit()
 		self.btn_box	= QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, self.text)
+
+		# Visualizador de pdf pode ser uma página web dentro de um webView
+		self.pdf_web_page = QtWebEngineWidgets.QWebEngineView()
+		
+		self.pdf_web_page.page().settings().setAttribute(QtWebEngineWidgets.QWebEngineSettings.ScrollAnimatorEnabled, True)
+		self.pdf_web_page.page().settings().setAttribute(QtWebEngineWidgets.QWebEngineSettings.PluginsEnabled, True)
+		self.pdf_web_page.page().settings().setAttribute(QtWebEngineWidgets.QWebEngineSettings.ShowScrollBars, True)
+		
 		
 		# Widget para permitir redimensionamento vertical do editor
 		# de texto (sem ele o splitter fica no tamanho exato da janela Xephyr)
 		filler		= QtWidgets.QSplitter(Qt.Vertical)
+		
 		# Única chamada necessária para o SyntaxHighlighter
 		highlighter	= GSyntaxHighlighter(self.text.document())
 		
