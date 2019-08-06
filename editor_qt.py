@@ -35,6 +35,9 @@ class Main(QtWidgets.QMainWindow):
 		self.splitter	= QtWidgets.QSplitter(self)
 		self.text	= QtWidgets.QTextEdit()
 		self.btn_box	= QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, self.text)
+		
+		# Widget para permitir redimensionamento vertical do editor
+		# de texto (sem ele o splitter fica no tamanho exato da janela Xephyr)
 		filler		= QtWidgets.QSplitter(Qt.Vertical)
 		# Única chamada necessária para o SyntaxHighlighter
 		highlighter	= GSyntaxHighlighter(self.text.document())
