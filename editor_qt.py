@@ -35,7 +35,7 @@ class Main(QtWidgets.QMainWindow):
 		self.splitter	= QtWidgets.QSplitter(self)
 		self.text	= QtWidgets.QTextEdit()
 		self.btn_box	= QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, self.text)
-		
+		filler		= QtWidgets.QSplitter(Qt.Vertical)
 		# Única chamada necessária para o SyntaxHighlighter
 		highlighter	= GSyntaxHighlighter(self.text.document())
 		
@@ -69,11 +69,13 @@ class Main(QtWidgets.QMainWindow):
 		# do btn_box no widget do editor de texto
 		self.text.setLayout(self.btn_box)
 		
-		# Widget que aparece na janela é o splitter
+		# Widget que aparece na janela é um splitter
 		# os outros são adicionados a ele
 		self.setCentralWidget(self.splitter)
 		self.splitter.addWidget(self.text)
-		self.splitter.addWidget(self.server_widget)
+		self.splitter.addWidget(filler)
+		filler.addWidget(self.server_widget)
+		filler.addWidget(QtWidgets.QGraphicsView())
 		
 		# Init
 		self.initToolbar()

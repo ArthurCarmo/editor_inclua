@@ -1,10 +1,12 @@
 import socket
 import GSyntax
+import threading
 
+from os import environ
 from time import sleep
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, QProcess
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, run
 
 HOST = '0.0.0.0'
 PORT = 5555
@@ -47,7 +49,19 @@ def getServerWidget(process, title):
 	
 	return serverWidget
 
+
+# Avatar precisa de uma thread
+def startGameThread():
+	print("Iniciando o avatar")
+	run(["./unityVideo/videoCreator.x86_64", "teste_renderer", "1", "30", "32", "37", "-screen-fullscreen", "0", "-screen-quality", "Fantastic", "-force-opengl", "2>&1", "/dev/null", "&"], shell=False, env=dict(environ, DISPLAY=":100"))
+
+# Thread do avatar
+game = threading.Thread(target=startGameThread)
+
 def startCommunication():
+	if not game.is_alive():
+		game.start()
+		sleep(2)
 	try:
 		print("Connectando em %s %d" % (HOST, PORT))
 		sock.connect((HOST, PORT))
