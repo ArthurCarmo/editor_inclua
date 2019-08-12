@@ -42,8 +42,12 @@ class Main(QtWidgets.QMainWindow):
 		
 		self.pdf_web_page.page().settings().setAttribute(QtWebEngineWidgets.QWebEngineSettings.ScrollAnimatorEnabled, True)
 		self.pdf_web_page.page().settings().setAttribute(QtWebEngineWidgets.QWebEngineSettings.PluginsEnabled, True)
-		self.pdf_web_page.page().settings().setAttribute(QtWebEngineWidgets.QWebEngineSettings.ShowScrollBars, True)
+		self.pdf_web_page.page().settings().setAttribute(QtWebEngineWidgets.QWebEngineSettings.AllowRunningInsecureContent, True)
 		
+		fl = "file:///home/arthur/editor_inclua/fisica.pdf"
+		self.pdf_web_page.load(QtCore.QUrl.fromLocalFile("file:///home/arthur/editor_inclua/pdfjs/web/viewer.html?file=%s" % fl))
+		#self.pdf_web_page.load(QtCore.QUrl("http://www.localeplanet.com/support/browser.html"))
+		self.pdf_web_page.show()
 		
 		# Widget para permitir redimensionamento vertical do editor
 		# de texto (sem ele o splitter fica no tamanho exato da janela Xephyr)
@@ -56,6 +60,9 @@ class Main(QtWidgets.QMainWindow):
 		self.server_widget = GServer.getServerWidget(self.xephyr, "GXEPHYRSV")
 		self.server_widget.setMinimumSize(QtCore.QSize(640, 480))
 		self.server_widget.setMaximumSize(QtCore.QSize(640, 480))
+		
+		filler.addWidget(self.server_widget)
+		filler.addWidget(QtWidgets.QGraphicsView())
 		
 		# Setup dos botões
 		btn_open	= QtWidgets.QPushButton()
@@ -87,8 +94,7 @@ class Main(QtWidgets.QMainWindow):
 		self.setCentralWidget(self.splitter)
 		self.splitter.addWidget(self.text)
 		self.splitter.addWidget(filler)
-		filler.addWidget(self.server_widget)
-		filler.addWidget(QtWidgets.QGraphicsView())
+		#self.splitter.addWidget(self.pdf_web_page)
 		
 		# Init
 		self.initToolbar()

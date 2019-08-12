@@ -14,7 +14,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Inicia o display virtual Xephyr em um widget
 def getServerWidget(process, title):
-	process.start("Xephyr -ac -br -screen 640x480 :100 -title " + title)
+	process.start("Xephyr -ac -br -reset -terminate -screen 640x480 :100 -title " + title)
 	tries = 0
 	stdout = b''
 	

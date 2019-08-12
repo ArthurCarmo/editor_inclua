@@ -1,8 +1,12 @@
 Dependencias 
 pyqt5
-poppler-qt5
 pyahocorasick
 
+
+poppler-qt5
+
+QWebEngineView crashando se não estiver com a flag "--disable-gpu" na
+variável de ambiente QTWEBENGINE_CHROMIUM_FLAGS
 ---------
 
 Widget de PDF da internet não é muito bom, considerar fazer outro
