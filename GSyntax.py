@@ -34,6 +34,9 @@ def getCommandBlocks(text):
 	patterns += ")"
 	blocks = re.split(patterns, text)
 	return list(filter(lambda a: a != "", blocks))
+		
+def getDisambiguation(word):
+	return [word, word+"NOOOO"]
 
 class GSyntaxHighlighter(QtGui.QSyntaxHighlighter):
 	def __init__(self, parent):
