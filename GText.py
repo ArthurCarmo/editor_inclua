@@ -7,22 +7,16 @@ class GTextEdit(QtWidgets.QTextEdit):
 	def __init__(self, parent = None):
 		QtWidgets.QTextEdit.__init__(self, parent)
 	
-	def wordSubFunction(self, target):
+	def wordSubFunction(self, target, cursor):
 		print("Ola->%s" % (target.text()))
+		#cursor.removeSelectedText()
+		cursor.insertText(target.text())
+		self.setTextCursor(cursor)
 
 	def getClickedWord(self):
 		cursor = self.textCursor()
-		click  = cursor.position()
-		
-		cursor.movePosition(cursor.StartOfWord, cursor.MoveAnchor)
-		start  = cursor.position()
-		
-		cursor.movePosition(cursor.EndOfWord, cursor.KeepAnchor)
-		end    = cursor.position()
-		
-		if start <= click and click < end:
-			return cursor.selection().toPlainText()
-		return ""
+		cursor.select(cursor.WordUnderCursor)	
+		return cursor.selection().toPlainText(), cursor
 
 	def getDisambiguationList(self, word):
 		return [word, word+"YES", "NO"]
@@ -30,7 +24,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 	def mousePressEvent(self, event):
 		super().mousePressEvent(event)
 		menu = QtWidgets.QMenu()
-		word = self.getClickedWord()
+		word, cursor = self.getClickedWord()
 		if word != "":
 			menu.addAction(word)
 			menu.addSeparator()
@@ -38,7 +32,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 				print(signal)
 				menu.addAction(signal)
 			
-			menu.triggered[QtWidgets.QAction].connect(lambda w: self.wordSubFunction(w))
+			menu.triggered[QtWidgets.QAction].connect(lambda w: self.wordSubFunction(w, cursor))
 			menu.exec(event.globalPos())
 		
 
