@@ -1,7 +1,6 @@
 import re
 import sys
 import GServer
-import GSyntax
 import ahocorasick
 
 from PyQt5 import QtGui, QtCore, QtWidgets, QtWebEngineWidgets
@@ -9,6 +8,8 @@ from PyQt5.QtCore import Qt, QProcess, QUrl
 from PyQt5.QtGui import QDesktopServices
 
 from pyvirtualdisplay import Display
+
+from GText import GTextEdit
 from GSyntax import GSyntaxHighlighter
 
 class Main(QtWidgets.QMainWindow):
@@ -33,34 +34,9 @@ class Main(QtWidgets.QMainWindow):
 		edit = menubar.addMenu("Edit")
 		view = menubar.addMenu("View")
 
-
-	def wordSubFunction(old, target):
-		print("Ola")
-
-	def getWordDisambiguationMenu(self, word):
-		menu = QtWidgets.QMenu()
-		for signal in GSyntax.getDisambiguation(word):
-			action = QtCore.QAction(signal)
-			action.triggered.connect(lambda : self.wordSubFunction(word, signal))
-			menu.addAction(action)
-	
-	def checkAmbiguity(self, event):
-		cursor = self.text.textCursor()
-		click  = cursor.position()
-		
-		cursor.setPosition(cursor.StartOfWord)
-		start  = cursor.position()
-		
-		cursor.movePosition(cursor.EndOfWord, cursor.KeepAnchor)
-		end    = cursor.position()
-		
-		if start <= click and click <= end:
-			print("|"+cursor.selection().toPlainText()+"|")
-
 	def initUI(self):
 		self.splitter	= QtWidgets.QSplitter(self)
-		self.text	= QtWidgets.QTextEdit()
-		self.text.mouseDoubleClickEvent = self.checkAmbiguity
+		self.text	= GTextEdit()
 		self.btn_box	= QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, self.text)
 
 		# Visualizador de pdf pode ser uma página web dentro de um webView
