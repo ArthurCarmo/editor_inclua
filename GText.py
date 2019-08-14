@@ -24,21 +24,20 @@ class GTextEdit(QtWidgets.QTextEdit):
 		self.completer.setWidget(self)
 		self.completer.insertText.connect(self.insertCompletion)
 	
-	def oi(self):
-		print("oi!")
-	
 	def insertCompletion(self, completion):
 		tc = self.textCursor()
 		extra = (len(completion) - len(self.completer.completionPrefix()))
-		tc.movePosition(QtGui.QTextCursor.Left)
-		tc.movePosition(QtGui.QTextCursor.EndOfWord)
-		tc.insertText(completion[-extra:])
+		tc.movePosition(QtGui.QTextCursor.StartOfWord, tc.MoveAnchor)
+		tc.movePosition(QtGui.QTextCursor.EndOfWord, tc.KeepAnchor)
+		tc.insertText(completion)
 		self.setTextCursor(tc)
 		self.completer.popup().hide()
 		
 	def keyPressEvent(self, event):
 		tc = self.textCursor()
-		if event.key() == QtCore.Qt.Key_Tab and self.completer.popup().isVisible():
+		ek = event.key()
+
+		if (ek == QtCore.Qt.Key_Tab or ek == QtCore.Qt.Key_Return) and self.completer.popup().isVisible():
 			self.completer.insertText.emit(self.completer.getSelected())
 			self.completer.setCompletionMode(self.completer.PopupCompletion)
 			return
@@ -48,6 +47,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 		cr = self.cursorRect()
 
 		if len(tc.selectedText()) > 0:
+			print(tc.selectedText())
 			self.completer.setCompletionPrefix(tc.selectedText())
 			popup = self.completer.popup()
 			popup.setCurrentIndex(self.completer.completionModel().index(0,0))
@@ -57,8 +57,6 @@ class GTextEdit(QtWidgets.QTextEdit):
 			self.completer.popup().hide()
 			
 	def wordSubFunction(self, target, cursor):
-		print("Ola->%s" % (target.text()))
-		#cursor.removeSelectedText()
 		cursor.insertText(target.text())
 		self.setTextCursor(cursor)
 
