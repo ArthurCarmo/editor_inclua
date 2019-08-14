@@ -7,7 +7,7 @@ class GCompleter(QtWidgets.QCompleter):
 	insertText = QtCore.pyqtSignal(str)
 	def __init__(self, alphabet, parent = None):
 		QtWidgets.QCompleter.__init__(self, alphabet, parent)
-		self.setCompletionMode(self.completer.PopupCompletion)
+		self.setCompletionMode(self.PopupCompletion)
 		self.highlighted.connect(self.setHighlighted)
 
 	def setHighlighted(self, text):
