@@ -15,7 +15,21 @@ known_words.make_automaton()
 tags = ["<", ">", "[", "]"]
 incomplete_keywords = ["i", "im", "img", "\\i", "\\im", "\\img"]
 keywords = ["img0", "img1", "img2", "img3", "\\img0", "\\img1", "\\img2", "\\img3"]
-commands = ["__save", "__stop", "__rec", "__last"]		
+commands = ["__save", "__stop", "__rec", "__last"]
+
+def getAlphabet():
+	f = open("palavras")
+	l = []
+	for w in f:
+		l.append(w[0:-1])
+	
+	for w in keywords:
+		l.append(w)
+		
+	for w in commands:
+		l.append(w)
+		
+	return l
 
 def cleanText(text):
 	text = re.sub(r'[\n,\';]+', ' ', text)
@@ -44,14 +58,14 @@ class GSyntaxHighlighter(QtGui.QSyntaxHighlighter):
 		cl_known	= QtGui.QColor(0x000000)
 		cl_unknown	= QtGui.QColor(0xFF0000)
 		cl_tag		= QtGui.QColor(0x000088)
-		cl_cmd	  = QtGui.QColor(0x2200FF)
-		cl_wkblue   = QtGui.QColor(0x000077)
+		cl_cmd	  	= QtGui.QColor(0x2200FF)
+		cl_wkblue   	= QtGui.QColor(0x000077)
 
-		known	   = QtGui.QTextCharFormat()
-		unknown	 = QtGui.QTextCharFormat()
-		tag		 = QtGui.QTextCharFormat()
-		cmd		 = QtGui.QTextCharFormat()
-		hitting	 = QtGui.QTextCharFormat()
+		known		= QtGui.QTextCharFormat()
+		unknown	 	= QtGui.QTextCharFormat()
+		tag		= QtGui.QTextCharFormat()
+		cmd		= QtGui.QTextCharFormat()
+		hitting		= QtGui.QTextCharFormat()
 
 		known.setForeground(cl_known)
 		unknown.setForeground(cl_unknown)

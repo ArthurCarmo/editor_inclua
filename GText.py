@@ -3,10 +3,59 @@ import GSyntax
 from copy import deepcopy
 from PyQt5 import QtGui, QtCore, QtWidgets
 
+class GCompleter(QtWidgets.QCompleter):
+	insertText = QtCore.pyqtSignal(str)
+	def __init__(self, alphabet, parent = None):
+		QtWidgets.QCompleter.__init__(self, alphabet, parent)
+		self.setCompletionMode(self.completer.PopupCompletion)
+		self.highlighted.connect(self.setHighlighted)
+
+	def setHighlighted(self, text):
+	    self.lastSelected = text
+
+	def getSelected(self):
+	    return self.lastSelected
+
+
 class GTextEdit(QtWidgets.QTextEdit):
 	def __init__(self, parent = None):
 		QtWidgets.QTextEdit.__init__(self, parent)
+		self.completer = GCompleter(GSyntax.getAlphabet())
+		self.completer.setWidget(self)
+		self.completer.insertText.connect(self.insertCompletion)
 	
+	def oi(self):
+		print("oi!")
+	
+	def insertCompletion(self, completion):
+		tc = self.textCursor()
+		extra = (len(completion) - len(self.completer.completionPrefix()))
+		tc.movePosition(QtGui.QTextCursor.Left)
+		tc.movePosition(QtGui.QTextCursor.EndOfWord)
+		tc.insertText(completion[-extra:])
+		self.setTextCursor(tc)
+		self.completer.popup().hide()
+		
+	def keyPressEvent(self, event):
+		tc = self.textCursor()
+		if event.key() == QtCore.Qt.Key_Tab and self.completer.popup().isVisible():
+			self.completer.insertText.emit(self.completer.getSelected())
+			self.completer.setCompletionMode(self.completer.PopupCompletion)
+			return
+
+		QtWidgets.QTextEdit.keyPressEvent(self, event)
+		tc.select(QtGui.QTextCursor.WordUnderCursor)
+		cr = self.cursorRect()
+
+		if len(tc.selectedText()) > 0:
+			self.completer.setCompletionPrefix(tc.selectedText())
+			popup = self.completer.popup()
+			popup.setCurrentIndex(self.completer.completionModel().index(0,0))
+			cr.setWidth(self.completer.popup().sizeHintForColumn(0)+self.completer.popup().verticalScrollBar().sizeHint().width())
+			self.completer.complete(cr)
+		else:
+			self.completer.popup().hide()
+			
 	def wordSubFunction(self, target, cursor):
 		print("Ola->%s" % (target.text()))
 		#cursor.removeSelectedText()
