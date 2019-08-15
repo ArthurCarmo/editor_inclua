@@ -8,7 +8,12 @@ class GCompleter(QtWidgets.QCompleter):
 	def __init__(self, alphabet, parent = None):
 		QtWidgets.QCompleter.__init__(self, alphabet, parent)
 		self.setCompletionMode(self.PopupCompletion)
+		self.activated.connect(self.oi)
 		self.highlighted.connect(self.setHighlighted)
+
+	def oi(self):
+		self.insertText.emit(self.getSelected())
+		self.setCompletionMode(self.PopupCompletion)
 
 	def setHighlighted(self, text):
 	    self.lastSelected = text
@@ -74,7 +79,21 @@ class GTextEdit(QtWidgets.QTextEdit):
 	
 	def mousePressEvent(self, event):
 		super().mousePressEvent(event)
-		menu = QtWidgets.QMenu()
+		
+		tc = self.textCursor()
+		tc.select(QtGui.QTextCursor.WordUnderCursor)
+		cr = self.cursorRect()
+		
+		if len(tc.selectedText()) > 0:
+			print(tc.selectedText())
+			self.completer.setCompletionPrefix(tc.selectedText())
+			popup = self.completer.popup()
+			popup.setCurrentIndex(self.completer.completionModel().index(0,0))
+			cr.setWidth(self.completer.popup().sizeHintForColumn(0)+self.completer.popup().verticalScrollBar().sizeHint().width())
+			self.completer.complete(cr)
+			popup.show()
+			
+		"""menu = QtWidgets.QMenu()
 		word, cursor = self.getClickedWord()
 		if word != "":
 			menu.addAction(word)
@@ -85,5 +104,5 @@ class GTextEdit(QtWidgets.QTextEdit):
 			
 			menu.triggered[QtWidgets.QAction].connect(lambda w: self.wordSubFunction(w, cursor))
 			menu.exec(event.globalPos())
-		
+		"""
 
