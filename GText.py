@@ -46,6 +46,10 @@ class GTextEdit(QtWidgets.QTextEdit):
 		tc.select(QtGui.QTextCursor.WordUnderCursor)
 		cr = self.cursorRect()
 
+		if ek == QtCore.Qt.Key_Space:
+			self.completer.popup().hide()
+			return
+
 		if len(tc.selectedText()) > 0:
 			print(tc.selectedText())
 			self.completer.setCompletionPrefix(tc.selectedText())
