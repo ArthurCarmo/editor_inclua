@@ -40,16 +40,16 @@ class Main(QtWidgets.QMainWindow):
 		self.btn_box	= QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, self.text)
 
 		# Visualizador de pdf pode ser uma página web dentro de um webView
-		self.pdf_web_page = QtWebEngineWidgets.QWebEngineView()
+#		self.pdf_web_page = QtWebEngineWidgets.QWebEngineView()
+#		
+#		self.pdf_web_page.page().settings().setAttribute(QtWebEngineWidgets.QWebEngineSettings.ScrollAnimatorEnabled, True)
+#		self.pdf_web_page.page().settings().setAttribute(QtWebEngineWidgets.QWebEngineSettings.PluginsEnabled, True)
+#		self.pdf_web_page.page().settings().setAttribute(QtWebEngineWidgets.QWebEngineSettings.AllowRunningInsecureContent, True)
 		
-		self.pdf_web_page.page().settings().setAttribute(QtWebEngineWidgets.QWebEngineSettings.ScrollAnimatorEnabled, True)
-		self.pdf_web_page.page().settings().setAttribute(QtWebEngineWidgets.QWebEngineSettings.PluginsEnabled, True)
-		self.pdf_web_page.page().settings().setAttribute(QtWebEngineWidgets.QWebEngineSettings.AllowRunningInsecureContent, True)
-		
-		fl = "file:///home/arthur/editor_inclua/fisica.pdf"
-		self.pdf_web_page.load(QtCore.QUrl.fromLocalFile("file:///home/arthur/editor_inclua/pdfjs/web/viewer.html?file=%s" % fl))
+#		fl = "file:///home/arthur/editor_inclua/fisica.pdf"
+#		self.pdf_web_page.load(QtCore.QUrl.fromLocalFile("file:///home/arthur/editor_inclua/pdfjs/web/viewer.html?file=%s" % fl))
 		#self.pdf_web_page.load(QtCore.QUrl("http://www.localeplanet.com/support/browser.html"))
-		self.pdf_web_page.show()
+#		self.pdf_web_page.show()
 		
 		# Widget para permitir redimensionamento vertical do editor
 		# de texto (sem ele o splitter fica no tamanho exato da janela Xephyr)
