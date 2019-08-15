@@ -53,7 +53,7 @@ class Main(QtWidgets.QMainWindow):
 		
 		# Widget para permitir redimensionamento vertical do editor
 		# de texto (sem ele o splitter fica no tamanho exato da janela Xephyr)
-		filler		= QtWidgets.QSplitter(Qt.Vertical)
+		self.filler	= QtWidgets.QSplitter(Qt.Vertical)
 		
 		# Única chamada necessária para o SyntaxHighlighter
 		highlighter	= GSyntaxHighlighter(self.text.document())
@@ -63,29 +63,33 @@ class Main(QtWidgets.QMainWindow):
 		self.server_widget.setMinimumSize(QtCore.QSize(640, 480))
 		self.server_widget.setMaximumSize(QtCore.QSize(640, 480))
 		
-		filler.addWidget(self.server_widget)
-		filler.addWidget(QtWidgets.QGraphicsView())
+		self.filler.addWidget(self.server_widget)
+		self.filler.addWidget(QtWidgets.QGraphicsView())
 		
 		# Setup dos botões
 		btn_open	= QtWidgets.QPushButton()
 		btn_text 	= QtWidgets.QPushButton()
 		btn_conn 	= QtWidgets.QPushButton()
 		btn_show_cursor	= QtWidgets.QPushButton()
+		btn_hide	= QtWidgets.QPushButton()
 		
 		btn_open.setText("Abrir Visualizador")
 		btn_text.setText("Enviar Texto")
 		btn_conn.setText("Conectar")
 		btn_show_cursor.setText("Posições do cursor")
+		btn_hide.setText("Toggle avatar")
 		
 		btn_open.clicked.connect(self.runProcess)
 		btn_text.clicked.connect(self.sendText)
 		btn_conn.clicked.connect(GServer.startCommunication)
 		btn_show_cursor.clicked.connect(self.print_cursor)
+		btn_hide.clicked.connect(self.toggleAvatarVisible)
 		
 		self.btn_box.addWidget(btn_open)
 		self.btn_box.addWidget(btn_text)
 		self.btn_box.addWidget(btn_conn)
 		self.btn_box.addWidget(btn_show_cursor)
+		self.btn_box.addWidget(btn_hide)
 		
 		# Isso pode estar errado, coloca o layout
 		# do btn_box no widget do editor de texto
@@ -95,7 +99,7 @@ class Main(QtWidgets.QMainWindow):
 		# os outros são adicionados a ele
 		self.setCentralWidget(self.splitter)
 		self.splitter.addWidget(self.text)
-		self.splitter.addWidget(filler)
+		self.splitter.addWidget(self.filler)
 		#self.splitter.addWidget(self.pdf_web_page)
 		
 		# Init
@@ -105,7 +109,8 @@ class Main(QtWidgets.QMainWindow):
 
 		self.statusbar = self.statusBar()
 
-		self.setGeometry(0, 0, 1024, 480)
+		screen_rect = QtWidgets.QDesktopWidget().screenGeometry()
+		self.setGeometry(0, 0, screen_rect.width()*3/5, screen_rect.height())
 		self.setWindowTitle("Inclua")
 		
 		# Força o widget a atualizar
@@ -128,6 +133,10 @@ class Main(QtWidgets.QMainWindow):
 		document = QUrl("./docs/fisica.pdf")
 		QDesktopServices.openUrl(document)
 		
+	def toggleAvatarVisible(self):
+		self.toggleVisible(self.server_widget)
+		self.toggleVisible(self.filler)
+	
 	def toggleVisible(self, widget):
 		if widget.isVisible():
 			widget.hide()
