@@ -62,6 +62,8 @@ class GTextEdit(QtWidgets.QTextEdit):
 			popup.setCurrentIndex(self.completer.completionModel().index(0,0))
 			cr.setWidth(self.completer.popup().sizeHintForColumn(0)+self.completer.popup().verticalScrollBar().sizeHint().width())
 			self.completer.complete(cr)
+			if self.completer.completionCount() == 0:
+				self.completer.popup().hide()
 		else:
 			self.completer.popup().hide()
 			
