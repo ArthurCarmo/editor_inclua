@@ -3,8 +3,8 @@ import sys
 import GServer
 import ahocorasick
 
-from PyQt5 import QtGui, QtCore, QtWidgets, QtWebEngineWidgets
-from PyQt5.QtCore import Qt, QProcess, QUrl
+from PyQt5 import QtGui, QtCore, QtWidgets #, QtWebEngineWidgets
+from PyQt5.QtCore import Qt, QProcess #, QUrl
 from PyQt5.QtGui import QDesktopServices
 
 from pyvirtualdisplay import Display
