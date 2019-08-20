@@ -40,6 +40,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 		
 	def keyPressEvent(self, event):
 		tc = self.textCursor()
+		lc = self.textCursor()
 		ek = event.key()
 
 		if (ek == QtCore.Qt.Key_Tab or ek == QtCore.Qt.Key_Return) and self.completer.popup().isVisible():
@@ -48,12 +49,16 @@ class GTextEdit(QtWidgets.QTextEdit):
 			return
 
 		QtWidgets.QTextEdit.keyPressEvent(self, event)
-		tc.select(QtGui.QTextCursor.WordUnderCursor)
-		cr = self.cursorRect()
 
-		if ek == QtCore.Qt.Key_Space:
+		lc.movePosition(QtGui.QTextCursor.Left, lc.KeepAnchor)
+
+		# Só mostra sugestão em caso de adicionar uma letra ou retirar uma letra da palavra
+		if ek == QtCore.Qt.Key_Control or not lc.selectedText().isalpha():
 			self.completer.popup().hide()
 			return
+
+		tc.select(QtGui.QTextCursor.WordUnderCursor)
+		cr = self.cursorRect()
 
 		if len(tc.selectedText()) > 0:
 			print(tc.selectedText())
@@ -84,7 +89,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 		
 		tc = self.textCursor()
 
-		if tc.hasSelection():
+		if tc.atEnd() or tc.hasSelection():
 			return
 
 		tc.select(QtGui.QTextCursor.WordUnderCursor)

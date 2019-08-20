@@ -5,8 +5,8 @@ import sys
 import GServer
 import ahocorasick
 
-from PyQt5 import QtGui, QtCore, QtWidgets #, QtWebEngineWidgets
-from PyQt5.QtCore import Qt, QProcess #, QUrl
+from PyQt5 import QtGui, QtCore, QtWidgets, QtWebEngineWidgets
+from PyQt5.QtCore import Qt, QProcess, QUrl
 from PyQt5.QtGui import QDesktopServices
 
 from pyvirtualdisplay import Display
@@ -38,21 +38,16 @@ class Main(QtWidgets.QMainWindow):
 
 	def initUI(self):
 		self.splitter	= QtWidgets.QSplitter(self)
-		self.text	= GTextEdit()
+		self.text		= GTextEdit()
 		self.btn_box	= QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, self.text)
 
 		# Visualizador de pdf pode ser uma página web dentro de um webView
-#		self.pdf_web_page = QtWebEngineWidgets.QWebEngineView()
-#		
-#		self.pdf_web_page.page().settings().setAttribute(QtWebEngineWidgets.QWebEngineSettings.ScrollAnimatorEnabled, True)
-#		self.pdf_web_page.page().settings().setAttribute(QtWebEngineWidgets.QWebEngineSettings.PluginsEnabled, True)
-#		self.pdf_web_page.page().settings().setAttribute(QtWebEngineWidgets.QWebEngineSettings.AllowRunningInsecureContent, True)
-		
-#		fl = "file:///home/arthur/editor_inclua/fisica.pdf"
-#		self.pdf_web_page.load(QtCore.QUrl.fromLocalFile("file:///home/arthur/editor_inclua/pdfjs/web/viewer.html?file=%s" % fl))
-		#self.pdf_web_page.load(QtCore.QUrl("http://www.localeplanet.com/support/browser.html"))
-#		self.pdf_web_page.show()
-		
+		PDFJS = 'file:///home/arthur/editor_inclua/pdfjs/web/viewer.html'
+		PDF = 'file:///home/arthur/editor_inclua/fisica.pdf'
+		self.pdf_web_page = QtWebEngineWidgets.QWebEngineView()
+		self.pdf_web_page.load(QtCore.QUrl.fromUserInput('%s?file=%s' % (PDFJS, PDF)))
+		self.pdf_web_page.hide()
+
 		# Widget para permitir redimensionamento vertical do editor
 		# de texto (sem ele o splitter fica no tamanho exato da janela Xephyr)
 		self.filler	= QtWidgets.QSplitter(Qt.Vertical)
@@ -73,24 +68,32 @@ class Main(QtWidgets.QMainWindow):
 		btn_text 	= QtWidgets.QPushButton()
 		btn_conn 	= QtWidgets.QPushButton()
 		btn_show_cursor	= QtWidgets.QPushButton()
+		btn_import	= QtWidgets.QPushButton()
+		btn_save	= QtWidgets.QPushButton()
 		btn_hide	= QtWidgets.QPushButton()
 		
 		btn_open.setText("Abrir Visualizador")
 		btn_text.setText("Enviar Texto")
 		btn_conn.setText("Conectar")
 		btn_show_cursor.setText("Posições do cursor")
+		btn_import.setText("Importar tradução")
+		btn_save.setText("Salvar tradução")
 		btn_hide.setText("Toggle avatar")
 		
 		btn_open.clicked.connect(self.runProcess)
 		btn_text.clicked.connect(self.sendText)
 		btn_conn.clicked.connect(GServer.startCommunication)
 		btn_show_cursor.clicked.connect(self.print_cursor)
+		btn_import.clicked.connect(self.importTextFile)
+		btn_save.clicked.connect(self.saveTextFile)
 		btn_hide.clicked.connect(self.toggleAvatarVisible)
 		
 		self.btn_box.addWidget(btn_open)
 		self.btn_box.addWidget(btn_text)
 		self.btn_box.addWidget(btn_conn)
 		self.btn_box.addWidget(btn_show_cursor)
+		self.btn_box.addWidget(btn_import)
+		self.btn_box.addWidget(btn_save)
 		self.btn_box.addWidget(btn_hide)
 		
 		# Isso pode estar errado, coloca o layout
@@ -102,8 +105,7 @@ class Main(QtWidgets.QMainWindow):
 		self.setCentralWidget(self.splitter)
 		self.splitter.addWidget(self.text)
 		self.splitter.addWidget(self.filler)
-		#self.splitter.addWidget(self.pdf_web_page)
-		
+		self.splitter.addWidget(self.pdf_web_page)
 		# Init
 		self.initToolbar()
 		self.initFormatbar()
@@ -112,9 +114,10 @@ class Main(QtWidgets.QMainWindow):
 		self.statusbar = self.statusBar()
 
 		screen_rect = QtWidgets.QDesktopWidget().screenGeometry()
-		self.setGeometry(0, 0, screen_rect.width()*3/5, screen_rect.height())
+		self.setGeometry(screen_rect)
 		self.setWindowTitle("Inclua")
 		
+		self.pdf_web_page.show()
 		# Força o widget a atualizar
 		self.toggleVisible(self.server_widget)
 
@@ -145,6 +148,16 @@ class Main(QtWidgets.QMainWindow):
 		else:
 			widget.show()
 	
+	def importTextFile(self):
+		text_file = open("fogo.txt","r")
+		self.text.setText(text_file.read())
+		text_file.close()
+
+	def saveTextFile(self):
+		text_file = open("fogo.txt","w+")
+		text_file.write(self.text.toPlainText())
+		text_file.close()
+
 	def __del__(self):
 		print("Destrutor")
 		self.avatar.kill()
