@@ -37,10 +37,18 @@ class Main(QtWidgets.QMainWindow):
 		view = menubar.addMenu("View")
 
 	def initUI(self):
+		# Dimensões iniciais da janela
+		screen_rect = QtWidgets.QDesktopWidget().screenGeometry()
+		self.setGeometry(screen_rect)
+		self.setWindowTitle("Inclua")
+		
+		# Componentes principais do editor
 		self.splitter	= QtWidgets.QSplitter(self)
-		self.text		= GTextEdit()
+		self.text	= GTextEdit()
 		self.btn_box	= QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, self.text)
-
+		
+		self.text.setGeometry(0, 0, screen_rect.width() / 3, screen_rect.height())
+		
 		# Visualizador de pdf pode ser uma página web dentro de um webView
 		PDFJS = 'file:///home/arthur/editor_inclua/pdfjs/web/viewer.html'
 		PDF = 'file:///home/arthur/editor_inclua/fisica.pdf'
@@ -112,10 +120,6 @@ class Main(QtWidgets.QMainWindow):
 		self.initMenubar()
 
 		self.statusbar = self.statusBar()
-
-		screen_rect = QtWidgets.QDesktopWidget().screenGeometry()
-		self.setGeometry(screen_rect)
-		self.setWindowTitle("Inclua")
 		
 		self.pdf_web_page.show()
 		# Força o widget a atualizar
