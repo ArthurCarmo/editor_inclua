@@ -38,8 +38,8 @@ class Main(QtWidgets.QMainWindow):
 
 	def initUI(self):
 		# Dimensões iniciais da janela
-		screen_rect = QtWidgets.QDesktopWidget().screenGeometry()
-		self.setGeometry(screen_rect)
+		self.screen_rect = QtWidgets.QDesktopWidget().screenGeometry()
+		self.setGeometry(self.screen_rect)
 		self.setWindowTitle("Inclua")
 		
 		# Componentes principais do editor
@@ -47,15 +47,12 @@ class Main(QtWidgets.QMainWindow):
 		self.text	= GTextEdit()
 		self.btn_box	= QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, self.text)
 		
-		self.text.setGeometry(0, 0, screen_rect.width() / 3, screen_rect.height())
+		self.text.setGeometry(0, 0, self.screen_rect.width() / 3, self.screen_rect.height())
 		
 		# Visualizador de pdf pode ser uma página web dentro de um webView
-		PDFJS = 'file:///home/arthur/editor_inclua/pdfjs/web/viewer.html'
-		PDF = 'file:///home/arthur/editor_inclua/fisica.pdf'
 		self.pdf_web_page = QtWebEngineWidgets.QWebEngineView()
-		self.pdf_web_page.load(QtCore.QUrl.fromUserInput('%s?file=%s' % (PDFJS, PDF)))
 		self.pdf_web_page.hide()
-
+		
 		# Widget para permitir redimensionamento vertical do editor
 		# de texto (sem ele o splitter fica no tamanho exato da janela Xephyr)
 		self.filler	= QtWidgets.QSplitter(Qt.Vertical)
@@ -88,7 +85,7 @@ class Main(QtWidgets.QMainWindow):
 		btn_save.setText("Salvar tradução")
 		btn_hide.setText("Toggle avatar")
 		
-		btn_open.clicked.connect(self.runProcess)
+		btn_open.clicked.connect(self.openDocument)
 		btn_text.clicked.connect(self.sendText)
 		btn_conn.clicked.connect(GServer.startCommunication)
 		btn_show_cursor.clicked.connect(self.print_cursor)
@@ -114,6 +111,7 @@ class Main(QtWidgets.QMainWindow):
 		self.splitter.addWidget(self.text)
 		self.splitter.addWidget(self.filler)
 		self.splitter.addWidget(self.pdf_web_page)
+		
 		# Init
 		self.initToolbar()
 		self.initFormatbar()
@@ -121,7 +119,6 @@ class Main(QtWidgets.QMainWindow):
 
 		self.statusbar = self.statusBar()
 		
-		self.pdf_web_page.show()
 		# Força o widget a atualizar
 		self.toggleVisible(self.server_widget)
 
@@ -138,9 +135,16 @@ class Main(QtWidgets.QMainWindow):
 			text = self.text.toPlainText()
 		print(text)
 		
-	def runProcess(self):
-		document = QUrl("./docs/fisica.pdf")
-		QDesktopServices.openUrl(document)
+	def openDocument(self):
+		PDFJS = 'file:///home/arthur/editor_inclua/pdfjs/web/viewer.html'
+		filename = QtWidgets.QFileDialog().getOpenFileName()#'file:///home/arthur/editor_inclua/fisica.pdf'
+		PDF = "file://" + filename[0]
+		self.pdf_web_page.load(QtCore.QUrl.fromUserInput('%s?file=%s' % (PDFJS, PDF)))
+		self.pdf_web_page.hide()
+		self.pdf_web_page.show()
+		self.pdf_web_page.setGeometry(0, 0, self.screen_rect.width() / 3, self.screen_rect.height())
+#		document = QUrl("./docs/fisica.pdf")
+#		QDesktopServices.openUrl(document)
 		
 	def toggleAvatarVisible(self):
 		self.toggleVisible(self.server_widget)
