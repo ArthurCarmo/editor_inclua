@@ -79,10 +79,14 @@ class GTextEdit(QtWidgets.QTextEdit):
 	def getDisambiguationList(self, word):
 		return [word, word+"YES", "NO"]
 	
-	def mousePressEvent(self, event):
-		super().mousePressEvent(event)
+	def mouseReleaseEvent(self, event):
+		super().mouseReleaseEvent(event)
 		
 		tc = self.textCursor()
+
+		if tc.hasSelection():
+			return
+
 		tc.select(QtGui.QTextCursor.WordUnderCursor)
 		cr = self.cursorRect()
 		
@@ -94,6 +98,9 @@ class GTextEdit(QtWidgets.QTextEdit):
 			cr.setWidth(self.completer.popup().sizeHintForColumn(0)+self.completer.popup().verticalScrollBar().sizeHint().width())
 			self.completer.complete(cr)
 			popup.show()
+			if self.completer.completionCount() == 0:
+				self.completer.popup().hide()
+			
 			
 		"""menu = QtWidgets.QMenu()
 		word, cursor = self.getClickedWord()
