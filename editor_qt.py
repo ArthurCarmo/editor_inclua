@@ -9,7 +9,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets, QtWebEngineWidgets
 from PyQt5.QtCore import Qt, QProcess, QUrl
 from PyQt5.QtGui import QDesktopServices
 
-from pyvirtualdisplay import Display
+#from pyvirtualdisplay import Display
 
 from GText import GTextEdit
 from GSyntax import GSyntaxHighlighter
@@ -20,7 +20,7 @@ class Main(QtWidgets.QMainWindow):
 		self.xephyr 		= QProcess(self)
 		self.avatar 		= QProcess(self)
 		self.window_manager	= QProcess(self)
-		self.display = Display(visible=0, size=(640, 480))
+		#self.display = Display(visible=0, size=(640, 480))
 		self.initUI()
 	
 	def initToolbar(self):
@@ -47,7 +47,7 @@ class Main(QtWidgets.QMainWindow):
 		self.text	= GTextEdit()
 		self.btn_box	= QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, self.text)
 		
-		self.text.setGeometry(0, 0, self.screen_rect.width() / 3, self.screen_rect.height())
+		#self.text.setGeometry(0, 0, self.screen_rect.width() / 3, self.screen_rect.height())
 		
 		# Visualizador de pdf pode ser uma página web dentro de um webView
 		self.pdf_web_page = QtWebEngineWidgets.QWebEngineView()
