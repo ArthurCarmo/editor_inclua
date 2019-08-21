@@ -5,14 +5,16 @@ import sys
 import GServer
 import ahocorasick
 
-from PyQt5 import QtGui, QtCore, QtWidgets, QtWebEngineWidgets
-from PyQt5.QtCore import Qt, QProcess, QUrl
+from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5.QtCore import Qt, QProcess
 from PyQt5.QtGui import QDesktopServices
 
 #from pyvirtualdisplay import Display
 
 from GText import GTextEdit
 from GSyntax import GSyntaxHighlighter
+from GFile import GDocument
+#from pdfToText import PDFToTxt
 
 class Main(QtWidgets.QMainWindow):
 	def __init__(self, parent = None):
@@ -50,8 +52,8 @@ class Main(QtWidgets.QMainWindow):
 		#self.text.setGeometry(0, 0, self.screen_rect.width() / 3, self.screen_rect.height())
 		
 		# Visualizador de pdf pode ser uma página web dentro de um webView
-		self.pdf_web_page = QtWebEngineWidgets.QWebEngineView()
-		self.pdf_web_page.hide()
+		self.pdf_widget = GDocument()
+		self.pdf_widget.hide()
 		
 		# Widget para permitir redimensionamento vertical do editor
 		# de texto (sem ele o splitter fica no tamanho exato da janela Xephyr)
@@ -110,7 +112,7 @@ class Main(QtWidgets.QMainWindow):
 		self.setCentralWidget(self.splitter)
 		self.splitter.addWidget(self.text)
 		self.splitter.addWidget(self.filler)
-		self.splitter.addWidget(self.pdf_web_page)
+		self.splitter.addWidget(self.pdf_widget)
 		
 		# Init
 		self.initToolbar()
@@ -136,15 +138,17 @@ class Main(QtWidgets.QMainWindow):
 		print(text)
 		
 	def openDocument(self):
-		PDFJS = 'file:///home/arthur/editor_inclua/pdfjs/web/viewer.html'
-		filename = QtWidgets.QFileDialog().getOpenFileName()#'file:///home/arthur/editor_inclua/fisica.pdf'
-		PDF = "file://" + filename[0]
-		self.pdf_web_page.load(QtCore.QUrl.fromUserInput('%s?file=%s' % (PDFJS, PDF)))
-		self.pdf_web_page.hide()
-		self.pdf_web_page.show()
-		self.pdf_web_page.setGeometry(0, 0, self.screen_rect.width() / 3, self.screen_rect.height())
-#		document = QUrl("./docs/fisica.pdf")
-#		QDesktopServices.openUrl(document)
+		filename = QtWidgets.QFileDialog().getOpenFileName()
+		self.pdf_widget.load(filename[0])
+		
+		print(self.pdf_widget.getRawText())
+		self.text.setText(self.pdf_widget.getFormattedText())
+		highlighter = GSyntaxHighlighter(self.text.document())
+		
+		# Força o widget a atualizar
+		self.pdf_widget.hide()
+		self.pdf_widget.show()
+		self.pdf_widget.setGeometry(0, 0, self.screen_rect.width() / 3, self.screen_rect.height())
 		
 	def toggleAvatarVisible(self):
 		self.toggleVisible(self.server_widget)
