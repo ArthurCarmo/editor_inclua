@@ -107,16 +107,11 @@ class GTranslation():
 	start	= 0
 	end	= -1
 
-	def __init__(self):
-		self.text = None
-		self.paragraphs = []
-		self.parseIndex = None
-	
-#	def __init__(self, text):
-#		self.text = text
-#		self.text = self.translate(self.text)
-#		self.paragraphs = self.text.split("#_#")
-#		self.parseIndex = 0
+	def __init__(self, text):
+		self.text = text
+		self.text = self.translate(self.text)
+		self.paragraphs = self.text.split("#_#")
+		self.parseIndex = 0
 	
 	def __getitem__(self, key):
 		return self.paragraphs[key]
@@ -124,6 +119,12 @@ class GTranslation():
 	def __len__(self):
 		return len(self.paragraphs)
 	
+	def load(self, document):
+		return 0
+		
+	def save(self):
+		return 0
+		
 	def translate(self, text):
 		return GTranslator().translate(text)
 	

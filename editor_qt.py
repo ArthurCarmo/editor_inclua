@@ -49,7 +49,8 @@ class Main(QtWidgets.QMainWindow):
 		self.text	= GTextEdit()
 		self.btn_box	= QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, self.text)
 		
-		#self.text.setGeometry(0, 0, self.screen_rect.width() / 3, self.screen_rect.height())
+		# Inicia o SyntaxHighlighter
+		self.highlighter = GSyntaxHighlighter(self.text.document())
 		
 		# Visualizador de pdf pode ser uma página web dentro de um webView
 		self.pdf_widget = GDocument()
@@ -58,9 +59,6 @@ class Main(QtWidgets.QMainWindow):
 		# Widget para permitir redimensionamento vertical do editor
 		# de texto (sem ele o splitter fica no tamanho exato da janela Xephyr)
 		self.filler	= QtWidgets.QSplitter(Qt.Vertical)
-		
-		# Única chamada necessária para o SyntaxHighlighter
-		highlighter	= GSyntaxHighlighter(self.text.document())
 		
 		# Setup do widget com o display virtual
 		self.server_widget = GServer.getServerWidget(self.xephyr, "GXEPHYRSV")
@@ -142,8 +140,8 @@ class Main(QtWidgets.QMainWindow):
 		self.pdf_widget.load(filename[0])
 		
 		print(self.pdf_widget.getRawText())
-		self.text.setText(GTranslation().translate(self.pdf_widget.getFormattedText()))
-		highlighter = GSyntaxHighlighter(self.text.document())
+		print(self.pdf_widget.getFormattedText())
+		self.text.setText(GTranslation(self.pdf_widget.getFormattedText()).getRawText())
 		
 		# Força o widget a atualizar
 		self.pdf_widget.hide()
