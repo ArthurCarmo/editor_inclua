@@ -13,6 +13,13 @@ import unidecode
 from PyQt5 import QtCore, QtWebEngineWidgets
 from PyQt5.QtCore import QUrl
 
+from GTranslatorInterface import GTranslator
+
+############################################
+# Classe para converter documentos para PDF
+# extrair os textos e providenciar o widget
+# que vai exibir o PDF
+############################################
 class GDocument(QtWebEngineWidgets.QWebEngineView):
 	def __init__(self, parent = None):
 		QtWebEngineWidgets.QWebEngineView.__init__(self, parent)
@@ -91,3 +98,50 @@ class GDocument(QtWebEngineWidgets.QWebEngineView):
 		self.formattedText = refino
 		return self.formattedText
 
+#############################################
+# Classe para lidar com os arquivos de glosa
+# E gerenciar o texto traduzido
+#############################################
+class GTranslation():
+	
+	start	= 0
+	end	= -1
+
+	def __init__(self):
+		self.text = None
+		self.paragraphs = []
+		self.parseIndex = None
+	
+#	def __init__(self, text):
+#		self.text = text
+#		self.text = self.translate(self.text)
+#		self.paragraphs = self.text.split("#_#")
+#		self.parseIndex = 0
+	
+	def __getitem__(self, key):
+		return self.paragraphs[key]
+	
+	def __len__(self):
+		return len(self.paragraphs)
+	
+	def translate(self, text):
+		return GTranslator().translate(text)
+	
+	def getRawText(self):
+		return self.text
+	
+	def next(self):
+		if self.parseIndex is None or self.parseIndex >= len(self.paragraphs)-1:
+			return ""
+		self.parseIndex += 1
+		return self.paragraphs[self.parseIndex-1]
+		
+	def prev(self):
+		if self.parseIndex is None or self.parseIndex <= 0:
+			return ""
+		self.parseIndex -= 1
+		return self.paragraphs[self.parseIndex]
+		
+	def resetIndex(self, index):
+		self.parseIndex = 0
+		

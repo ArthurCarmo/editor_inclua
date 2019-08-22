@@ -13,7 +13,7 @@ from PyQt5.QtGui import QDesktopServices
 
 from GText import GTextEdit
 from GSyntax import GSyntaxHighlighter
-from GFile import GDocument
+from GFile import GDocument, GTranslation
 #from pdfToText import PDFToTxt
 
 class Main(QtWidgets.QMainWindow):
@@ -142,7 +142,7 @@ class Main(QtWidgets.QMainWindow):
 		self.pdf_widget.load(filename[0])
 		
 		print(self.pdf_widget.getRawText())
-		self.text.setText(self.pdf_widget.getFormattedText())
+		self.text.setText(GTranslation().translate(self.pdf_widget.getFormattedText()))
 		highlighter = GSyntaxHighlighter(self.text.document())
 		
 		# Força o widget a atualizar

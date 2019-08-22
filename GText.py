@@ -53,6 +53,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 		tc = self.textCursor()
 		ek = event.key()
 		self.pressed[ek] = True
+		
 		if (ek == QtCore.Qt.Key_Tab or ek == QtCore.Qt.Key_Return) and self.completer.popup().isVisible():
 			self.completer.insertText.emit(self.completer.getSelected())
 			self.completer.setCompletionMode(self.completer.PopupCompletion)
