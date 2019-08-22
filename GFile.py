@@ -111,9 +111,14 @@ class GDocument(QtWebEngineWidgets.QWebEngineView):
 # E gerenciar o texto traduzido
 #############################################
 class GTranslation():
-	def __init__(self, text):
+	def __init__(self, text = None, raw = True):
 		self.text = text
-		self.text = self.translate(self.text)
+		if self.text is None:
+			self.paragraphs = None
+			self.parseIndex = 0
+			return
+		if raw:
+			self.text = self.translate(self.text)
 		self.paragraphs = self.text.split(GTranslator.endl)
 		self.parseIndex = 0
 	
@@ -127,15 +132,23 @@ class GTranslation():
 		with open(document, "r") as doc:
 			self.parseIndex = int(doc.readline())
 			self.text = doc.read()
+			print(self.text)
 			self.paragraphs = self.text.split(GTranslator.endl)
 		
 	def save(self, document):
 		with open(document, "w") as doc:
-			doc.write(self.parseIndex)
+			doc.write(str(self.parseIndex) + "\n")
 			for line in self.paragraphs:
 				doc.write(line)
 				doc.write(GTranslator.endl)
-		
+	
+	def setText(self, text, raw = True, endl = GTranslator.endl):
+		if raw:
+			text = self.translate(text)
+		self.text = text
+		self.paragraphs = self.text.split(endl)
+		self.parseIndex = len(self.paragraphs)
+	
 	def translate(self, text):
 		return GTranslator().translate(text)
 	
@@ -155,7 +168,7 @@ class GTranslation():
 		return self.paragraphs[self.parseIndex]
 	
 	def paragraphsToDisplay(self):
-		return self.paragraphs[0:self.index]
+		return self.paragraphs[0:self.parseIndex]
 	
 	def resetIndex(self, index):
 		self.parseIndex = 0

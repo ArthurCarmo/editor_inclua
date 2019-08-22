@@ -51,7 +51,7 @@ class Main(QtWidgets.QMainWindow):
 		
 		# Inicia o SyntaxHighlighter
 		self.highlighter = GSyntaxHighlighter(self.text.document())
-		self.translation = None
+		self.translation = GTranslation()
 		
 		# Visualizador de pdf pode ser uma página web dentro de um webView
 		self.pdf_widget = GDocument()
@@ -163,14 +163,19 @@ class Main(QtWidgets.QMainWindow):
 			widget.show()
 	
 	def importTextFile(self):
-		text_file = open("fogo.txt","r")
-		self.text.setText(text_file.read())
-		text_file.close()
+		filename = QtWidgets.QFileDialog().getOpenFileName()
+		if filename[0] == "":
+			return
+		self.text.clear()
+		self.translation.load(filename[0])
+		for line in self.translation.paragraphsToDisplay():
+			print(line)
+			self.text.textCursor().insertText(line + "\n")
 
 	def saveTextFile(self):
-		text_file = open("fogo.txt","w+")
-		text_file.write(self.text.toPlainText())
-		text_file.close()
+		filename = QtWidgets.QFileDialog().getSaveFileName()
+		self.translation.setText(self.text.toPlainText(), endl = "\n", raw = False)
+		self.translation.save(filename[0] + ".egl")
 
 	def addNextParagraph(self):
 		if self.translation is None:
