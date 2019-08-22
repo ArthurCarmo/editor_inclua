@@ -28,6 +28,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 		self.completer = GCompleter(GSyntax.getAlphabet())
 		self.completer.setWidget(self)
 		self.completer.insertText.connect(self.insertCompletion)
+		self.pressed = {}
 	
 	def insertCompletion(self, completion):
 		tc = self.textCursor()
@@ -37,12 +38,21 @@ class GTextEdit(QtWidgets.QTextEdit):
 		tc.insertText(completion)
 		self.setTextCursor(tc)
 		self.completer.popup().hide()
-		
+	
+	def isPressed(self, key):
+		if key in self.pressed:
+			return self.pressed[key]
+		return False
+	
+	def keyReleaseEvent(self, event):
+		ek = event.key()
+		self.pressed[ek] = False
+		QtWidgets.QTextEdit.keyReleaseEvent(self, event)
+	
 	def keyPressEvent(self, event):
 		tc = self.textCursor()
-		lc = self.textCursor()
 		ek = event.key()
-
+		self.pressed[ek] = True
 		if (ek == QtCore.Qt.Key_Tab or ek == QtCore.Qt.Key_Return) and self.completer.popup().isVisible():
 			self.completer.insertText.emit(self.completer.getSelected())
 			self.completer.setCompletionMode(self.completer.PopupCompletion)
@@ -50,10 +60,9 @@ class GTextEdit(QtWidgets.QTextEdit):
 
 		QtWidgets.QTextEdit.keyPressEvent(self, event)
 
-		lc.movePosition(QtGui.QTextCursor.Left, lc.KeepAnchor)
-
-		# Só mostra sugestão em caso de adicionar uma letra ou retirar uma letra da palavra
-		if ek == QtCore.Qt.Key_Control or not lc.selectedText().isalpha():
+		print("->" + event.text() + "<-")
+		# Só mostra sugestão em caso de adicionar uma letra Ctrl+Espaço
+		if not event.text().isalpha() and not (ek == QtCore.Qt.Key_Space and self.isPressed(QtCore.Qt.Key_Control)):
 			self.completer.popup().hide()
 			return
 

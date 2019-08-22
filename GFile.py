@@ -53,7 +53,7 @@ class GDocument(QtWebEngineWidgets.QWebEngineView):
 	def convertToPDF(self):
 		if self.file is None:
 			raise Exception("Nenhum arquivo especificado")
-		name = self.file.rsplit(".", 1)
+		name = self.file.rsplit(".", 1)[0]
 		cmd = "unoconv -f pdf " + self.file
 		resp = subprocess.call(cmd, shell=True)
 		self.file = name + ".pdf"

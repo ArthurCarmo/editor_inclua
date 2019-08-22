@@ -1,12 +1,14 @@
 Dependencias 
+----------------------
 pyqt5
+pyqtwebengine
 pyahocorasick
 
+unoconv
+pdfminer
+unidecode
+-----------------------
 
-poppler-qt5
 
 QWebEngineView crashando se não estiver com a flag "--disable-gpu" na
 variável de ambiente QTWEBENGINE_CHROMIUM_FLAGS
----------
-
-Widget de PDF da internet não é muito bom, considerar fazer outro
