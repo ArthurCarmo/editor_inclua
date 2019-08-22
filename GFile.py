@@ -27,7 +27,35 @@ class GDocument(QtWebEngineWidgets.QWebEngineView):
 		self.rawText = None
 		self.formattedText = None
 		self.__pdfjs = 'file:///home/arthur/editor_inclua/pdfjs/web/viewer.html'
-		
+	
+	def isPDF(self):
+		if self.file is None:
+			return False
+		return self.file.endswith(".pdf")
+
+	def convertToPDF(self):
+		if self.file is None:
+			raise Exception("Nenhum arquivo especificado")
+		name = self.file.rsplit(".", 1)[0]
+		cmd = "unoconv -f pdf " + self.file
+		resp = subprocess.call(cmd, shell=True)
+		self.file = name + ".pdf"
+
+	def load(self, f, url = "file://"):
+		self.file = f
+		self.rawText = None
+		self.formattedText = None
+		if not self.isPDF():
+			self.convertToPDF()
+		super().load(QtCore.QUrl.fromUserInput(self.__pdfjs + "?file="+url+self.file))
+
+	#####################################
+	##
+	## Códigos do arquivo newConvert.py
+	##
+	#####################################
+	
+	# Extrair o texto do PDF
 	def getRawText(self):
 		if self.rawText is not None:
 			return self.rawText
@@ -52,27 +80,7 @@ class GDocument(QtWebEngineWidgets.QWebEngineView):
 		self.rawText = s;
 		return self.rawText
 
-	def isPDF(self):
-		if self.file is None:
-			return False
-		return self.file.endswith(".pdf")
-
-	def convertToPDF(self):
-		if self.file is None:
-			raise Exception("Nenhum arquivo especificado")
-		name = self.file.rsplit(".", 1)[0]
-		cmd = "unoconv -f pdf " + self.file
-		resp = subprocess.call(cmd, shell=True)
-		self.file = name + ".pdf"
-
-	def load(self, f, url = "file://"):
-		self.file = f
-		self.rawText = None
-		self.formattedText = None
-		if not self.isPDF():
-			self.convertToPDF()
-		super().load(QtCore.QUrl.fromUserInput(self.__pdfjs + "?file="+url+self.file))
-
+	# Refino
 	def getFormattedText(self):
 		if self.formattedText is not None:
 			return self.formattedText
@@ -103,14 +111,10 @@ class GDocument(QtWebEngineWidgets.QWebEngineView):
 # E gerenciar o texto traduzido
 #############################################
 class GTranslation():
-	
-	start	= 0
-	end	= -1
-
 	def __init__(self, text):
 		self.text = text
 		self.text = self.translate(self.text)
-		self.paragraphs = self.text.split("#_#")
+		self.paragraphs = self.text.split(GTranslator.endl)
 		self.parseIndex = 0
 	
 	def __getitem__(self, key):
@@ -120,10 +124,17 @@ class GTranslation():
 		return len(self.paragraphs)
 	
 	def load(self, document):
-		return 0
+		with open(document, "r") as doc:
+			self.parseIndex = int(doc.readline())
+			self.text = doc.read()
+			self.paragraphs = self.text.split(GTranslator.endl)
 		
-	def save(self):
-		return 0
+	def save(self, document):
+		with open(document, "w") as doc:
+			doc.write(self.parseIndex)
+			for line in self.paragraphs:
+				doc.write(line)
+				doc.write(GTranslator.endl)
 		
 	def translate(self, text):
 		return GTranslator().translate(text)
@@ -142,7 +153,10 @@ class GTranslation():
 			return ""
 		self.parseIndex -= 1
 		return self.paragraphs[self.parseIndex]
-		
+	
+	def paragraphsToDisplay(self):
+		return self.paragraphs[0:self.index]
+	
 	def resetIndex(self, index):
 		self.parseIndex = 0
 		

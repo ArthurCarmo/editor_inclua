@@ -2,6 +2,8 @@ import vlibras_translate
 
 class GTranslator():
 
+	endl = "#_#"
+	
 	def __init__(self):
 		try:
 			self.tradutor = vlibras_translate.translation.Translation()
@@ -12,5 +14,5 @@ class GTranslator():
 		translation = ""
 		for line in text.splitlines():
 			translation += self.tradutor.rule_translation(line)
-			translation += '#_#'
+			translation += GTranslator.endl
 		return translation

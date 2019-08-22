@@ -51,6 +51,7 @@ class Main(QtWidgets.QMainWindow):
 		
 		# Inicia o SyntaxHighlighter
 		self.highlighter = GSyntaxHighlighter(self.text.document())
+		self.translation = None
 		
 		# Visualizador de pdf pode ser uma página web dentro de um webView
 		self.pdf_widget = GDocument()
@@ -76,6 +77,7 @@ class Main(QtWidgets.QMainWindow):
 		btn_import	= QtWidgets.QPushButton()
 		btn_save	= QtWidgets.QPushButton()
 		btn_hide	= QtWidgets.QPushButton()
+		btn_nxt		= QtWidgets.QPushButton()
 		
 		btn_open.setText("Abrir Visualizador")
 		btn_text.setText("Enviar Texto")
@@ -84,6 +86,7 @@ class Main(QtWidgets.QMainWindow):
 		btn_import.setText("Importar tradução")
 		btn_save.setText("Salvar tradução")
 		btn_hide.setText("Toggle avatar")
+		btn_nxt.setText("Próxima linha")
 		
 		btn_open.clicked.connect(self.openDocument)
 		btn_text.clicked.connect(self.sendText)
@@ -92,6 +95,7 @@ class Main(QtWidgets.QMainWindow):
 		btn_import.clicked.connect(self.importTextFile)
 		btn_save.clicked.connect(self.saveTextFile)
 		btn_hide.clicked.connect(self.toggleAvatarVisible)
+		btn_nxt.clicked.connect(self.addNextParagraph)
 		
 		self.btn_box.addWidget(btn_open)
 		self.btn_box.addWidget(btn_text)
@@ -100,6 +104,7 @@ class Main(QtWidgets.QMainWindow):
 		self.btn_box.addWidget(btn_import)
 		self.btn_box.addWidget(btn_save)
 		self.btn_box.addWidget(btn_hide)
+		self.btn_box.addWidget(btn_nxt)
 		
 		# Isso pode estar errado, coloca o layout
 		# do btn_box no widget do editor de texto
@@ -139,15 +144,14 @@ class Main(QtWidgets.QMainWindow):
 		filename = QtWidgets.QFileDialog().getOpenFileName()
 		self.pdf_widget.load(filename[0])
 		
-		print(self.pdf_widget.getRawText())
-		print(self.pdf_widget.getFormattedText())
-		self.text.setText(GTranslation(self.pdf_widget.getFormattedText()).getRawText())
+#		print(self.pdf_widget.getRawText())
+		self.translation = GTranslation(self.pdf_widget.getFormattedText())
 		
 		# Força o widget a atualizar
 		self.pdf_widget.hide()
 		self.pdf_widget.show()
 		self.pdf_widget.setGeometry(0, 0, self.screen_rect.width() / 3, self.screen_rect.height())
-		
+	
 	def toggleAvatarVisible(self):
 		self.toggleVisible(self.server_widget)
 		self.toggleVisible(self.filler)
@@ -167,6 +171,16 @@ class Main(QtWidgets.QMainWindow):
 		text_file = open("fogo.txt","w+")
 		text_file.write(self.text.toPlainText())
 		text_file.close()
+
+	def addNextParagraph(self):
+		if self.translation is None:
+			return
+		cursor = self.text.textCursor()
+		cursor.movePosition(cursor.End, cursor.MoveAnchor)
+		text = self.translation.next()
+		if text != "\n" and text != "":
+			text += "\n"
+		cursor.insertText(text)
 
 	def __del__(self):
 		print("Destrutor")
