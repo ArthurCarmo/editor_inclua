@@ -175,7 +175,10 @@ class Main(QtWidgets.QMainWindow):
 	def saveTextFile(self):
 		filename = QtWidgets.QFileDialog().getSaveFileName()
 		self.translation.setText(self.text.toPlainText(), endl = "\n", raw = False)
-		self.translation.save(filename[0] + ".egl")
+		fname = filename[0]
+		if not fname.endswith(".egl")
+			fname += ".egl"
+		self.translation.save(fname)
 
 	def addNextParagraph(self):
 		if self.translation is None:
