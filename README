@@ -12,3 +12,22 @@ unidecode
 
 QWebEngineView crashando se não estiver com a flag "--disable-gpu" na
 variável de ambiente QTWEBENGINE_CHROMIUM_FLAGS
+
+
+To Do:
+THREADIFICAR ALGUMAS FUNÇÕES
+Colocar Botão Próxima Linha
+Colocar Botão Todas as Linhas
+Colocar Listener numa thread Separada
+Fazer as Imagens aparecerem
+Bug Unicode PC 1
+Verificar Sinergia vlibras_translate <-> boneco
+Sempre digitar Maiúsculo
+Resetar o editor quando carregar arquivo
+Fazer upload de imagem (DO PC e URL?)
+Criar cópias Imagem para a pasta do programa
+Feedback do Processamento
+Redimensionar o boneco - mas só talvez, tipo muito talvez (Desejável)
+
+
+GLOSA ESTENDIDA

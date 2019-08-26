@@ -23,7 +23,7 @@ Contudo, ainda faltava identificar se o mesmo ocorria utilizando ímãs permanen
 
 Ao fazer um experimento movimentando um ímã cilíndrico dentro de uma bobina, ele pôde identificar o movimento da agulha de um galvanômetro ligado à bobina. 
 
-Desta forma, ele pôde concluir que o movimento de um ímã gera uma corrente elétrica em um condutor, ou seja a indução eletromagnética estava descoberta. 
+Desta forma, ele pôde concluir que o movimento de um ímã gera uma corrente elétrica em um condutor, ou seja a indução eletromagnética estava descoberta. 
 
 Lei de Faraday A partir dos resultados encontrados, Faraday formulou uma lei para explicar o fenômeno da indução eletromagnética. Essa lei ficou conhecida como Lei de Faraday. 
 
@@ -40,7 +40,7 @@ Essa lei é representada na fórmula da força eletromotriz induzida através do
 Aplicações da Indução Eletromagnética Geradores de corrente alternada Uma das mais importantes aplicações da indução eletromagnética é na geração de energia elétrica. 
 Com essa descoberta passou a ser possível a geração deste tipo de energia em larga escala. 
 
-Essa geração pode ocorrer em instalações complexas, como é o caso das usinas de energia elétrica, até as mais simples como nos dínamos de bicicletas. 
+Essa geração pode ocorrer em instalações complexas, como é o caso das usinas de energia elétrica, até as mais simples como nos dínamos de bicicletas. 
 
 Existem diversos tipos de usinas de energia elétrica, mas basicamente o funcionamento de todas utiliza o mesmo princípio. Nessas usinas, a produção de energia elétrica ocorre através da energia mecânica de rotação de um eixo. 
 
@@ -56,7 +56,7 @@ Quando essa energia chega até o seu destino final, novamente ocorrerá a mudan�
 
 Assim, um transformador é um dispositivo que serve para modificar uma tensão alternada, ou seja, aumenta ou diminui o seu valor de acordo com a necessidade. 
 
-Basicamente um transformador é constituído por um núcleo de material ferromagnético no qual são enroladas duas bobinas independentes (enrolamento de fios). 
+Basicamente um transformador é constituído por um núcleo de material ferromagnético no qual são enroladas duas bobinas independentes (enrolamento de fios). 
 
 A bobina conectada a fonte é chamada de primário, pois recebe a tensão que será transformada. A outra é chamada de secundário. 
 
@@ -66,4 +66,3 @@ O aumento ou a diminuição da tensão induzida, depende da relação entre o n�
 
 Se o número de espiras no secundário for maior que no primário o transformador irá elevar a tensão e sendo ao contrário, ele irá abaixar a tensão. 
 
- 

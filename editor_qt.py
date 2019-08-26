@@ -24,19 +24,80 @@ class Main(QtWidgets.QMainWindow):
 		self.window_manager	= QProcess(self)
 		#self.display = Display(visible=0, size=(640, 480))
 		self.initUI()
-	
-	def initToolbar(self):
-		self.toolbar = self.addToolBar("Options")
-		self.addToolBarBreak()
-
-	def initFormatbar(self):
-		self.formatBar = self.addToolBar("Format")
 
 	def initMenubar(self):
 		menubar = self.menuBar()
-		file = menubar.addMenu("File")
-		edit = menubar.addMenu("Edit")
-		view = menubar.addMenu("View")
+		file = menubar.addMenu("Arquivos")
+		avatar = menubar.addMenu("Avatar")
+		edit = menubar.addMenu("Preferências")
+		help = menubar.addMenu("Ajuda!")
+
+		fileNovo = QtWidgets.QAction("Novo", self)
+		fileNovo.setShortcut("Ctrl+N")
+		fileNovo.setStatusTip("Criar nova tradução")
+		fileNovo.triggered.connect(self.saveTextFile)
+
+		fileAbrir = QtWidgets.QAction("Abrir documento", self)
+		fileAbrir.setShortcut("Ctrl+O")
+		fileAbrir.setStatusTip("Abre novo documento")
+		fileAbrir.triggered.connect(self.openDocument)
+
+		fileImportar = QtWidgets.QAction("Importar tadução", self)
+		fileImportar.setShortcut("Ctrl+I")
+		fileImportar.setStatusTip("Importa tradução")
+		fileImportar.triggered.connect(self.importTextFile)
+
+		fileSalvar = QtWidgets.QAction("Salvar", self)
+		fileSalvar.setShortcut("Ctrl+S")
+		fileSalvar.setStatusTip("Salva arquivo da tradução")
+		fileSalvar.triggered.connect(self.saveTextFile)
+
+		fileSalvarComo = QtWidgets.QAction("Salvar como...", self)
+		fileSalvarComo.setShortcut("Ctrl+Shift+S")
+		fileSalvarComo.setStatusTip("Salvar arquivo da tradução como...")
+		fileSalvarComo.triggered.connect(self.saveTextFile)
+
+		fileExportar = QtWidgets.QAction("Exportar", self)
+		fileExportar.setStatusTip("Exportar tradução para...")
+		fileExportar.triggered.connect(self.saveTextFile)	
+
+		fileQuit = QtWidgets.QAction("Sair", self)
+		fileQuit.setShortcut("Ctrl+Q")
+		fileQuit.setStatusTip("Sair da aplicação")
+		fileQuit.triggered.connect(self.saveTextFile)	
+
+		file.addAction(fileNovo)
+		file.addSeparator()
+		file.addAction(fileAbrir)
+		file.addAction(fileImportar)
+		file.addSeparator()
+		file.addAction(fileSalvar)
+		file.addAction(fileSalvarComo)
+		file.addAction(fileExportar)
+		file.addSeparator()
+		file.addAction(fileQuit)
+
+
+		avatarEnviar = QtWidgets.QAction("Enviar texto", self)
+		avatarEnviar.setShortcut("Ctrl+Shift+Return")
+		avatarEnviar.setStatusTip("Envia o texto selecionado para o avatar sinalizar")
+		avatarEnviar.triggered.connect(self.sendText)
+
+		avatarConectar = QtWidgets.QAction("Conectar", self)
+		avatarConectar.setStatusTip("Conecta com o servidor do avatar")
+		avatarConectar.triggered.connect(GServer.startCommunication)
+		
+		avatarMostrar = QtWidgets.QAction("Mostrar avatar", self)
+		avatarMostrar.setShortcut("Ctrl+Shift+T")
+		avatarMostrar.setStatusTip("Habilita/Desabilita tela do avatar")
+		avatarMostrar.triggered.connect(self.toggleAvatarVisible)
+
+		avatar.addAction(avatarEnviar)
+		avatar.addSeparator()
+		avatar.addAction(avatarConectar)
+		avatar.addAction(avatarMostrar)
+
+		#btn_nxt.setText("Próxima linha")
 
 	def initUI(self):
 		# Dimensões iniciais da janela
@@ -47,7 +108,6 @@ class Main(QtWidgets.QMainWindow):
 		# Componentes principais do editor
 		self.splitter	= QtWidgets.QSplitter(self)
 		self.text	= GTextEdit()
-		self.btn_box	= QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, self.text)
 		
 		# Inicia o SyntaxHighlighter
 		self.highlighter = GSyntaxHighlighter(self.text.document())
@@ -68,48 +128,7 @@ class Main(QtWidgets.QMainWindow):
 		
 		self.filler.addWidget(self.server_widget)
 		self.filler.addWidget(QtWidgets.QGraphicsView())
-		
-		# Setup dos botões
-		btn_open	= QtWidgets.QPushButton()
-		btn_text 	= QtWidgets.QPushButton()
-		btn_conn 	= QtWidgets.QPushButton()
-		btn_show_cursor	= QtWidgets.QPushButton()
-		btn_import	= QtWidgets.QPushButton()
-		btn_save	= QtWidgets.QPushButton()
-		btn_hide	= QtWidgets.QPushButton()
-		btn_nxt		= QtWidgets.QPushButton()
-		
-		btn_open.setText("Abrir Visualizador")
-		btn_text.setText("Enviar Texto")
-		btn_conn.setText("Conectar")
-		btn_show_cursor.setText("Posições do cursor")
-		btn_import.setText("Importar tradução")
-		btn_save.setText("Salvar tradução")
-		btn_hide.setText("Toggle avatar")
-		btn_nxt.setText("Próxima linha")
-		
-		btn_open.clicked.connect(self.openDocument)
-		btn_text.clicked.connect(self.sendText)
-		btn_conn.clicked.connect(GServer.startCommunication)
-		btn_show_cursor.clicked.connect(self.print_cursor)
-		btn_import.clicked.connect(self.importTextFile)
-		btn_save.clicked.connect(self.saveTextFile)
-		btn_hide.clicked.connect(self.toggleAvatarVisible)
-		btn_nxt.clicked.connect(self.addNextParagraph)
-		
-		self.btn_box.addWidget(btn_open)
-		self.btn_box.addWidget(btn_text)
-		self.btn_box.addWidget(btn_conn)
-		self.btn_box.addWidget(btn_show_cursor)
-		self.btn_box.addWidget(btn_import)
-		self.btn_box.addWidget(btn_save)
-		self.btn_box.addWidget(btn_hide)
-		self.btn_box.addWidget(btn_nxt)
-		
-		# Isso pode estar errado, coloca o layout
-		# do btn_box no widget do editor de texto
-		self.text.setLayout(self.btn_box)
-		
+				
 		# Widget que aparece na janela é um splitter
 		# os outros são adicionados a ele
 		self.setCentralWidget(self.splitter)
@@ -118,8 +137,6 @@ class Main(QtWidgets.QMainWindow):
 		self.splitter.addWidget(self.pdf_widget)
 		
 		# Init
-		self.initToolbar()
-		self.initFormatbar()
 		self.initMenubar()
 
 		self.statusbar = self.statusBar()

@@ -23,7 +23,7 @@ from GTranslatorInterface import GTranslator
 class GDocument(QtWebEngineWidgets.QWebEngineView):
 	def __init__(self, parent = None):
 		QtWebEngineWidgets.QWebEngineView.__init__(self, parent)
-		self.file = None;
+		self.file = None
 		self.rawText = None
 		self.formattedText = None
 		self.__pdfjs = 'file:///home/arthur/editor_inclua/pdfjs/web/viewer.html'
@@ -65,6 +65,7 @@ class GDocument(QtWebEngineWidgets.QWebEngineView):
 		laparams = LAParams()
 		imagewriter = ImageWriter('media/images/') 
 		device = TextConverter(rsrcmgr, retstr, codec=codec, laparams=laparams, imagewriter=imagewriter)
+
 		fp = open(self.file, 'rb')
 		interpreter = PDFPageInterpreter(rsrcmgr, device)
 		password = ""
@@ -77,7 +78,18 @@ class GDocument(QtWebEngineWidgets.QWebEngineView):
 		device.close()
 		s = retstr.getvalue().decode("utf8", "ignore")
 		retstr.close()
-		self.rawText = s;
+		self.rawText = s
+
+		i = 0
+		print(os.listdir("media/images/"))
+		for filename in os.listdir("media/images/"): 
+			print(filename)
+			dst ="IMG" + str(i) + ".JPG"
+			src ='media/images/'+ filename 
+			dst ='media/images/'+ dst 
+			os.rename(src, dst) 
+			i += 1
+
 		return self.rawText
 
 	# Refino
@@ -136,6 +148,7 @@ class GTranslation():
 			self.paragraphs = self.text.split(GTranslator.endl)
 		
 	def save(self, document):
+		print(self.paragraphs)
 		with open(document, "w") as doc:
 			doc.write(str(self.parseIndex) + "\n")
 			for line in self.paragraphs:
