@@ -78,9 +78,10 @@ def send(text):
 	i = 0
 	for msg in blocks:
 		i += 1
+		print("MESSAGE:")
 		print(str(i) + ":", end="")
-		print(msg)
-		sock.send(msg.encode('utf-8'))
+		print(msg.encode('utf-8'))
+		print(sock.send(msg.encode('utf-8')))
 		sock.recv(2048)
 	#except:
 	#	print("Não há conexação com o servidor")
