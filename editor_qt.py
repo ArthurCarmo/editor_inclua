@@ -176,7 +176,7 @@ class Main(QtWidgets.QMainWindow):
 		filename = QtWidgets.QFileDialog().getSaveFileName()
 		self.translation.setText(self.text.toPlainText(), endl = "\n", raw = False)
 		fname = filename[0]
-		if not fname.endswith(".egl")
+		if not fname.endswith(".egl"):
 			fname += ".egl"
 		self.translation.save(fname)
 
