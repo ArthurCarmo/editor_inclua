@@ -13,8 +13,8 @@ f.close()
 known_words.make_automaton()
 
 tags = ["<", ">", "[", "]"]
-incomplete_keywords = ["i", "im", "img", "\\i", "\\im", "\\img"]
-keywords = ["img0", "img1", "img2", "img3", "\\img0", "\\img1", "\\img2", "\\img3"]
+incomplete_keywords = ["<i", "<im", "<img", "<\\i", "<\\im", "<\\img"]
+keywords = ["<img0=", "<img1=", "<img2=", "<img3=", "<\\img0>", "<\\img1>", "<\\img2>", "<\\img3>"]
 commands = ["__save", "__stop", "__rec", "__last"]
 
 def getAlphabet():

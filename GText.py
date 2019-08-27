@@ -44,6 +44,9 @@ class GTextEdit(QtWidgets.QTextEdit):
 			return self.pressed[key]
 		return False
 	
+	def popupShowConditions(self, text, key):
+		return text.isalpha() or text == '_' or text == '<' or (key == QtCore.Qt.Key_Space and self.isPressed(QtCore.Qt.Key_Control))
+	
 	def keyReleaseEvent(self, event):
 		ek = event.key()
 		self.pressed[ek] = False
@@ -51,6 +54,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 	
 	def keyPressEvent(self, event):
 		tc = self.textCursor()
+		lc = self.textCursor()
 		ek = event.key()
 		self.pressed[ek] = True
 		
@@ -58,21 +62,36 @@ class GTextEdit(QtWidgets.QTextEdit):
 			self.completer.insertText.emit(self.completer.getSelected())
 			self.completer.setCompletionMode(self.completer.PopupCompletion)
 			return
-
+		
 		QtWidgets.QTextEdit.keyPressEvent(self, event)
 
 		print("->" + event.text() + "<-")
 		# Só mostra sugestão em caso de adicionar uma letra Ctrl+Espaço
-		if not event.text().isalpha() and not (ek == QtCore.Qt.Key_Space and self.isPressed(QtCore.Qt.Key_Control)):
+		if not self.popupShowConditions(event.text(), ek):
 			self.completer.popup().hide()
 			return
 
 		tc.select(QtGui.QTextCursor.WordUnderCursor)
+		lc.select(QtGui.QTextCursor.WordUnderCursor)
 		cr = self.cursorRect()
 
-		if len(tc.selectedText()) > 0:
-			print(tc.selectedText())
-			self.completer.setCompletionPrefix(tc.selectedText())
+		word = tc.selectedText()
+		
+		if event.text() == '_' or event.text() == '<':
+			word = event.text()
+		
+		lc.movePosition(lc.Left, lc.KeepAnchor)
+		lc = lc.selectedText()
+		
+		if lc == '<':
+			word = '<' + word
+		
+		if len(word) > 0:
+			if word[0] != '_' and word[0] != '<':
+				word = word.upper()
+				tc.insertText(word)
+			print("|->"+word)
+			self.completer.setCompletionPrefix(word)
 			popup = self.completer.popup()
 			popup.setCurrentIndex(self.completer.completionModel().index(0,0))
 			cr.setWidth(self.completer.popup().sizeHintForColumn(0)+self.completer.popup().verticalScrollBar().sizeHint().width())
