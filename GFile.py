@@ -24,6 +24,7 @@ class GDocument(QtWebEngineWidgets.QWebEngineView):
 	def __init__(self, parent = None):
 		QtWebEngineWidgets.QWebEngineView.__init__(self, parent)
 		self.file = None
+		self.name = ""
 		self.rawText = None
 		self.formattedText = None
 		self.__pdfjs = 'file:///home/arthur/editor_inclua/pdfjs/web/viewer.html'
@@ -36,10 +37,10 @@ class GDocument(QtWebEngineWidgets.QWebEngineView):
 	def convertToPDF(self):
 		if self.file is None:
 			raise Exception("Nenhum arquivo especificado")
-		name = self.file.rsplit(".", 1)[0]
+		self.name = self.file.rsplit(".", 1)[0]
 		cmd = "unoconv -f pdf " + self.file
 		resp = subprocess.call(cmd, shell=True)
-		self.file = name + ".pdf"
+		self.file = self.name + ".pdf"
 
 	def load(self, f, url = "file://"):
 		self.file = f
@@ -48,6 +49,12 @@ class GDocument(QtWebEngineWidgets.QWebEngineView):
 		if not self.isPDF():
 			self.convertToPDF()
 		super().load(QtCore.QUrl.fromUserInput(self.__pdfjs + "?file="+url+self.file))
+		
+	def getName(self):
+		return self.name
+		
+	def hasFile(self):
+		return self.file is not None
 
 	#####################################
 	##
@@ -140,12 +147,16 @@ class GTranslation():
 	def __len__(self):
 		return len(self.paragraphs)
 	
+	def isReady(self):
+		return self.text is None or self.raw
+	
 	def load(self, document):
 		with open(document, "r") as doc:
 			self.parseIndex = int(doc.readline())
 			self.text = doc.read()
 			print(self.text)
 			self.paragraphs = self.text.split(GTranslator.endl)
+		self.raw = False
 		
 	def save(self, document):
 		print(self.paragraphs)
@@ -161,6 +172,7 @@ class GTranslation():
 		self.text = text
 		self.paragraphs = self.text.split(endl)
 		self.parseIndex = len(self.paragraphs)
+		self.raw = False
 	
 	def translate(self, text):
 		return GTranslator().translate(text)
@@ -169,7 +181,7 @@ class GTranslation():
 		return self.text
 	
 	def next(self):
-		if self.parseIndex is None or self.parseIndex >= len(self.paragraphs)-1:
+		if self.parseIndex is None or self.parseIndex >= len(self.paragraphs):
 			return ""
 		self.parseIndex += 1
 		return self.paragraphs[self.parseIndex-1]
@@ -183,6 +195,16 @@ class GTranslation():
 	def paragraphsToDisplay(self):
 		return self.paragraphs[0:self.parseIndex]
 	
-	def resetIndex(self, index):
+	def getParagraphs(self):
+		return self.paragraphs
+		
+	def getParagraphsTillEnd(self):
+		return self.paragraphs[self.parseIndex:]
+	
+	def resetIndex(self):
 		self.parseIndex = 0
+	
+	def setIndex(self, index):
+		self.parseIndex = index
+		
 		

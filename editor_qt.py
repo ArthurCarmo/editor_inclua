@@ -3,13 +3,13 @@
 import re
 import sys
 import GServer
+import threading
+from time import sleep
 import ahocorasick
 
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import Qt, QProcess
 from PyQt5.QtGui import QDesktopServices
-
-#from pyvirtualdisplay import Display
 
 from GText import GTextEdit
 from GSyntax import GSyntaxHighlighter
@@ -20,15 +20,15 @@ class Main(QtWidgets.QMainWindow):
 	def __init__(self, parent = None):
 		QtWidgets.QMainWindow.__init__(self, parent)
 		self.xephyr 		= QProcess(self)
-		self.avatar 		= QProcess(self)
-		self.window_manager	= QProcess(self)
-		#self.display = Display(visible=0, size=(640, 480))
+		self.translationFileName = ""
+		self.documentFileName = ""
 		self.initUI()
 
 	def initMenubar(self):
 		menubar = self.menuBar()
 		file = menubar.addMenu("Arquivos")
 		avatar = menubar.addMenu("Avatar")
+		traducao = menubar.addMenu("Tradução")
 		edit = menubar.addMenu("Preferências")
 		help = menubar.addMenu("Ajuda!")
 
@@ -64,7 +64,7 @@ class Main(QtWidgets.QMainWindow):
 		fileQuit = QtWidgets.QAction("Sair", self)
 		fileQuit.setShortcut("Ctrl+Q")
 		fileQuit.setStatusTip("Sair da aplicação")
-		fileQuit.triggered.connect(self.saveTextFile)	
+		fileQuit.triggered.connect(self.__del__)	
 
 		file.addAction(fileNovo)
 		file.addSeparator()
@@ -96,6 +96,29 @@ class Main(QtWidgets.QMainWindow):
 		avatar.addSeparator()
 		avatar.addAction(avatarConectar)
 		avatar.addAction(avatarMostrar)
+
+		traducaoShowAll = QtWidgets.QAction("Mostrar tudo", self)
+		traducaoShowAll.setStatusTip("Exibir toda a tradução do arquivo")
+		traducaoShowAll.triggered.connect(self.showAllTranslation)
+		
+		traducaoNext	= QtWidgets.QAction("Próxima linha", self)
+		traducaoNext.setStatusTip("Próxima linha da tradução do arquivo")
+		traducaoNext.triggered.connect(self.addNextTranslationParagraph)
+		
+		traducaoReset	= QtWidgets.QAction("Resetar tradução", self)
+		traducaoReset.setStatusTip("Apaga todo o conteúdo do editor e reinicia a tradução para a primeira linha")
+		traducaoReset.triggered.connect(self.resetTranslation)
+		
+		traducaoCreate	= QtWidgets.QAction("Gerar tradução", self)
+		traducaoCreate.setStatusTip("Traduz o arquivo selecionado")
+		traducaoCreate.triggered.connect(self.getTranslationFromFile)
+		
+		traducao.addAction(traducaoNext)
+		traducao.addSeparator()
+		traducao.addAction(traducaoShowAll)
+		traducao.addAction(traducaoReset)
+		traducao.addSeparator()
+		traducao.addAction(traducaoCreate)
 
 		#btn_nxt.setText("Próxima linha")
 
@@ -143,41 +166,48 @@ class Main(QtWidgets.QMainWindow):
 		
 		# Força o widget a atualizar
 		self.toggleVisible(self.server_widget)
+		
+		threading.Thread(target=self.tryCommunication).start()
 
 	def print_cursor(self):
 		cursor = self.text.textCursor()
 		print("position:%2d\nachor:%5d\n" % (cursor.position(), cursor.anchor()))
 
-	def sendText(self):
-		cursor = self.text.textCursor()
-		if cursor.hasSelection():
-			text = cursor.selection().toPlainText()
-			GServer.send(text)
-		else:
-			text = self.text.toPlainText()
-		print(text)
-		
+	##################################
+	#
+	# ARQUIVOS
+	#
+	##################################
+	
 	def openDocument(self):
 		filename = QtWidgets.QFileDialog().getOpenFileName()
+		if filename[0] == "":
+			return 1
+		self.text.clear()
 		self.pdf_widget.load(filename[0])
 		
 #		print(self.pdf_widget.getRawText())
-		self.translation = GTranslation(self.pdf_widget.getFormattedText())
+#		self.translation = GTranslation(self.pdf_widget.getFormattedText())
 		
 		# Força o widget a atualizar
 		self.pdf_widget.hide()
 		self.pdf_widget.show()
-		self.pdf_widget.setGeometry(0, 0, self.screen_rect.width() / 3, self.screen_rect.height())
+		self.pdf_widget.setGeometry(0, 0, self.screen_rect.width() / 10, self.screen_rect.height())
+		return 0
+
+	def clearTranslation(self):
+		self.text.clear()
+		self.translation = GTranslation()
+		
+	def resetTranslation(self):
+		self.text.clear()
+		self.translation.resetIndex()
 	
-	def toggleAvatarVisible(self):
-		self.toggleVisible(self.server_widget)
-		self.toggleVisible(self.filler)
-	
-	def toggleVisible(self, widget):
-		if widget.isVisible():
-			widget.hide()
-		else:
-			widget.show()
+	def getTranslationFromFile(self):
+		if not self.pdf_widget.hasFile() and self.openDocument() == 1:
+			return
+		txt = self.pdf_widget.getFormattedText()
+		self.translation = GTranslation(txt)
 	
 	def importTextFile(self):
 		filename = QtWidgets.QFileDialog().getOpenFileName()
@@ -197,7 +227,7 @@ class Main(QtWidgets.QMainWindow):
 			fname += ".egl"
 		self.translation.save(fname)
 
-	def addNextParagraph(self):
+	def addNextTranslationParagraph(self):
 		if self.translation is None:
 			return
 		cursor = self.text.textCursor()
@@ -207,11 +237,57 @@ class Main(QtWidgets.QMainWindow):
 			text += "\n"
 		cursor.insertText(text)
 
+	def showAllTranslation(self):
+		if self.translation is None:
+			return
+		cursor = self.text.textCursor()
+		for line in self.translation.getParagraphsTillEnd():
+			self.text.textCursor().insertText(line + "\n")
+
+	##################################
+	#
+	# AVATAR
+	#
+	##################################
+	
+	def sendText(self):
+		cursor = self.text.textCursor()
+		if cursor.hasSelection():
+			text = cursor.selection().toPlainText()
+			GServer.send(text)
+		else:
+			text = self.text.toPlainText()
+		print(text)
+		
+	def toggleAvatarVisible(self):
+		self.toggleVisible(self.server_widget)
+		self.toggleVisible(self.filler)
+	
+	def toggleVisible(self, widget):
+		if widget.isVisible():
+			widget.hide()
+		else:
+			widget.show()
+
+
+	def tryCommunication(self, n = 10):
+		tries = 0
+		while GServer.startCommunication() != 0 and tries < n:	
+			print("Tentativa %d" % (tries))
+			tries += 1
+			sleep(3)					
+
+	##################################
+	#
+	# DESTRUTOR
+	#
+	##################################
 	def __del__(self):
 		print("Destrutor")
-		self.avatar.kill()
 		self.xephyr.kill()
 		exit()
+		
+########################################################
 
 def main():
 	global app

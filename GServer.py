@@ -60,17 +60,15 @@ game = threading.Thread(target=startGameThread)
 def startCommunication():
 	if not game.is_alive():
 		game.start()
-	tries = 0
-	while tries < 5:
-		sleep(3)
-		try:
-			print("Connectando em %s %d" % (HOST, PORT))
-			sock.connect((HOST, PORT))
-			tries += 5
-		except:
-			print("Servidor não encontrado")		
-		tries += 1
-	
+		sleep(2)
+	try:
+		print("Connectando em %s %d" % (HOST, PORT))
+		sock.connect((HOST, PORT))
+		return 0
+	except:
+		print("Servidor não encontrado")
+		return 1
+
 def send(text):
 	text = GSyntax.cleanText(text)
 	blocks = GSyntax.getCommandBlocks(text)
