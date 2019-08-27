@@ -5,7 +5,7 @@ pyqtwebengine
 pyahocorasick
 
 unoconv
-pdfminer
+pdfminer.six
 unidecode
 -----------------------
 
