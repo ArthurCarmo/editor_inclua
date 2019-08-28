@@ -1,5 +1,7 @@
-import sys
 import os
+import sys
+import unidecode
+import threading
 import subprocess
 from pdfminer.pdfinterp import PDFResourceManager, PDFPageInterpreter
 from pdfminer.converter import TextConverter
@@ -8,9 +10,8 @@ from pdfminer.pdfpage import PDFPage
 from pdfminer.image import ImageWriter
 from io import StringIO
 from io import BytesIO
-import unidecode
 
-from PyQt5 import QtCore, QtWebEngineWidgets
+from PyQt5 import QtCore, QtWidgets, QtWebEngineWidgets
 from PyQt5.QtCore import QUrl
 
 from GTranslatorInterface import GTranslator
@@ -132,15 +133,18 @@ class GDocument(QtWebEngineWidgets.QWebEngineView):
 class GTranslation():
 	def __init__(self, text = None, raw = True):
 		self.text = text
-		if self.text is None:
-			self.paragraphs = None
-			self.parseIndex = 0
-			return
-		if raw:
-			self.text = self.translate(self.text)
-		self.paragraphs = self.text.split(GTranslator.endl)
 		self.parseIndex = 0
-	
+		self.paragraphs = []
+		self.raw = raw
+		
+		self.translator = GTranslator()
+		self.translator.sender.translationReady.connect(self.updateStatus)
+		self.translator.sender.updateProgress.connect(self.updateProgress)
+		
+		if self.text is not None and raw:
+			print("Aqui?!")
+			self.translate()
+		
 	def __getitem__(self, key):
 		return self.paragraphs[key]
 	
@@ -165,18 +169,27 @@ class GTranslation():
 			for line in self.paragraphs:
 				doc.write(line)
 				doc.write(GTranslator.endl)
+				
+	def translate(self):
+		self.progress = QtWidgets.QProgressDialog("Traduzindo...", "Cancelar!", 0, 100)
+		self.progress.canceled.connect(self.haltTranslation)
+		self.progress.setValue(0)
+		threading.Thread(target=self.translator.translate, args=([self.text])).start()
+		
+	def haltTranslation(self):
+		self.translator.haltTranslation
+		self.progress.hide()
 	
-	def setText(self, text, raw = True, endl = GTranslator.endl):
-		if raw:
-			text = self.translate(text)
+	def updateStatus(self, text):
 		self.text = text
-		self.paragraphs = self.text.split(endl)
-		self.parseIndex = len(self.paragraphs)
-		self.raw = False
-	
-	def translate(self, text):
-		return GTranslator().translate(text)
-	
+		self.paragraphs = text.split(GTranslator.endl)
+		self.parseIndex = 0
+		self.raw  = False
+		self.progress.hide()
+		
+	def updateProgress(self, progress):
+		self.progress.setValue(progress)
+
 	def getRawText(self):
 		return self.text
 	
@@ -199,7 +212,9 @@ class GTranslation():
 		return self.paragraphs
 		
 	def getParagraphsTillEnd(self):
-		return self.paragraphs[self.parseIndex:]
+		oldIndex = self.parseIndex
+		self.parseIndex = len(self.paragraphs)
+		return self.paragraphs[oldIndex:]
 	
 	def resetIndex(self):
 		self.parseIndex = 0
@@ -207,4 +222,9 @@ class GTranslation():
 	def setIndex(self, index):
 		self.parseIndex = index
 		
+	def clear(self):
+		self.text = None
+		self.raw = True
+		self.paragraphs = []
+		self.parseIndex = 0
 		

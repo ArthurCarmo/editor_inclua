@@ -221,15 +221,13 @@ class Main(QtWidgets.QMainWindow):
 
 	def saveTextFile(self):
 		filename = QtWidgets.QFileDialog().getSaveFileName()
-		self.translation.setText(self.text.toPlainText(), endl = "\n", raw = False)
+		#self.translation.setText(self.text.toPlainText(), endl = "\n", raw = False)
 		fname = filename[0]
 		if not fname.endswith(".egl"):
 			fname += ".egl"
 		self.translation.save(fname)
 
 	def addNextTranslationParagraph(self):
-		if self.translation is None:
-			return
 		cursor = self.text.textCursor()
 		cursor.movePosition(cursor.End, cursor.MoveAnchor)
 		text = self.translation.next()
@@ -238,12 +236,18 @@ class Main(QtWidgets.QMainWindow):
 		cursor.insertText(text)
 
 	def showAllTranslation(self):
-		if self.translation is None:
-			return
 		cursor = self.text.textCursor()
 		for line in self.translation.getParagraphsTillEnd():
 			self.text.textCursor().insertText(line + "\n")
 
+	##################################
+	#
+	# PROGRESSO
+	#
+	##################################
+	
+	
+	
 	##################################
 	#
 	# AVATAR
