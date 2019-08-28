@@ -32,9 +32,18 @@ class GTextEdit(QtWidgets.QTextEdit):
 	
 	def insertCompletion(self, completion):
 		tc = self.textCursor()
-		extra = (len(completion) - len(self.completer.completionPrefix()))
-		tc.movePosition(QtGui.QTextCursor.StartOfWord, tc.MoveAnchor)
-		tc.movePosition(QtGui.QTextCursor.EndOfWord, tc.KeepAnchor)
+		lc = self.textCursor()
+		
+		
+		tc.movePosition(QtGui.QTextCursor.EndOfWord, tc.MoveAnchor)
+		tc.movePosition(QtGui.QTextCursor.StartOfWord, tc.KeepAnchor)
+		
+		lc.movePosition(QtGui.QTextCursor.StartOfWord, lc.MoveAnchor)
+		lc.movePosition(QtGui.QTextCursor.Left, lc.KeepAnchor)
+		lc = lc.selectedText()
+		if lc == '<':
+			tc.movePosition(QtGui.QTextCursor.Left, tc.KeepAnchor)
+			
 		tc.insertText(completion)
 		self.setTextCursor(tc)
 		self.completer.popup().hide()
@@ -80,12 +89,15 @@ class GTextEdit(QtWidgets.QTextEdit):
 		if event.text() == '_' or event.text() == '<':
 			word = event.text()
 		
+		lc.movePosition(lc.StartOfWord, lc.MoveAnchor)
 		lc.movePosition(lc.Left, lc.KeepAnchor)
 		lc = lc.selectedText()
 		
-		if lc == '<':
+		if lc == '<' and not word.startswith('<'):
 			word = '<' + word
-		
+			
+		print("lc: " + lc)
+		print("word:" + word)
 		if len(word) > 0:
 			if word[0] != '_' and word[0] != '<':
 				word = word.upper()
