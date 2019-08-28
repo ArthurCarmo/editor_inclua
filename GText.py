@@ -79,7 +79,6 @@ class GTextEdit(QtWidgets.QTextEdit):
 		# Só mostra sugestão em caso de adicionar uma letra Ctrl+Espaço
 		if self.popupShowConditions(event.text(), ek) and self.completer.completionCount() != 0:
 			self.completer.popup().show()
-			return
 	
 	###########################################
 	#
@@ -104,9 +103,13 @@ class GTextEdit(QtWidgets.QTextEdit):
 		self.setTextCursor(tc)
 		self.completer.popup().hide()
 	
+	#########################################
+	#
 	# Atalho de teclado para o completer
+	#
+	#########################################
 	def popupShowConditions(self, text, key):
-		return text == '_' or text == '<' or (key == QtCore.Qt.Key_Space and self.isPressed(QtCore.Qt.Key_Control))
+		return key == QtCore.Qt.Key_Space and self.isPressed(QtCore.Qt.Key_Control)
 		
 	def wordSubFunction(self, target, cursor):
 		cursor.insertText(target.text())
@@ -172,13 +175,15 @@ class GTextEdit(QtWidgets.QTextEdit):
 		lc = self.textCursor()
 		lc.movePosition(lc.Left, lc.KeepAnchor)
 		ek = lc.selectedText()
-		self.textChanged.disconnect()
-		if not ek.isupper():
-			lc.insertText(ek.upper())
-		self.textChanged.connect(self.onTextChanged)
-		if not ek.isalpha():
+
+		if not ek.isalpha() and not ek.isdigit() and not ek in ('<', '_'):
 			self.completer.popup().hide()
 			return
+
+		if ek.isalpha() and not ek.isupper():
+			self.textChanged.disconnect()
+			lc.insertText(ek.upper())
+			self.textChanged.connect(self.onTextChanged)
 
 		tc.select(QtGui.QTextCursor.WordUnderCursor)
 		lc.select(QtGui.QTextCursor.WordUnderCursor)
