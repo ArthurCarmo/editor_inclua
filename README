@@ -19,13 +19,15 @@
 #	-> Abrir/Gerenciar documentos
 #	-> Highlighter
 #	-> Completer (se precisar)
-#	
-# 2 -> Fazer as Imagens aparecerem
 #
-# 3 -> Fazer upload de imagem (DO PC e URL?)
+# 2 -> Deixar tudo maiúsculo tem problemas com acentuação
+#
+# 3 -> Fazer as Imagens aparecerem
+#
+# 4 -> Fazer upload de imagem (DO PC e URL?)
 #	-> Criar cópias das imagens para a pasta do programa
 #	
-# 4 -> Verificar sinergia vlibras_translate <-> boneco
+# 5 -> Verificar sinergia vlibras_translate <-> boneco
 #
 #	...
 #
