@@ -177,7 +177,7 @@ class GTranslation():
 		threading.Thread(target=self.translator.translate, args=([self.text])).start()
 		
 	def haltTranslation(self):
-		self.translator.haltTranslation
+		self.translator.haltTranslation()
 		self.progress.hide()
 	
 	def updateStatus(self, text):
@@ -188,7 +188,8 @@ class GTranslation():
 		self.progress.hide()
 		
 	def updateProgress(self, progress):
-		self.progress.setValue(progress)
+		if not self.progress.wasCanceled():
+			self.progress.setValue(progress)
 
 	def getRawText(self):
 		return self.text

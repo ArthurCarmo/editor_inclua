@@ -72,7 +72,8 @@ class GTextEdit(QtWidgets.QTextEdit):
 			self.completer.setCompletionMode(self.completer.PopupCompletion)
 			return
 		
-		QtWidgets.QTextEdit.keyPressEvent(self, event)
+		newEvent = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, event.key(), event.modifiers(), event.nativeScanCode(), event.nativeVirtualKey(), event.nativeModifiers(), event.text().upper(), event.isAutoRepeat(), event.count())
+		QtWidgets.QTextEdit.keyPressEvent(self, newEvent)
 
 		print("->" + event.text() + "<-")
 		# Só mostra sugestão em caso de adicionar uma letra Ctrl+Espaço
@@ -99,9 +100,6 @@ class GTextEdit(QtWidgets.QTextEdit):
 		print("lc: " + lc)
 		print("word:" + word)
 		if len(word) > 0:
-			if word[0] != '_' and word[0] != '<':
-				word = word.upper()
-				tc.insertText(word)
 			print("|->"+word)
 			self.completer.setCompletionPrefix(word)
 			popup = self.completer.popup()
