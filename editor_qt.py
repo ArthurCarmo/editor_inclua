@@ -14,7 +14,6 @@ from PyQt5.QtGui import QDesktopServices
 from GText import GTextEdit
 from GSyntax import GSyntaxHighlighter
 from GFile import GDocument, GTranslation
-#from pdfToText import PDFToTxt
 
 class Main(QtWidgets.QMainWindow):
 	def __init__(self, parent = None):
@@ -238,15 +237,7 @@ class Main(QtWidgets.QMainWindow):
 	def showAllTranslation(self):
 		cursor = self.text.textCursor()
 		for line in self.translation.getParagraphsTillEnd():
-			self.text.textCursor().insertText(line + "\n")
-
-	##################################
-	#
-	# PROGRESSO
-	#
-	##################################
-	
-	
+			self.text.textCursor().insertText(line + "\n")	
 	
 	##################################
 	#
@@ -290,12 +281,42 @@ class Main(QtWidgets.QMainWindow):
 		print("Destrutor")
 		self.xephyr.kill()
 		exit()
+	
+	def closeEvent(self, event):
+		self.__del__()
 		
 ########################################################
+
+#########################################################
+#
+# Classe para gerenciar os eventos das teclas '^' e '´'
+# no Ubuntu 18.04
+#
+#########################################################
+
+import ctypes
+class GNativeEventFilter(QtCore.QAbstractNativeEventFilter):
+	def __init__(self):
+		QtCore.QAbstractNativeEventFilter.__init__(self)
+
+	#########################################################
+	#
+	# Específico para palataforma, conferir documentação em
+	# https://doc.qt.io/qt-5/qabstractnativeeventfilter.html
+	#
+	##########################################################
+	def nativeEventFilter(self, eventType, message):
+		if eventType == "xcb_generic_event_t":
+			print(message.message)
+			msg = message.__init__()
+			print(msg)
+		return False, 0
+
 
 def main():
 	global app
 	app = QtWidgets.QApplication(sys.argv)
+	flt = GNativeEventFilter()
 	main = Main()
 	main.show()
 	sys.exit(app.exec_())

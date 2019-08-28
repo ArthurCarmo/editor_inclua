@@ -46,9 +46,11 @@
 
 
 #########################################################################
-#
+# 
 # QWebEngineView crashando se não estiver com a flag "--disable-gpu" na
 # variável de ambiente QTWEBENGINE_CHROMIUM_FLAGS
+#
+# Isso era causado por um erro no driver da GPU
 #
 #########################################################################
 
