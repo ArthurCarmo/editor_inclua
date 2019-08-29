@@ -1,4 +1,4 @@
-import GSyntax
+from GSyntax import GParser
 
 from copy import deepcopy
 from PyQt5 import QtGui, QtCore, QtWidgets
@@ -34,7 +34,7 @@ class GCompleter(QtWidgets.QCompleter):
 class GTextEdit(QtWidgets.QTextEdit):
 	def __init__(self, parent = None):
 		QtWidgets.QTextEdit.__init__(self, parent)
-		self.completer = GCompleter(GSyntax.getAlphabet())
+		self.completer = GCompleter(GParser().getAlphabet())
 		self.completer.setWidget(self)
 		self.completer.insertText.connect(self.insertCompletion)
 		self.pressed = {}
@@ -76,9 +76,12 @@ class GTextEdit(QtWidgets.QTextEdit):
 #		QtWidgets.QTextEdit.keyPressEvent(self, newEvent)
 		QtWidgets.QTextEdit.keyPressEvent(self, event)
 		
+		if ek == QtCore.Qt.Key_Left or ek == QtCore.Qt.Key_Right or ek == QtCore.Qt.Key_Up or ek == QtCore.Qt.Key_Down:
+			self.completer.popup().hide()
+			
 		# Só mostra sugestão em caso de adicionar uma letra Ctrl+Espaço
-		if self.popupShowConditions(event.text(), ek) and self.completer.completionCount() != 0:
-			self.completer.popup().show()
+		if self.popupShowConditions(event.text(), ek):
+			self.onTextChanged()
 	
 	###########################################
 	#

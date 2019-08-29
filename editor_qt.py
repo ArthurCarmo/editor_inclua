@@ -2,9 +2,7 @@
 
 import re
 import sys
-import GServer
 import threading
-from time import sleep
 import ahocorasick
 
 from PyQt5 import QtGui, QtCore, QtWidgets
@@ -15,12 +13,15 @@ from GText import GTextEdit
 from GSyntax import GSyntaxHighlighter
 from GFile import GDocument, GTranslation
 
+from time import sleep
+from GServer import GServer
+
 class Main(QtWidgets.QMainWindow):
 	def __init__(self, parent = None):
 		QtWidgets.QMainWindow.__init__(self, parent)
-		self.xephyr 		= QProcess(self)
 		self.translationFileName = ""
 		self.documentFileName = ""
+		self.server = GServer()
 		self.initUI()
 
 	def initMenubar(self):
@@ -84,7 +85,7 @@ class Main(QtWidgets.QMainWindow):
 
 		avatarConectar = QtWidgets.QAction("Conectar", self)
 		avatarConectar.setStatusTip("Conecta com o servidor do avatar")
-		avatarConectar.triggered.connect(GServer.startCommunication)
+		avatarConectar.triggered.connect(self.server.startCommunication)
 		
 		avatarMostrar = QtWidgets.QAction("Mostrar avatar", self)
 		avatarMostrar.setShortcut("Ctrl+Shift+T")
@@ -144,7 +145,7 @@ class Main(QtWidgets.QMainWindow):
 		self.filler	= QtWidgets.QSplitter(Qt.Vertical)
 		
 		# Setup do widget com o display virtual
-		self.server_widget = GServer.getServerWidget(self.xephyr, "GXEPHYRSV")
+		self.server_widget = self.server.getServerWidget()
 		self.server_widget.setMinimumSize(QtCore.QSize(640, 480))
 		self.server_widget.setMaximumSize(QtCore.QSize(640, 480))
 		
@@ -249,7 +250,7 @@ class Main(QtWidgets.QMainWindow):
 		cursor = self.text.textCursor()
 		if cursor.hasSelection():
 			text = cursor.selection().toPlainText()
-			GServer.send(text)
+			self.server.send(text)
 		else:
 			text = self.text.toPlainText()
 		print(text)
@@ -267,7 +268,7 @@ class Main(QtWidgets.QMainWindow):
 
 	def tryCommunication(self, n = 10):
 		tries = 0
-		while GServer.startCommunication() != 0 and tries < n:	
+		while self.server.startCommunication() != 0 and tries < n:	
 			print("Tentativa %d" % (tries))
 			tries += 1
 			sleep(3)					
@@ -279,7 +280,7 @@ class Main(QtWidgets.QMainWindow):
 	##################################
 	def __del__(self):
 		print("Destrutor")
-		self.xephyr.kill()
+		self.server.kill()
 		exit()
 	
 	def closeEvent(self, event):
