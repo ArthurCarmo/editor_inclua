@@ -76,7 +76,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 #		QtWidgets.QTextEdit.keyPressEvent(self, newEvent)
 		QtWidgets.QTextEdit.keyPressEvent(self, event)
 		
-		if ek == QtCore.Qt.Key_Left or ek == QtCore.Qt.Key_Right or ek == QtCore.Qt.Key_Up or ek == QtCore.Qt.Key_Down:
+		if not event.text().isalpha() and not ek == QtCore.Qt.Key_Shift:
 			self.completer.popup().hide()
 			
 		# Só mostra sugestão em caso de adicionar uma letra Ctrl+Espaço
