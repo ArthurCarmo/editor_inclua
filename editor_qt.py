@@ -194,7 +194,12 @@ class Main(QtWidgets.QMainWindow):
 		filename = QtWidgets.QFileDialog().getOpenFileName()
 		if filename[0] == "":
 			return 1
-		self.text.clear()
+		
+		if not self.text.document().isEmpty():
+			reply = QtWidgets.QMessageBox.question(self, "Abrir documento", "Apagar texto do editor?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+			if reply == QtWidgets.QMessageBox.Yes:
+				self.text.clear()
+
 		self.pdf_widget.load(filename[0])
 		
 #		print(self.pdf_widget.getRawText())
@@ -205,7 +210,9 @@ class Main(QtWidgets.QMainWindow):
 		self.pdf_widget.show()
 		self.pdf_widget.setGeometry(0, 0, self.screen_rect.width() / 10, self.screen_rect.height())
 		
-		reply = QtWidgets.QMessageBox.question(self, "Abrir documento", "Gerar a tradução do documento?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+		self.hasOpenDocument = True
+		
+		reply = QtWidgets.QMessageBox.question(self, "Abrir documento", "Traduzir documento?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
 		if reply == QtWidgets.QMessageBox.Yes:
 			self.getTranslationFromFile()
 		
