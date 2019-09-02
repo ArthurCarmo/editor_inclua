@@ -155,8 +155,12 @@ class Main(QtWidgets.QMainWindow):
 		self.images_widget = QtWidgets.QSplitter(Qt.Horizontal)
 		self.loadImages()
 
+		self.imgArea = QtWidgets.QScrollArea()
+		self.imgArea.setWidget(self.images_widget)
+
 		self.filler.addWidget(self.server_widget)
-		self.filler.addWidget(self.images_widget)
+		self.filler.addWidget(self.imgArea)
+		self.filler.addWidget(QtWidgets.QGraphicsView())
 				
 		# Widget que aparece na janela é um splitter
 		# os outros são adicionados a ele
