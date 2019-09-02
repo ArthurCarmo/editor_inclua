@@ -193,6 +193,11 @@ class Main(QtWidgets.QMainWindow):
 		self.pdf_widget.hide()
 		self.pdf_widget.show()
 		self.pdf_widget.setGeometry(0, 0, self.screen_rect.width() / 10, self.screen_rect.height())
+		
+		reply = QtWidgets.QMessageBox.question(self, "Abrir documento", "Gerar a tradução do documento?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+		if reply == QtWidgets.QMessageBox.Yes:
+			self.getTranslationFromFile()
+		
 		return 0
 
 	def clearTranslation(self):
@@ -207,6 +212,7 @@ class Main(QtWidgets.QMainWindow):
 	def getTranslationFromFile(self):
 		if not self.pdf_widget.hasFile() and self.openDocument() == 1:
 			return
+			
 		if self.hasOpenTranslation:
 			reply = QtWidgets.QMessageBox.question(self, "Gerar tradução", "Já existe uma tradução aberta. Substituir?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
 			if reply == QtWidgets.QMessageBox.No:
