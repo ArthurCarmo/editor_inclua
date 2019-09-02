@@ -9,6 +9,8 @@
 # pdfminer.six
 # unidecode
 #
+#
+# java 1.8
 ###############################
 
 
@@ -22,13 +24,37 @@
 #
 # 2 -> Deixar tudo maiúsculo tem problemas com acentuação
 #
-# 3 -> Fazer as Imagens aparecerem
-#
-# 4 -> Fazer upload de imagem (DO PC e URL?)
-#	-> Criar cópias das imagens para a pasta do programa
+# 3 -> Imagens
+#	-> Fazer as Imagens aparecerem
+#	-> Pausa ao mostrar imagens
+#	-> Fazer upload de imagem (DO PC e URL?)
+#		-> Criar cópias das imagens para a pasta do programa
 #	
-# 5 -> Verificar sinergia vlibras_translate <-> boneco
+# 4 -> Verificar sinergia vlibras_translate <-> boneco
 #
+# 5 -> Fórmulas em texto
+# 
+# 6 -> Atualização do joguinho do VLIBRAS
+#
+# 7 -> Programa para o pessoal da letras
+#
+# 8 -> Arrastar palavras
+#
+# 9 -> PDF
+#	-> Remover cabeçalho e rodapé do pdf miner
+#	-> Refino pdf -> txt melhorar (quebras de linha, etc, etc, etc)
+#	-> Conversão do PDF (pastas distintas?)
+#
+# 10 -> Pré processamento:
+#	-> Palavras quebradas por hífem
+#
+# 11 -> Salvar vídeo
+#
+# 12 -> Refino GLOSA (G U S T A V O)
+#	-> Ordem palavras
+#	-> Sinônimos
+#	-> Substituição errada (consigo - com tu)
+#	-> Espaço depois da vírgula
 #	...
 #
 # GLOSA ESTENDIDA
