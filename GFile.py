@@ -22,37 +22,48 @@ from GTranslatorInterface import GTranslator
 # que vai exibir o PDF
 ############################################
 class GDocument(QtWebEngineWidgets.QWebEngineView):
+
+	__pdfjs = 'file:///home/arthur/editor_inclua/pdfjs/web/viewer.html'
+
 	def __init__(self, parent = None):
 		QtWebEngineWidgets.QWebEngineView.__init__(self, parent)
 		self.file = None
 		self.name = ""
 		self.rawText = None
 		self.formattedText = None
-		self.__pdfjs = 'file:///home/arthur/editor_inclua/pdfjs/web/viewer.html'
 	
 	def isPDF(self):
 		if self.file is None:
 			return False
 		return self.file.endswith(".pdf")
 
+	def getBaseName(self):
+		return os.path.basename(self.file)
+	
+	def getDirName(self):
+		return os.path.dirname(self.file)
+		
+	def getOutputFileName(self):
+		return self.getDirName() + "/" + self.getBaseName().split('.', 1)[0] + ".pdf"
+	
 	def convertToPDF(self):
-		if self.file is None:
-			raise Exception("Nenhum arquivo especificado")
-		self.name = self.file.rsplit(".", 1)[0]
 		cmd = "unoconv -f pdf " + self.file
 		resp = subprocess.call(cmd, shell=True)
-		self.file = self.name + ".pdf"
+		self.file = self.getOutputFileName()
+		print(self.file)
+		print("-------------------------------")
 
 	def load(self, f, url = "file://"):
 		self.file = f
 		self.rawText = None
 		self.formattedText = None
+		
+		if self.file is None:
+			raise Exception("Nenhum arquivo especificado")
+
 		if not self.isPDF():
 			self.convertToPDF()
 		super().load(QtCore.QUrl.fromUserInput(self.__pdfjs + "?file="+url+self.file))
-		
-	def getName(self):
-		return self.name
 		
 	def hasFile(self):
 		return self.file is not None

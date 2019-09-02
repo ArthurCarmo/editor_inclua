@@ -44,7 +44,6 @@
 # 9 -> PDF
 #	-> Remover cabeçalho e rodapé do pdf miner
 #	-> Refino pdf -> txt melhorar (quebras de linha, etc, etc, etc)
-#	-> Conversão do PDF (pastas distintas?)
 #
 # 10 -> Pré processamento:
 #	-> Palavras quebradas por hífem

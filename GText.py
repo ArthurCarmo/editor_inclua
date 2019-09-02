@@ -173,7 +173,6 @@ class GTextEdit(QtWidgets.QTextEdit):
 	#
 	#########################################
 	def onTextChanged(self):
-		print("Oloco")
 		tc = self.textCursor()
 		lc = self.textCursor()
 		lc.movePosition(lc.Left, lc.KeepAnchor)
