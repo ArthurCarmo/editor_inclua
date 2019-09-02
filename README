@@ -12,6 +12,18 @@
 #
 #
 # java 1.8
+#
+# --------------------------------
+# WINDOWS
+# --------------------------------
+#
+# libgl1-mesa-dev
+# libxcomposite-dev
+# libxcursor-dev
+# libasound2-dev
+#
+#
+#
 ###############################
 
 
