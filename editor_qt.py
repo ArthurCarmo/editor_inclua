@@ -152,11 +152,18 @@ class Main(QtWidgets.QMainWindow):
 		self.server_widget.setMaximumSize(QtCore.QSize(640, 480))
 		
 		# Widget das imagens
-		self.images_widget = QtWidgets.QSplitter(Qt.Horizontal)
+		self.images_scroll = QtWidgets.QScrollArea()
+		self.src_view = QtWidgets.QWidget()
+
+		self.images_grid = QtWidgets.QGridLayout()
 		self.loadImages()
+		self.src_view.setLayout(self.images_grid)
+
+		self.images_scroll.setWidget(self.src_view)
 
 		self.filler.addWidget(self.server_widget)
-		self.filler.addWidget(self.images_widget)
+		self.filler.addWidget(self.images_scroll)
+		self.filler.addWidget(QtWidgets.QGraphicsView())
 				
 		# Widget que aparece na janela é um splitter
 		# os outros são adicionados a ele
@@ -172,7 +179,6 @@ class Main(QtWidgets.QMainWindow):
 		
 		# Força o widget a atualizar
 		self.toggleVisible(self.server_widget)
-		
 		threading.Thread(target=self.tryCommunication).start()
 
 	def print_cursor(self):
@@ -236,7 +242,7 @@ class Main(QtWidgets.QMainWindow):
 		i = 1
 		for filename in names:
 			label = GImageButton(filename, i, self)
-			self.images_widget.addWidget(label)
+			self.images_grid.addWidget(label, i-1, 0)
 			i += 1
 
 	def importTextFile(self):
