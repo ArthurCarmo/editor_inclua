@@ -19,8 +19,8 @@ from GServer import GServer
 class Main(QtWidgets.QMainWindow):
 	def __init__(self, parent = None):
 		QtWidgets.QMainWindow.__init__(self, parent)
-		self.translationFileName = ""
-		self.documentFileName = ""
+		self.hasOpenTranslation = False
+		self.hasOpenFile = False
 		self.server = GServer()
 		self.initUI()
 
@@ -198,17 +198,24 @@ class Main(QtWidgets.QMainWindow):
 	def clearTranslation(self):
 		self.text.clear()
 		self.translation = GTranslation()
+		self.hasOpenTranslation = False
 		
 	def resetTranslation(self):
 		self.text.clear()
 		self.translation.resetIndex()
-	
+
 	def getTranslationFromFile(self):
 		if not self.pdf_widget.hasFile() and self.openDocument() == 1:
 			return
+		if self.hasOpenTranslation:
+			reply = QtWidgets.QMessageBox.question(self, "Gerar tradução", "Já existe uma tradução aberta. Substituir?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+			if reply == QtWidgets.QMessageBox.No:
+				return 
+				
 		txt = self.pdf_widget.getFormattedText()
-		self.translation = GTranslation(txt)
-	
+		self.translation.update(txt)
+		self.hasOpenTranslation = True
+
 	def importTextFile(self):
 		filename = QtWidgets.QFileDialog().getOpenFileName()
 		if filename[0] == "":

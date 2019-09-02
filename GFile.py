@@ -187,6 +187,13 @@ class GTranslation():
 		self.progress.setValue(0)
 		threading.Thread(target=self.translator.translate, args=([self.text])).start()
 		
+		
+	def update(self, text):
+		self.progress = QtWidgets.QProgressDialog("Traduzindo...", "Cancelar!", 0, 100)
+		self.progress.canceled.connect(self.haltTranslation)
+		self.progress.setValue(0)
+		threading.Thread(target=self.translator.translate, args=([text])).start()
+		
 	def haltTranslation(self):
 		self.translator.haltTranslation()
 		self.progress.hide()
