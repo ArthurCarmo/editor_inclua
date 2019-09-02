@@ -2,6 +2,7 @@
 
 import re
 import sys
+import os
 import threading
 import ahocorasick
 
@@ -12,6 +13,7 @@ from PyQt5.QtGui import QDesktopServices
 from GText import GTextEdit
 from GSyntax import GSyntaxHighlighter
 from GFile import GDocument, GTranslation
+from GImageButton import GImageButton
 
 from time import sleep
 from GServer import GServer
@@ -149,8 +151,12 @@ class Main(QtWidgets.QMainWindow):
 		self.server_widget.setMinimumSize(QtCore.QSize(640, 480))
 		self.server_widget.setMaximumSize(QtCore.QSize(640, 480))
 		
+		# Widget das imagens
+		self.images_widget = QtWidgets.QSplitter(Qt.Horizontal)
+		self.loadImages()
+
 		self.filler.addWidget(self.server_widget)
-		self.filler.addWidget(QtWidgets.QGraphicsView())
+		self.filler.addWidget(self.images_widget)
 				
 		# Widget que aparece na janela é um splitter
 		# os outros são adicionados a ele
@@ -215,6 +221,17 @@ class Main(QtWidgets.QMainWindow):
 		txt = self.pdf_widget.getFormattedText()
 		self.translation.update(txt)
 		self.hasOpenTranslation = True
+
+	def loadImages(self):
+		names = []
+		for filename in os.listdir("media/images/"):
+			names.append("media/images/" + filename)
+		names.sort()
+		i = 1
+		for filename in names:
+			label = GImageButton(filename, i, self)
+			self.images_widget.addWidget(label)
+			i += 1
 
 	def importTextFile(self):
 		filename = QtWidgets.QFileDialog().getOpenFileName()
