@@ -163,7 +163,6 @@ class Main(QtWidgets.QMainWindow):
 
 		self.filler.addWidget(self.server_widget)
 		self.filler.addWidget(self.images_scroll)
-		self.filler.addWidget(QtWidgets.QGraphicsView())
 				
 		# Widget que aparece na janela é um splitter
 		# os outros são adicionados a ele
