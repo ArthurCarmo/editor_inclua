@@ -242,7 +242,7 @@ class Main(QtWidgets.QMainWindow):
 		i = 1
 		for filename in names:
 			label = GImageButton(filename, i, self)
-			self.images_grid.addWidget(label, i-1, 0)
+			self.images_grid.addWidget(label, 0, i-1)
 			i += 1
 
 	def importTextFile(self):

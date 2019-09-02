@@ -9,7 +9,7 @@ class GImageButton(QLabel):
         self.index = index
         self.parent = parent
         self.setScaledContents(True)
-        self.setFixedSize(100, 100)
+        self.setFixedSize(90, 90)
         pixmap = QPixmap(img_url)
         self.setPixmap(pixmap)
 
