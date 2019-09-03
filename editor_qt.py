@@ -23,6 +23,7 @@ class Main(QtWidgets.QMainWindow):
 		QtWidgets.QMainWindow.__init__(self, parent)
 		self.hasOpenTranslation = False
 		self.hasOpenFile = False
+		self.translationFileName = ""
 		self.server = GServer()
 		self.initUI()
 
@@ -37,7 +38,7 @@ class Main(QtWidgets.QMainWindow):
 		fileNovo = QtWidgets.QAction("Novo", self)
 		fileNovo.setShortcut("Ctrl+N")
 		fileNovo.setStatusTip("Criar nova tradução")
-		fileNovo.triggered.connect(self.saveTextFile)
+		fileNovo.triggered.connect(self.newTextFile)
 
 		fileAbrir = QtWidgets.QAction("Abrir documento", self)
 		fileAbrir.setShortcut("Ctrl+O")
@@ -57,11 +58,11 @@ class Main(QtWidgets.QMainWindow):
 		fileSalvarComo = QtWidgets.QAction("Salvar como...", self)
 		fileSalvarComo.setShortcut("Ctrl+Shift+S")
 		fileSalvarComo.setStatusTip("Salvar arquivo da tradução como...")
-		fileSalvarComo.triggered.connect(self.saveTextFile)
+		fileSalvarComo.triggered.connect(self.saveTextFileAs)
 
 		fileExportar = QtWidgets.QAction("Exportar", self)
 		fileExportar.setStatusTip("Exportar tradução para...")
-		fileExportar.triggered.connect(self.saveTextFile)	
+		fileExportar.triggered.connect(self.exportTextFile)	
 
 		fileQuit = QtWidgets.QAction("Sair", self)
 		fileQuit.setShortcut("Ctrl+Q")
@@ -190,8 +191,20 @@ class Main(QtWidgets.QMainWindow):
 	#
 	##################################
 	
+	def newTextFile(self):
+	
+		reply = QtWidgets.QMessageBox.question(self, "Novo arquivo de glosa", "Salvar alterações", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel)
+		if reply == QtWidgets.QMessageBox.Yes:
+			self.saveTextFile()
+		elif reply == QtWidgets.QMessageBox.Cancel:
+			return
+			
+		self.text.clear()
+		self.translationFileName = ""
+		self.hasOpenTranslationFile = False		
+	
 	def openDocument(self):
-		filename = QtWidgets.QFileDialog().getOpenFileName()
+		filename = QtWidgets.QFileDialog().getOpenFileName(caption="Abrir documento", filter="Documentos (*.pdf *.odt *.doc *.docx *.ppt *.pptx *.rtf *.pps *.ppsx *.odp);; Todos os arquivos (*.*)")
 		if filename[0] == "":
 			return 1
 		
@@ -252,22 +265,37 @@ class Main(QtWidgets.QMainWindow):
 			i += 1
 
 	def importTextFile(self):
-		filename = QtWidgets.QFileDialog().getOpenFileName()
+		filename = QtWidgets.QFileDialog().getOpenFileName(caption="Abrir arquivo de tradução", filter="EGL (*.egl);; TXT (*.txt);; Todos os arquivos (*.*)")
 		if filename[0] == "":
 			return
 		self.text.clear()
 		self.translation.load(filename[0])
+		self.translationFileName = filename[0]
 		for line in self.translation.paragraphsToDisplay():
 			print(line)
 			self.text.textCursor().insertText(line + "\n")
 
 	def saveTextFile(self):
-		filename = QtWidgets.QFileDialog().getSaveFileName()
+		if self.translationFileName == "":
+			self.saveTextFileAs()
+		else:
+			self.translation.save(self.translationFileName)
+		
+	def saveTextFileAs(self):
+		filename = QtWidgets.QFileDialog().getSaveFileName(caption="Salvar arquivo de tradução")
 		#self.translation.setText(self.text.toPlainText(), endl = "\n", raw = False)
 		fname = filename[0]
-		if not fname.endswith(".egl"):
+		if not fname.endswith(".egl") and not fname.endswith(".txt"):
 			fname += ".egl"
-		self.translation.save(fname)
+		self.translationFileName = fname
+		self.translation.save(self.translationFileName)
+		
+	def exportTextFile(self):
+		filename = QtWidgets.QFileDialog().getSaveFileName(caption="Exportar arquivo de tradução")
+		fname = filename[0]
+		with open(fname, "w") as doc:
+			doc.write(self.text.toPlainText)
+			
 
 	def addNextTranslationParagraph(self):
 		cursor = self.text.textCursor()
