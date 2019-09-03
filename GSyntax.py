@@ -60,7 +60,7 @@ class GParser():
 		return l
 
 	def cleanText(self, text):
-		text = re.sub(r'[\n,\';]+', ' ', text)
+		text = re.sub(r'[\n,\'; ]+', ' ', text)
 		return text
 	
 	def getCommandBlocks(self, text):
@@ -75,7 +75,7 @@ class GParser():
 	
 		patterns += ")"
 		blocks = re.split(patterns, text)
-		return list(filter(lambda a: a != "", blocks))
+		return list(filter(lambda a: a != "" and a != " ", blocks))
 
 class GSyntaxHighlighter(QtGui.QSyntaxHighlighter):
 	def __init__(self, parent):

@@ -76,7 +76,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 #		QtWidgets.QTextEdit.keyPressEvent(self, newEvent)
 		QtWidgets.QTextEdit.keyPressEvent(self, event)
 		
-		if not event.text().isalpha() and not ek == QtCore.Qt.Key_Shift:
+		if not event.text().isalpha() and not ek == QtCore.Qt.Key_Shift and not event.text() in ('_', '<'):
 			self.completer.popup().hide()
 			
 		# Só mostra sugestão em caso de adicionar uma letra Ctrl+Espaço
@@ -181,13 +181,14 @@ class GTextEdit(QtWidgets.QTextEdit):
 		if not ek.isalpha() and not ek.isdigit() and not ek in ('<', '_'):
 			self.completer.popup().hide()
 			return
+		
+		tc.select(QtGui.QTextCursor.WordUnderCursor)
 
-		if ek.isalpha() and not ek.isupper():
+		if ek.isalpha() and not ek.isupper() and not tc.selectedText().startswith('_'):
 			self.textChanged.disconnect()
 			lc.insertText(ek.upper())
 			self.textChanged.connect(self.onTextChanged)
 
-		tc.select(QtGui.QTextCursor.WordUnderCursor)
 		lc.select(QtGui.QTextCursor.WordUnderCursor)
 		cr = self.cursorRect()
 

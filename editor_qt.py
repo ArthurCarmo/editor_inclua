@@ -23,8 +23,10 @@ class Main(QtWidgets.QMainWindow):
 		QtWidgets.QMainWindow.__init__(self, parent)
 		self.hasOpenTranslation = False
 		self.hasOpenFile = False
+		self.isRecording = False
 		self.translationFileName = ""
 		self.server = GServer()
+		self.server.sender.finishedRecording.connect(self.createVideo)
 		self.initUI()
 
 	def initMenubar(self):
@@ -86,6 +88,11 @@ class Main(QtWidgets.QMainWindow):
 		avatarEnviar.setStatusTip("Envia o texto selecionado para o avatar sinalizar")
 		avatarEnviar.triggered.connect(self.sendText)
 
+
+		avatarGravar = QtWidgets.QAction("Gravar vídeo", self)
+		avatarGravar.setStatusTip("Grava o vídeo para o texto selecionado")
+		avatarGravar.triggered.connect(self.recordVideo)
+
 		avatarConectar = QtWidgets.QAction("Conectar", self)
 		avatarConectar.setStatusTip("Conecta com o servidor do avatar")
 		avatarConectar.triggered.connect(self.server.startCommunication)
@@ -96,6 +103,7 @@ class Main(QtWidgets.QMainWindow):
 		avatarMostrar.triggered.connect(self.toggleAvatarVisible)
 
 		avatar.addAction(avatarEnviar)
+		avatar.addAction(avatarGravar)
 		avatar.addSeparator()
 		avatar.addAction(avatarConectar)
 		avatar.addAction(avatarMostrar)
@@ -335,6 +343,15 @@ class Main(QtWidgets.QMainWindow):
 		else:
 			widget.show()
 
+	def createVideo(self):
+		print("Hi o/")
+		
+	def recordVideo(self):
+		cursor = self.text.textCursor()
+		if cursor.hasSelection():
+			txt = cursor.selection().toPlainText()
+			txt = "__rec " + txt + " __stop"
+			self.server.asyncSend(txt)
 
 	def tryCommunication(self, n = 10):
 		tries = 0

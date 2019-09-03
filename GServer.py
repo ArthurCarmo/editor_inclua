@@ -9,8 +9,10 @@ from subprocess import Popen, PIPE, run
 
 from GSyntax import GParser
 
+class senderObject(QtCore.QObject):
+	finishedRecording = QtCore.pyqtSignal()
+	
 class GServer():
-
 	def __init__(self):
 		self.HOST = '0.0.0.0'
 		self.PORT = 5555
@@ -19,6 +21,7 @@ class GServer():
 		self.game = None
 		self.title = "GXEPHYRSV"
 		self.process = QProcess()
+		self.sender = senderObject()
 
 	def kill(self):
 		self.__del__()
@@ -92,11 +95,37 @@ class GServer():
 		try:
 			i = 0
 			for msg in blocks:
+				if msg[0] in (' ', '\n', '\t'):
+					msg = msg[1:]
 				i += 1
 				print("MESSAGE:")
 				print(str(i) + ":", end="")
 				print(msg.encode('utf-8'))
 				print(self.sock.send(msg.encode('utf-8')))
+				print("Resposta:\n------------------")
+				print(self.sock.recv(2048))
+		except:
+			print("Não há conexação com o servidor")
+	
+	def asyncSend(self, text):
+		threading.Thread(target=self.waitingSend, args=([text])).start()
+	
+	def waitingSend(self, text):
+		text = GParser().cleanText(text)
+		blocks = GParser().getCommandBlocks(text)
+		try:		
+			print(blocks)
+			print("-----------------------------__")
+			for msg in blocks:
+				if msg[0] in (' ', '\n', '\t'):
+					msg = msg[1:]
+				print("MSG: " + msg)
+				self.sock.send(msg.encode('utf-8'))
 				self.sock.recv(2048)
+			
+			# Ao final da gravação o avatar envia mais uma mensagem
+			self.sock.recv(2048)
+			self.sender.finishedRecording.emit()
+			
 		except:
 			print("Não há conexação com o servidor")
