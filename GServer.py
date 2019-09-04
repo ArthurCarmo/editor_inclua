@@ -10,7 +10,7 @@ from subprocess import Popen, PIPE, run
 from GSyntax import GParser
 
 class senderObject(QtCore.QObject):
-	finishedRecording = QtCore.pyqtSignal()
+	finishedRecording = QtCore.pyqtSignal(str)
 	
 class GServer():
 	def __init__(self):
@@ -107,10 +107,10 @@ class GServer():
 		except:
 			print("Não há conexação com o servidor")
 	
-	def asyncSend(self, text):
-		threading.Thread(target=self.waitingSend, args=([text])).start()
+	def sendToRecord(self, text, vName):
+		threading.Thread(target=self.waitingSend, args=(text, vName)).start()
 	
-	def waitingSend(self, text):
+	def waitingSend(self, text, vName):
 		text = GParser().cleanText(text)
 		blocks = GParser().getCommandBlocks(text)
 		try:		
@@ -125,7 +125,7 @@ class GServer():
 			
 			# Ao final da gravação o avatar envia mais uma mensagem
 			self.sock.recv(2048)
-			self.sender.finishedRecording.emit()
+			self.sender.finishedRecording.emit(vName)
 			
 		except:
 			print("Não há conexação com o servidor")

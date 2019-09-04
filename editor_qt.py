@@ -12,13 +12,17 @@ from PyQt5.QtGui import QDesktopServices
 
 from GText import GTextEdit
 from GSyntax import GSyntaxHighlighter
-from GFile import GDocument, GTranslation
+from GFile import GDocument, GTranslation, GVideo
 from GImageButton import GImageButton
 
 from time import sleep
 from GServer import GServer
 
 class Main(QtWidgets.QMainWindow):
+
+	default_videoId = "teste_renderer"
+	default_pngDir  = "${HOME}/.config/unity3d/LAViD/VLibrasVideoMaker"
+
 	def __init__(self, parent = None):
 		QtWidgets.QMainWindow.__init__(self, parent)
 		self.hasOpenTranslation = False
@@ -347,15 +351,24 @@ class Main(QtWidgets.QMainWindow):
 		else:
 			widget.show()
 
-	def createVideo(self):
-		print("Hi o/")
+	def createVideo(self, vName, vId = default_videoId, pngDir = default_pngDir):
+		vid = GVideo()
+		vid.sender.videoReady.connect(self.onVideoReady)
+		vid.createVideo(vId, vName, pngDir)
 		
 	def recordVideo(self):
+		fName = QtWidgets.QFileDialog().getSaveFileName(caption="Gerar vídeo")
+		vName = fName[0]
+		if vName == "":
+			return
 		cursor = self.text.textCursor()
 		if cursor.hasSelection():
 			txt = cursor.selection().toPlainText()
 			txt = "__rec " + txt + " __stop"
-			self.server.asyncSend(txt)
+			self.server.sendToRecord(txt, vName)
+	
+	def onVideoReady(self):
+		print("Hi o/")
 
 	def tryCommunication(self, n = 10):
 		tries = 0

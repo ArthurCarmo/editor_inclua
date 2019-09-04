@@ -279,4 +279,28 @@ class GTranslation():
 		self.raw = True
 		self.paragraphs = []
 		self.parseIndex = 0
+
+###############################################
+#
+# Cria os arquivos de vídeo
+#
+###############################################
+class videoSenderObject(QtCore.QObject):
+	videoReady = QtCore.pyqtSignal()
+	
+class GVideo():
+	def __init__(self):
+		self.sender = videoSenderObject()
+		
+	def createVideo(self, vId, vFname, pngDir):
+		if not vFname.endswith(".mp4"):
+			vFname += ".mp4"
+		threading.Thread(target=self.videoCreatorThread, args=(vId, vFname, pngDir)).start()
+		
+	def videoCreatorThread(self, vId, vFname, pngDir):
+		png = pngDir + "/" + vId + "/frame_%d.png"
+		cmd = "ffmpeg -y -v quiet -framerate 30 -i %s -pix_fmt yuv420p %s" % (png, vFname)
+		print(cmd)
+		subprocess.run(cmd, shell=True)
+		self.sender.videoReady.emit()
 		
