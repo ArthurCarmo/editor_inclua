@@ -21,16 +21,28 @@ from GTranslatorInterface import GTranslator
 # extrair os textos e providenciar o widget
 # que vai exibir o PDF
 ############################################
+
+class documentSenderObject(QtCore.QObject):
+	formattedReady  = QtCore.pyqtSignal()
+	convertionReady = QtCore.pyqtSignal(str)
+
 class GDocument(QtWebEngineWidgets.QWebEngineView):
 
-	__pdfjs = 'file:///home/arthur/editor_inclua/pdfjs/web/viewer.html'
+	__pdfjs = 'file://' + os.getcwd() + '/pdfjs/web/viewer.html'
 
 	def __init__(self, parent = None):
 		QtWebEngineWidgets.QWebEngineView.__init__(self, parent)
-		self.file = None
 		self.name = ""
+		self.file = None
+		self.ready = False
 		self.rawText = None
 		self.formattedText = None
+		self.sender = documentSenderObject()
+		self.sender.formattedReady.connect(self.onFormattedReady)
+		self.sender.convertionReady.connect(self.onConvertionReady)
+	
+	def isReady(self):
+		return self.ready
 	
 	def isPDF(self):
 		if self.file is None:
@@ -46,14 +58,16 @@ class GDocument(QtWebEngineWidgets.QWebEngineView):
 	def getOutputFileName(self):
 		return self.getDirName() + "/" + self.getBaseName().split('.', 1)[0] + ".pdf"
 	
-	def convertToPDF(self):
+	def convertToPDF(self, url = "file://"):
 		cmd = "unoconv -f pdf " + self.file
 		resp = subprocess.call(cmd, shell=True)
 		self.file = self.getOutputFileName()
 		print(self.file)
 		print("-------------------------------")
+		self.sender.convertionReady.emit(url)
 
 	def load(self, f, url = "file://"):
+		self.ready = False
 		self.file = f
 		self.rawText = None
 		self.formattedText = None
@@ -62,9 +76,19 @@ class GDocument(QtWebEngineWidgets.QWebEngineView):
 			raise Exception("Nenhum arquivo especificado")
 
 		if not self.isPDF():
-			self.convertToPDF()
+			threading.Thread(target=self.convertToPDF, args=([url])).start()
+		else:
+			super().load(QtCore.QUrl.fromUserInput(self.__pdfjs + "?file="+url+self.file))
+			threading.Thread(target=self.getFormattedText).start()
+	
+	def onConvertionReady(self, url = "file://"):
 		super().load(QtCore.QUrl.fromUserInput(self.__pdfjs + "?file="+url+self.file))
+		threading.Thread(target=self.getFormattedText).start()
 		
+	def onFormattedReady(self):
+		self.ready = True
+		print ("REFINO!")
+	
 	def hasFile(self):
 		return self.file is not None
 
@@ -114,6 +138,7 @@ class GDocument(QtWebEngineWidgets.QWebEngineView):
 	# Refino
 	def getFormattedText(self):
 		if self.formattedText is not None:
+			self.sender.formattedReady.emit()
 			return self.formattedText
 			
 		os.system("rm media/images/*")
@@ -135,18 +160,25 @@ class GDocument(QtWebEngineWidgets.QWebEngineView):
 				if(refino[-3:] != "\n"):
 					refino = refino + "\n"
 		self.formattedText = refino
+		self.sender.formattedReady.emit()
 		return self.formattedText
 
 #############################################
 # Classe para lidar com os arquivos de glosa
 # E gerenciar o texto traduzido
 #############################################
+
+class translationSenderObject(QtCore.QObject):
+	translationReady = QtCore.pyqtSignal()
+
 class GTranslation():
 	def __init__(self, text = None, raw = True):
 		self.text = text
 		self.parseIndex = 0
 		self.paragraphs = []
 		self.raw = raw
+		
+		self.sender = translationSenderObject()
 		
 		self.translator = GTranslator()
 		self.translator.sender.translationReady.connect(self.updateStatus)
@@ -204,6 +236,7 @@ class GTranslation():
 		self.parseIndex = 0
 		self.raw  = False
 		self.progress.hide()
+		self.sender.translationReady.emit()
 		
 	def updateProgress(self, progress):
 		if not self.progress.wasCanceled():

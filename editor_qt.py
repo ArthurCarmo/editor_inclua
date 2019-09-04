@@ -146,10 +146,12 @@ class Main(QtWidgets.QMainWindow):
 		# Inicia o SyntaxHighlighter
 		self.highlighter = GSyntaxHighlighter(self.text.document())
 		self.translation = GTranslation()
+		self.translation.sender.translationReady.connect(self.onTranslationReady)
 		
 		# Visualizador de pdf pode ser uma página web dentro de um webView
 		self.pdf_widget = GDocument()
 		self.pdf_widget.hide()
+		self.pdf_widget.sender.formattedReady.connect(self.onPDFTextReady)
 		
 		# Widget para permitir redimensionamento vertical do editor
 		# de texto (sem ele o splitter fica no tamanho exato da janela Xephyr)
@@ -200,7 +202,6 @@ class Main(QtWidgets.QMainWindow):
 	##################################
 	
 	def newTextFile(self):
-	
 		reply = QtWidgets.QMessageBox.question(self, "Novo arquivo de glosa", "Salvar alterações", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel)
 		if reply == QtWidgets.QMessageBox.Yes:
 			self.saveTextFile()
@@ -233,10 +234,6 @@ class Main(QtWidgets.QMainWindow):
 		
 		self.hasOpenDocument = True
 		
-		reply = QtWidgets.QMessageBox.question(self, "Abrir documento", "Traduzir documento?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-		if reply == QtWidgets.QMessageBox.Yes:
-			self.getTranslationFromFile()
-		
 		return 0
 
 	def clearTranslation(self):
@@ -256,10 +253,17 @@ class Main(QtWidgets.QMainWindow):
 			reply = QtWidgets.QMessageBox.question(self, "Gerar tradução", "Já existe uma tradução aberta. Substituir?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
 			if reply == QtWidgets.QMessageBox.No:
 				return 
-				
+		
 		txt = self.pdf_widget.getFormattedText()
 		self.translation.update(txt)
-		self.hasOpenTranslation = True
+
+	def onPDFTextReady(self):
+		reply = QtWidgets.QMessageBox.question(self, "Abrir documento", "Traduzir documento?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+		if reply == QtWidgets.QMessageBox.Yes:
+			self.getTranslationFromFile()
+		
+	def onTranslationReady(self):
+			self.hasOpenTranslation = True
 
 	def loadImages(self):
 		names = []
