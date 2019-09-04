@@ -68,6 +68,12 @@ class GTextEdit(QtWidgets.QTextEdit):
 		print("KEY")
 		ek = event.key()
 		self.pressed[ek] = True
+
+		# Provavelmente só tem o efeito desejado em sistemas
+		# cujas teclas mortas não invocam esse evento
+		self.onDeadKey = False
+		
+		QtWidgets.QTextEdit.keyPressEvent(self, event)
 		
 		if (ek == QtCore.Qt.Key_Tab or ek == QtCore.Qt.Key_Return) and self.completer.popup().isVisible():
 			self.completer.insertText.emit(self.completer.getSelected())
@@ -76,7 +82,6 @@ class GTextEdit(QtWidgets.QTextEdit):
 		
 #		newEvent = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, event.key(), event.modifiers(), event.nativeScanCode(), event.nativeVirtualKey(), event.nativeModifiers(), event.text().upper(), event.isAutoRepeat(), event.count())
 #		QtWidgets.QTextEdit.keyPressEvent(self, newEvent)
-		QtWidgets.QTextEdit.keyPressEvent(self, event)
 		
 		if not event.text().isalpha() and not ek == QtCore.Qt.Key_Shift and not event.text() in ('_', '<'):
 			self.completer.popup().hide()
@@ -180,11 +185,19 @@ class GTextEdit(QtWidgets.QTextEdit):
 	#########################################
 	def inputMethodEvent(self, event):
 		print("HI")
-		print(event.commitString())
-		print(event.preeditString())
-		if event.preeditString() in ('^', '`', '´', '~'):
-			print ("opa!!!")
-			self.onDeadKey = True
+		
+		commitString  = event.commitString()
+		preeditString = event.preeditString()
+		
+		print("COMMIT: |" + commitString + "|")
+		print("PREDIT: |" + preeditString + "|")
+		
+		# Desse jeito o usuário não pode digitar
+		# os caracteres ~, ´, ` e ^ sozinhos, 
+		# talvez depois tentar algum fix
+		if commitString in ('´', '^', '~', '`'):
+			event.setCommitString("")
+		
 		print("++++++++++++++++++++++++")
 		super().inputMethodEvent(event)
 	
@@ -199,12 +212,12 @@ class GTextEdit(QtWidgets.QTextEdit):
 		lc.movePosition(lc.Left, lc.KeepAnchor)
 		ek = lc.selectedText()
 
-		if not ek.isalpha() and not ek.isdigit() and not ek in ('<', '_'):
-			self.completer.popup().hide()
-			return
-		
 		if self.onDeadKey:
 			self.onDeadKey = False
+			return
+
+		if not ek.isalpha() and not ek.isdigit() and not ek in ('<', '_'):
+			self.completer.popup().hide()
 			return
 		
 		tc.select(QtGui.QTextCursor.WordUnderCursor)
@@ -217,7 +230,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 
 		lc.select(QtGui.QTextCursor.WordUnderCursor)
 
-		word = tc.selectedText()
+		word = lc.selectedText()
 		
 		if ek == '_' or ek == '<':
 			word = ek
