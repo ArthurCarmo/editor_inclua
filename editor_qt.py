@@ -357,10 +357,12 @@ class Main(QtWidgets.QMainWindow):
 		vid.createVideo(vId, vName, pngDir)
 		
 	def recordVideo(self):
-		fName = QtWidgets.QFileDialog().getSaveFileName(caption="Gerar vídeo")
+		fName = QtWidgets.QFileDialog().getSaveFileName(caption="Gerar vídeo", filter="MP4 (*.mp4)")
 		vName = fName[0]
 		if vName == "":
 			return
+		cmd = "rm %s/%s/*" % (default_pngDir, default_videoId)
+		subprocess.run(cmd, shell=True)
 		cursor = self.text.textCursor()
 		if cursor.hasSelection():
 			txt = cursor.selection().toPlainText()
