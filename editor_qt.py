@@ -1,9 +1,10 @@
 #!/usr/bin/python3
 
+import os
 import re
 import sys
-import os
 import threading
+import subprocess
 import ahocorasick
 
 from PyQt5 import QtGui, QtCore, QtWidgets
@@ -19,9 +20,10 @@ from time import sleep
 from GServer import GServer
 
 class Main(QtWidgets.QMainWindow):
-
+	home		= os.path.expanduser("~")
+	default_pngDir  = home + "/.config/unity3d/LAViD/VLibrasVideoMaker"
 	default_videoId = "teste_renderer"
-	default_pngDir  = "${HOME}/.config/unity3d/LAViD/VLibrasVideoMaker"
+	
 
 	def __init__(self, parent = None):
 		QtWidgets.QMainWindow.__init__(self, parent)
@@ -361,7 +363,7 @@ class Main(QtWidgets.QMainWindow):
 		vName = fName[0]
 		if vName == "":
 			return
-		cmd = "rm %s/%s/*" % (default_pngDir, default_videoId)
+		cmd = "rm %s/%s/*" % (self.default_pngDir, self.default_videoId)
 		subprocess.run(cmd, shell=True)
 		cursor = self.text.textCursor()
 		if cursor.hasSelection():
@@ -369,8 +371,8 @@ class Main(QtWidgets.QMainWindow):
 			txt = "__rec " + txt + " __stop"
 			self.server.sendToRecord(txt, vName)
 	
-	def onVideoReady(self):
-		print("Hi o/")
+	def onVideoReady(self, title):
+		QtWidgets.QMessageBox.question(self, "Gerar vídeo", "Vídeo %s criado com sucesso!" % title, (QtWidgets.QMessageBox.Ok))
 
 	def tryCommunication(self, n = 10):
 		tries = 0

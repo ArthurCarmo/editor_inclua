@@ -29,7 +29,7 @@ class GCompleter(QtWidgets.QCompleter):
 #######################################
 #
 # Editor de texto
-#
+#	
 #######################################
 class GTextEdit(QtWidgets.QTextEdit):
 	def __init__(self, parent = None):
@@ -38,9 +38,11 @@ class GTextEdit(QtWidgets.QTextEdit):
 		self.completer.setWidget(self)
 		self.completer.insertText.connect(self.insertCompletion)
 		self.pressed = {}
+		self.onDeadKey = False
 		
 		self.textChanged.connect(self.onTextChanged)
 		# self.setAttribute(QtCore.Qt.WA_KeyCompression)
+		self.setAttribute(QtCore.Qt.WA_InputMethodEnabled)
 	
 	#####################################
 	#
@@ -167,6 +169,25 @@ class GTextEdit(QtWidgets.QTextEdit):
 			menu.triggered[QtWidgets.QAction].connect(lambda w: self.wordSubFunction(w, cursor))
 			menu.exec(event.globalPos())
 		"""
+		
+	#########################################
+	#
+	# Controle fino do input
+	#
+	# Mexer aqui para tratar teclas mortas
+	# ( `, ´, ~, ^ )
+	#
+	#########################################
+	def inputMethodEvent(self, event):
+		print("HI")
+		print(event.commitString())
+		print(event.preeditString())
+		if event.preeditString() in ('^', '`', '´', '~'):
+			print ("opa!!!")
+			self.onDeadKey = True
+		print("++++++++++++++++++++++++")
+		super().inputMethodEvent(event)
+	
 	#########################################
 	#
 	# Teste textChanged
@@ -182,6 +203,10 @@ class GTextEdit(QtWidgets.QTextEdit):
 			self.completer.popup().hide()
 			return
 		
+		if self.onDeadKey:
+			self.onDeadKey = False
+			return
+		
 		tc.select(QtGui.QTextCursor.WordUnderCursor)
 
 		if ek.isalpha() and not ek.isupper() and not tc.selectedText().startswith('_'):
@@ -189,8 +214,8 @@ class GTextEdit(QtWidgets.QTextEdit):
 			lc.insertText(ek.upper())
 			self.textChanged.connect(self.onTextChanged)
 
+
 		lc.select(QtGui.QTextCursor.WordUnderCursor)
-		cr = self.cursorRect()
 
 		word = tc.selectedText()
 		
@@ -206,12 +231,15 @@ class GTextEdit(QtWidgets.QTextEdit):
 			
 		print("lc: " + lc)
 		print("word:" + word)
+
+		cr = self.cursorRect()
+		
 		if len(word) > 0:
 			print("|->"+word)
 			self.completer.setCompletionPrefix(word)
 			popup = self.completer.popup()
 			popup.setCurrentIndex(self.completer.completionModel().index(0,0))
-			cr.setWidth(self.completer.popup().sizeHintForColumn(0)+self.completer.popup().verticalScrollBar().sizeHint().width())
+			cr.setWidth(self.completer.popup().sizeHintForColumn(0) | self.completer.popup().verticalScrollBar().sizeHint().width())
 			self.completer.complete(cr)
 			if self.completer.completionCount() == 0:
 				self.completer.popup().hide()

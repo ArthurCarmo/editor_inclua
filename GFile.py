@@ -286,7 +286,7 @@ class GTranslation():
 #
 ###############################################
 class videoSenderObject(QtCore.QObject):
-	videoReady = QtCore.pyqtSignal()
+	videoReady = QtCore.pyqtSignal(str)
 	
 class GVideo():
 	def __init__(self):
@@ -302,5 +302,5 @@ class GVideo():
 		cmd = "ffmpeg -y -v quiet -framerate 30 -i %s -pix_fmt yuv420p %s" % (png, vFname)
 		print(cmd)
 		subprocess.run(cmd, shell=True)
-		self.sender.videoReady.emit()
+		self.sender.videoReady.emit(os.path.basename(vFname))
 		
