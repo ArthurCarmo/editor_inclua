@@ -138,7 +138,7 @@ class GDocument(QtWebEngineWidgets.QWebEngineView):
 	# Refino
 	def getFormattedText(self):
 		if self.formattedText is not None:
-			self.sender.formattedReady.emit()
+			#self.sender.formattedReady.emit()
 			return self.formattedText
 			
 		os.system("rm media/images/*")

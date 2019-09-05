@@ -1,4 +1,6 @@
 import os
+import subprocess
+
 from shutil import copyfile
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QPixmap
@@ -27,11 +29,13 @@ class GImageButton(QtWidgets.QLabel):
 class GImageGrid(QtWidgets.QScrollArea):
 	
 	onClick = QtCore.pyqtSignal(int)
+	onDownloadFinished = QtCore.pyqtSignal()
 	
 	def __init__(self, parent = None):
 		QtWidgets.QScrollArea.__init__(self, parent)
 		self.imgGrid = QtWidgets.QGridLayout()
 		self.n_images = 0
+		self.dl_index = 0
 
 	def loadImages(self):
 		names = []
@@ -55,11 +59,26 @@ class GImageGrid(QtWidgets.QScrollArea):
 	def imageClicked(self, index):
 		self.onClick.emit(index)
 		
-	def addImage(self, src):
+	def addImagesFromFile(self, files):
+		cwd = os.getcwd()
+		
+		i = self.n_images
+		for src in files:
+			filename, file_extension = os.path.splitext(src)
+			filename = "media/images/IMG%d%s" % (i, file_extension.upper())
+			copyfile(src, "%s/%s" % (cwd, filename))
+			i += 1
+		
+		self.loadImages()
+		
+	def addImageFromUrl(self, src):
 		cwd = os.getcwd()
 		filename, file_extension = os.path.splitext(src)
+		cmd = "wget -O %s/media/images/DL%d%s %s" % (cwd, self.dl_index, file_extension, src)
+		subprocess.run(cmd, shell=True)
+		self.dl_index += 1
 		
-		filename = "media/images/IMG%d%s" % (self.n_images, file_extension.upper())
-		
-		copyfile(src, "%s/%s" % (cwd, filename))
 		self.loadImages()
+		
+	def clear(self):
+		return

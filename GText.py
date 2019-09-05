@@ -73,12 +73,12 @@ class GTextEdit(QtWidgets.QTextEdit):
 		# cujas teclas mortas não invocam esse evento
 		self.onDeadKey = False
 		
-		QtWidgets.QTextEdit.keyPressEvent(self, event)
-		
 		if (ek == QtCore.Qt.Key_Tab or ek == QtCore.Qt.Key_Return) and self.completer.popup().isVisible():
 			self.completer.insertText.emit(self.completer.getSelected())
 			self.completer.setCompletionMode(self.completer.PopupCompletion)
 			return
+		
+		QtWidgets.QTextEdit.keyPressEvent(self, event)
 		
 #		newEvent = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, event.key(), event.modifiers(), event.nativeScanCode(), event.nativeVirtualKey(), event.nativeModifiers(), event.text().upper(), event.isAutoRepeat(), event.count())
 #		QtWidgets.QTextEdit.keyPressEvent(self, newEvent)
@@ -253,7 +253,9 @@ class GTextEdit(QtWidgets.QTextEdit):
 			popup = self.completer.popup()
 			popup.setCurrentIndex(self.completer.completionModel().index(0,0))
 			cr.setWidth(self.completer.popup().sizeHintForColumn(0) | self.completer.popup().verticalScrollBar().sizeHint().width())
+			# Essa linha causa bug com acentuação
 			self.completer.complete(cr)
+			#############################
 			if self.completer.completionCount() == 0:
 				self.completer.popup().hide()
 		else:

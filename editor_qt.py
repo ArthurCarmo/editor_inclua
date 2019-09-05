@@ -145,11 +145,15 @@ class Main(QtWidgets.QMainWindow):
 
 		imagensNewFromFile = QtWidgets.QAction("Adicionar imagem do computador", self)
 		imagensNewFromFile.setStatusTip("Adiciona uma imagem do computador à lista de imagens disponíveis para o vídeo")
-		imagensNewFromFile.triggered.connect(self.addImage)
+		imagensNewFromFile.triggered.connect(self.addImagesFromFile)
 
 		imagensNewFromUrl = QtWidgets.QAction("Adicionar imagem da internet", self)
 		imagensNewFromUrl.setStatusTip("Adiciona uma imagem da internet à lista de imagens disponíveis para o vídeo")
-		#imagensNewFromUrl.triggered.connect()
+		imagensNewFromUrl.triggered.connect(self.addImageFromUrl)
+		
+		imagensDelete = QtWidgets.QAction("Remover imagens")
+		imagensDelete.setStatusTip("Remover imagens da área de seleção")
+#		imagensDelete.triggered.connect(self.removeImages)
 		
 		imagens.addAction(imagensNewFromFile)
 		imagens.addAction(imagensNewFromUrl)
@@ -354,11 +358,18 @@ class Main(QtWidgets.QMainWindow):
 	#
 	##################################
 
-	def addImage(self):
-		filename = QtWidgets.QFileDialog().getOpenFileName(caption="Adicionar imagem do computador", filter="Imagens (*.jpg *.JPG *.jpeg *.JPEG *.png *.PNG);; JPG (*.jpg *.JPG *.jpeg *JPEG);; PNG (*.png *.PNG);; Todos os arquivos (*.*)")
-		if filename[0] == "":
+	def addImagesFromFile(self):
+		filename = QtWidgets.QFileDialog().getOpenFileNames(caption="Adicionar imagem do computador", filter="Imagens (*.jpg *.JPG *.jpeg *.JPEG *.png *.PNG);; JPG (*.jpg *.JPG *.jpeg *JPEG);; PNG (*.png *.PNG);; Todos os arquivos (*.*)")
+		print(filename[0])
+		if len(filename[0]) == 0:
 			return
-		self.images_widget.addImage(filename[0])
+		self.images_widget.addImagesFromFile(filename[0])
+	
+	def addImageFromUrl(self):
+		lineEdit = QtWidgets.QInputDialog().getText(self, "Adiocinar imagem por url", "Url da imagem:")
+		if lineEdit[0] == '':
+			return
+		self.images_widget.addImageFromUrl(lineEdit[0])
 
 	def onImageClick(self, index):
 		print(index)
