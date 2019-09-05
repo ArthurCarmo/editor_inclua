@@ -1,4 +1,5 @@
 import os
+import threading
 import subprocess
 
 from shutil import copyfile
@@ -37,6 +38,8 @@ class GImageGrid(QtWidgets.QScrollArea):
 		self.n_images = 0
 		self.dl_index = 0
 
+		self.onDownloadFinished.connect(self.onImageDownloaded)
+
 	def loadImages(self):
 		names = []
 		for filename in os.listdir("media/images/"):
@@ -72,13 +75,18 @@ class GImageGrid(QtWidgets.QScrollArea):
 		self.loadImages()
 		
 	def addImageFromUrl(self, src):
+		threading.Thread(target=self.handle_web_image, args=([src])).start()
+	
+	def onImageDownloaded(self):
+		self.loadImages()
+		self.dl_index += 1
+	
+	def handle_web_image(self, src):
 		cwd = os.getcwd()
 		filename, file_extension = os.path.splitext(src)
 		cmd = "wget -O %s/media/images/DL%d%s %s" % (cwd, self.dl_index, file_extension, src)
 		subprocess.run(cmd, shell=True)
-		self.dl_index += 1
-		
-		self.loadImages()
-		
+		self.onDownloadFinished.emit()
+	
 	def clear(self):
 		return
