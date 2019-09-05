@@ -145,11 +145,14 @@ class Main(QtWidgets.QMainWindow):
 
 		imagensNewFromFile = QtWidgets.QAction("Adicionar imagem do computador", self)
 		imagensNewFromFile.setStatusTip("Adiciona uma imagem do computador à lista de imagens disponíveis para o vídeo")
-		#imagensNewFromFile.triggered.connect()
+		imagensNewFromFile.triggered.connect(self.addImage)
 
 		imagensNewFromUrl = QtWidgets.QAction("Adicionar imagem da internet", self)
 		imagensNewFromUrl.setStatusTip("Adiciona uma imagem da internet à lista de imagens disponíveis para o vídeo")
 		#imagensNewFromUrl.triggered.connect()
+		
+		imagens.addAction(imagensNewFromFile)
+		imagens.addAction(imagensNewFromUrl)
 
 		#btn_nxt.setText("Próxima linha")
 
@@ -250,6 +253,13 @@ class Main(QtWidgets.QMainWindow):
 		
 		return 0
 	
+	def onPDFTextReady(self):
+		self.images_widget.loadImages()
+		
+		reply = QtWidgets.QMessageBox.question(self, "Abrir documento", "Traduzir documento?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+		if reply == QtWidgets.QMessageBox.Yes:
+			self.getTranslationFromFile()
+
 	#################################
 	#
 	# Arquivos de traudçao
@@ -333,21 +343,22 @@ class Main(QtWidgets.QMainWindow):
 	def resetTranslation(self):
 		self.text.clear()
 		self.translation.resetIndex()
-
-	#################################
-	#
-	# Eventos
-	#
-	#################################
-	def onPDFTextReady(self):
-		self.images_widget.loadImages()
-		
-		reply = QtWidgets.QMessageBox.question(self, "Abrir documento", "Traduzir documento?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-		if reply == QtWidgets.QMessageBox.Yes:
-			self.getTranslationFromFile()
 		
 	def onTranslationReady(self):
 			self.hasOpenTranslation = True
+
+
+	##################################
+	#
+	# IMAGENS
+	#
+	##################################
+
+	def addImage(self):
+		filename = QtWidgets.QFileDialog().getOpenFileName(caption="Adicionar imagem do computador", filter="Imagens (*.jpg *.JPG *.jpeg *.JPEG *.png *.PNG);; JPG (*.jpg *.JPG *.jpeg *JPEG);; PNG (*.png *.PNG);; Todos os arquivos (*.*)")
+		if filename[0] == "":
+			return
+		self.images_widget.addImage(filename[0])
 
 	def onImageClick(self, index):
 		print(index)

@@ -1,4 +1,5 @@
 import os
+from shutil import copyfile
 from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtGui import QPixmap
 
@@ -29,24 +30,36 @@ class GImageGrid(QtWidgets.QScrollArea):
 	
 	def __init__(self, parent = None):
 		QtWidgets.QScrollArea.__init__(self, parent)
+		self.imgGrid = QtWidgets.QGridLayout()
+		self.n_images = 0
 
 	def loadImages(self):
 		names = []
 		for filename in os.listdir("media/images/"):
 			names.append("media/images/" + filename)
 		names.sort()
-		i = 1
 		
-		imgGrid = QtWidgets.QGridLayout()
+		self.n_images = 0
+		
+		self.imgGrid = QtWidgets.QGridLayout()
 		for filename in names:
-			label = GImageButton(filename, i, self)
-			imgGrid.addWidget(label, 0, i-1)
+			label = GImageButton(filename, self.n_images + 1, self)
+			self.imgGrid.addWidget(label, 0, self.n_images)
 			label.onClick.connect(self.imageClicked)
-			i += 1
-			
+			self.n_images += 1
+		
 		view = QtWidgets.QWidget()
-		view.setLayout(imgGrid)
+		view.setLayout(self.imgGrid)
 		self.setWidget(view)
 			
 	def imageClicked(self, index):
 		self.onClick.emit(index)
+		
+	def addImage(self, src):
+		cwd = os.getcwd()
+		filename, file_extension = os.path.splitext(src)
+		
+		filename = "media/images/IMG%d%s" % (self.n_images, file_extension.upper())
+		
+		copyfile(src, "%s/%s" % (cwd, filename))
+		self.loadImages()
