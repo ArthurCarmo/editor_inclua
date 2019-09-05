@@ -14,7 +14,7 @@ from PyQt5.QtGui import QDesktopServices
 from GText import GTextEdit
 from GSyntax import GSyntaxHighlighter
 from GFile import GDocument, GTranslation, GVideo
-from GImageButton import GImageButton
+from GImage import GImageGrid, GImageButton
 
 from time import sleep
 from GServer import GServer
@@ -35,11 +35,17 @@ class Main(QtWidgets.QMainWindow):
 		self.server.sender.finishedRecording.connect(self.createVideo)
 		self.initUI()
 
+	#####################################
+	#
+	# Menubar
+	#
+	#####################################
 	def initMenubar(self):
 		menubar = self.menuBar()
 		file = menubar.addMenu("Arquivos")
 		avatar = menubar.addMenu("Avatar")
 		traducao = menubar.addMenu("Tradução")
+		imagens = menubar.addMenu("Imagens")
 		edit = menubar.addMenu("Preferências")
 		help = menubar.addMenu("Ajuda!")
 
@@ -137,8 +143,25 @@ class Main(QtWidgets.QMainWindow):
 		traducao.addSeparator()
 		traducao.addAction(traducaoCreate)
 
+		imagensNewFromFile = QtWidgets.QAction("Adicionar imagem do computador", self)
+		imagensNewFromFile.setStatusTip("Adiciona uma imagem do computador à lista de imagens disponíveis para o vídeo")
+		#imagensNewFromFile.triggered.connect()
+
+		imagensNewFromUrl = QtWidgets.QAction("Adicionar imagem da internet", self)
+		imagensNewFromUrl.setStatusTip("Adiciona uma imagem da internet à lista de imagens disponíveis para o vídeo")
+		#imagensNewFromUrl.triggered.connect()
+
 		#btn_nxt.setText("Próxima linha")
 
+
+	###########################################
+	#
+	# Componentes da UI
+	#
+	# Janela do servidor, editor de texto,
+	# visualizador de PDF e das imagens
+	#
+	###########################################
 	def initUI(self):
 		# Dimensões iniciais da janela
 		self.screen_rect = QtWidgets.QDesktopWidget().screenGeometry()
@@ -169,18 +192,12 @@ class Main(QtWidgets.QMainWindow):
 		self.server_widget.setMaximumSize(QtCore.QSize(640, 480))
 		
 		# Widget das imagens
-		self.images_scroll = QtWidgets.QScrollArea()
-		self.src_view = QtWidgets.QWidget()
-
-		self.images_grid = QtWidgets.QGridLayout()
-		self.loadImages()
-		self.src_view.setLayout(self.images_grid)
-
-		self.images_scroll.setWidget(self.src_view)
+		self.images_widget = GImageGrid()
+		self.images_widget.onClick.connect(self.onImageClick)
 
 		self.filler.addWidget(self.server_widget)
-		self.filler.addWidget(self.images_scroll)
-				
+		self.filler.addWidget(self.images_widget)
+		
 		# Widget que aparece na janela é um splitter
 		# os outros são adicionados a ele
 		self.setCentralWidget(self.splitter)
@@ -205,19 +222,13 @@ class Main(QtWidgets.QMainWindow):
 	#
 	# ARQUIVOS
 	#
+	##################################	
+	
 	##################################
-	
-	def newTextFile(self):
-		reply = QtWidgets.QMessageBox.question(self, "Novo arquivo de glosa", "Salvar alterações", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel)
-		if reply == QtWidgets.QMessageBox.Yes:
-			self.saveTextFile()
-		elif reply == QtWidgets.QMessageBox.Cancel:
-			return
-			
-		self.text.clear()
-		self.translationFileName = ""
-		self.hasOpenTranslationFile = False		
-	
+	#
+	# Documentos
+	#
+	##################################
 	def openDocument(self):
 		filename = QtWidgets.QFileDialog().getOpenFileName(caption="Abrir documento", filter="Documentos (*.pdf *.odt *.doc *.docx *.ppt *.pptx *.rtf *.pps *.ppsx *.odp);; Todos os arquivos (*.*)")
 		if filename[0] == "":
@@ -230,9 +241,6 @@ class Main(QtWidgets.QMainWindow):
 
 		self.pdf_widget.load(filename[0])
 		
-#		print(self.pdf_widget.getRawText())
-#		self.translation = GTranslation(self.pdf_widget.getFormattedText())
-		
 		# Força o widget a atualizar
 		self.pdf_widget.hide()
 		self.pdf_widget.show()
@@ -241,16 +249,24 @@ class Main(QtWidgets.QMainWindow):
 		self.hasOpenDocument = True
 		
 		return 0
-
-	def clearTranslation(self):
+	
+	#################################
+	#
+	# Arquivos de traudçao
+	#
+	#################################
+	def newTextFile(self):
+		reply = QtWidgets.QMessageBox.question(self, "Novo arquivo de glosa", "Salvar alterações", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel)
+		if reply == QtWidgets.QMessageBox.Yes:
+			self.saveTextFile()
+		elif reply == QtWidgets.QMessageBox.Cancel:
+			return
+			
 		self.text.clear()
-		self.translation = GTranslation()
-		self.hasOpenTranslation = False
-		
-	def resetTranslation(self):
-		self.text.clear()
-		self.translation.resetIndex()
-
+		self.translationFileName = ""
+		self.hasOpenTranslationFile = False	
+	
+	
 	def getTranslationFromFile(self):
 		if not self.pdf_widget.hasFile() and self.openDocument() == 1:
 			return
@@ -263,25 +279,7 @@ class Main(QtWidgets.QMainWindow):
 		txt = self.pdf_widget.getFormattedText()
 		self.translation.update(txt)
 
-	def onPDFTextReady(self):
-		reply = QtWidgets.QMessageBox.question(self, "Abrir documento", "Traduzir documento?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
-		if reply == QtWidgets.QMessageBox.Yes:
-			self.getTranslationFromFile()
-		
-	def onTranslationReady(self):
-			self.hasOpenTranslation = True
-
-	def loadImages(self):
-		names = []
-		for filename in os.listdir("media/images/"):
-			names.append("media/images/" + filename)
-		names.sort()
-		i = 1
-		for filename in names:
-			label = GImageButton(filename, i, self)
-			self.images_grid.addWidget(label, 0, i-1)
-			i += 1
-
+	
 	def importTextFile(self):
 		filename = QtWidgets.QFileDialog().getOpenFileName(caption="Abrir arquivo de tradução", filter="EGL (*.egl);; TXT (*.txt);; Todos os arquivos (*.*)")
 		if filename[0] == "":
@@ -313,7 +311,6 @@ class Main(QtWidgets.QMainWindow):
 		fname = filename[0]
 		with open(fname, "w") as doc:
 			doc.write(self.text.toPlainText)
-			
 
 	def addNextTranslationParagraph(self):
 		cursor = self.text.textCursor()
@@ -327,6 +324,33 @@ class Main(QtWidgets.QMainWindow):
 		cursor = self.text.textCursor()
 		for line in self.translation.getParagraphsTillEnd():
 			self.text.textCursor().insertText(line + "\n")	
+
+	def clearTranslation(self):
+		self.text.clear()
+		self.translation = GTranslation()
+		self.hasOpenTranslation = False
+		
+	def resetTranslation(self):
+		self.text.clear()
+		self.translation.resetIndex()
+
+	#################################
+	#
+	# Eventos
+	#
+	#################################
+	def onPDFTextReady(self):
+		self.images_widget.loadImages()
+		
+		reply = QtWidgets.QMessageBox.question(self, "Abrir documento", "Traduzir documento?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+		if reply == QtWidgets.QMessageBox.Yes:
+			self.getTranslationFromFile()
+		
+	def onTranslationReady(self):
+			self.hasOpenTranslation = True
+
+	def onImageClick(self, index):
+		print(index)
 	
 	##################################
 	#
@@ -370,16 +394,16 @@ class Main(QtWidgets.QMainWindow):
 			txt = cursor.selection().toPlainText()
 			txt = "__rec " + txt + " __stop"
 			self.server.sendToRecord(txt, vName)
-	
-	def onVideoReady(self, title):
-		QtWidgets.QMessageBox.question(self, "Gerar vídeo", "Vídeo %s criado com sucesso!" % title, (QtWidgets.QMessageBox.Ok))
 
 	def tryCommunication(self, n = 10):
 		tries = 0
 		while self.server.startCommunication() != 0 and tries < n:	
 			print("Tentativa %d" % (tries))
 			tries += 1
-			sleep(3)					
+			sleep(3)
+	
+	def onVideoReady(self, title):
+		QtWidgets.QMessageBox.question(self, "Gerar vídeo", "Vídeo %s criado com sucesso!" % title, (QtWidgets.QMessageBox.Ok))
 
 	##################################
 	#
@@ -396,36 +420,9 @@ class Main(QtWidgets.QMainWindow):
 		
 ########################################################
 
-#########################################################
-#
-# Classe para gerenciar os eventos das teclas '^' e '´'
-# no Ubuntu 18.04
-#
-#########################################################
-
-import ctypes
-class GNativeEventFilter(QtCore.QAbstractNativeEventFilter):
-	def __init__(self):
-		QtCore.QAbstractNativeEventFilter.__init__(self)
-
-	#########################################################
-	#
-	# Específico para palataforma, conferir documentação em
-	# https://doc.qt.io/qt-5/qabstractnativeeventfilter.html
-	#
-	##########################################################
-	def nativeEventFilter(self, eventType, message):
-		if eventType == "xcb_generic_event_t":
-			print(message.message)
-			msg = message.__init__()
-			print(msg)
-		return False, 0
-
-
 def main():
 	global app
 	app = QtWidgets.QApplication(sys.argv)
-	flt = GNativeEventFilter()
 	main = Main()
 	main.show()
 	sys.exit(app.exec_())
