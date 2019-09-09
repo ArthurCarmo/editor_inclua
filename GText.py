@@ -40,6 +40,8 @@ class GTextEdit(QtWidgets.QTextEdit):
 		self.pressed = {}
 		self.onDeadKey = False
 		
+		self.completionEnd = " "
+		
 		self.textChanged.connect(self.onTextChanged)
 		# self.setAttribute(QtCore.Qt.WA_KeyCompression)
 		self.setAttribute(QtCore.Qt.WA_InputMethodEnabled)
@@ -109,7 +111,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 		if lc == '<':
 			tc.movePosition(QtGui.QTextCursor.Left, tc.KeepAnchor)
 			
-		tc.insertText(completion)
+		tc.insertText(completion + self.completionEnd)
 		self.setTextCursor(tc)
 		self.completer.popup().hide()
 	

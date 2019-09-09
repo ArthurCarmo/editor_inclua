@@ -20,6 +20,7 @@ from time import sleep
 from GServer import GServer
 
 class Main(QtWidgets.QMainWindow):
+	cwd		= os.getcwd()
 	home		= os.path.expanduser("~")
 	default_pngDir  = home + "/.config/unity3d/LAViD/VLibrasVideoMaker"
 	default_videoId = "teste_renderer"
@@ -33,6 +34,7 @@ class Main(QtWidgets.QMainWindow):
 		self.translationFileName = ""
 		self.server = GServer()
 		self.server.sender.finishedRecording.connect(self.createVideo)
+		subprocess.run("rm %s/media/images/*" % (self.cwd), shell=True)
 		self.initUI()
 
 	#####################################
@@ -414,8 +416,9 @@ class Main(QtWidgets.QMainWindow):
 		cursor = self.text.textCursor()
 		if cursor.hasSelection():
 			txt = cursor.selection().toPlainText()
-			txt = "__rec " + txt + " __stop"
-			self.server.sendToRecord(txt, vName)
+			if not txt.isspace():
+				txt = "__rec " + txt + " __stop"
+				self.server.sendToRecord(txt, vName)
 
 	def tryCommunication(self, n = 10):
 		tries = 0
