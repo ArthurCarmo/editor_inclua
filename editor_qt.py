@@ -447,6 +447,7 @@ class Main(QtWidgets.QMainWindow):
 	def __del__(self):
 		print("Destrutor")
 		self.server.kill()
+		self.clearImages()
 		exit()
 	
 	def closeEvent(self, event):
