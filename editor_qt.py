@@ -14,7 +14,7 @@ from PyQt5.QtGui import QDesktopServices
 from GText import GTextEdit
 from GSyntax import GSyntaxHighlighter
 from GFile import GDocument, GTranslation, GVideo
-from GImage import GImageGrid, GImageButton
+from GImage import GImageGrid
 
 from time import sleep
 from GServer import GServer
@@ -34,7 +34,7 @@ class Main(QtWidgets.QMainWindow):
 		self.translationFileName = ""
 		self.server = GServer()
 		self.server.sender.finishedRecording.connect(self.createVideo)
-		subprocess.run("rm %s/media/images/*" % (self.cwd), shell=True)
+		self.clearImages()
 		self.initUI()
 
 	#####################################
@@ -153,12 +153,14 @@ class Main(QtWidgets.QMainWindow):
 		imagensNewFromUrl.setStatusTip("Adiciona uma imagem da internet à lista de imagens disponíveis para o vídeo")
 		imagensNewFromUrl.triggered.connect(self.addImageFromUrl)
 		
-		imagensDelete = QtWidgets.QAction("Remover imagens")
-		imagensDelete.setStatusTip("Remover imagens da área de seleção")
-#		imagensDelete.triggered.connect(self.removeImages)
+		self.imagensDelete = QtWidgets.QAction("Remover imagens")
+		self.imagensDelete.setStatusTip("Remover imagens da área de seleção")
+		self.imagensDelete.triggered.connect(self.setRemoveImagesStatus)
 		
 		imagens.addAction(imagensNewFromFile)
 		imagens.addAction(imagensNewFromUrl)
+		imagens.addSeparator()
+		imagens.addAction(self.imagensDelete)
 
 		#btn_nxt.setText("Próxima linha")
 
@@ -372,6 +374,13 @@ class Main(QtWidgets.QMainWindow):
 		if lineEdit[0] == '':
 			return
 		self.images_widget.addImageFromUrl(lineEdit[0])
+
+	
+	def clearImages(self):
+		subprocess.run("rm %s/media/images/*" % (self.cwd), shell=True)
+
+	def setRemoveImagesStatus(self):
+		self.images_widget.setMode(GImageGrid.selectable)
 
 	def onImageClick(self, index):
 		print(index)

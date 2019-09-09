@@ -4,39 +4,63 @@ import subprocess
 
 from shutil import copyfile
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QIcon
 
-class GImageButton(QtWidgets.QLabel):
+class GImageButton(QtWidgets.QPushButton):
 
     onClick = QtCore.pyqtSignal(int)
 
+    default_width  = 120
+    default_height = 120
+
     def __init__(self, img_url, index, parent=None):
-        QtWidgets.QLabel.__init__(self, parent)
+        QtWidgets.QPushButton.__init__(self, parent)
         self.image = img_url
         self.index = index
         self.parent = parent
-        self.setScaledContents(True)
-        self.setFixedSize(90, 90)
         pixmap = QPixmap(img_url)
-        self.setPixmap(pixmap)
+        self.setIcon(QIcon(pixmap))
+        self.setIconSize(QtCore.QSize(self.default_width, self.default_height))
+        self.setFixedSize(self.icon().actualSize(QtCore.QSize(self.default_width, self.default_height)))
 
     def mousePressEvent(self, ev):
     	self.onClick.emit(self.index)
 #        lc = self.parent.text.textCursor()
 #        range_content = lc.selectedText()
 #        lc.insertText("__IMGX_" + str(self.index) + " " + range_content + " IMGX__")
-        
+	
+	
+class GImageCheckBox(QtWidgets.QCheckBox):
+
+    onClick = QtCore.pyqtSignal(int)
+
+    default_width  = 120
+    default_height = 120
+
+    def __init__(self, img_url, index, parent=None):
+        QtWidgets.QLabel.__init__(self, parent)
+        self.image = img_url
+        self.index = index
+        self.parent = parent
+        self.setFixedSize(self.default_width, self.default_height)
+        pixmap = QPixmap(img_url)
+        self.setIcon(QIcon(pixmap))
+        self.setIconSize(QtCore.QSize(self.default_width, self.default_height))
+        self.setFixedSize(self.icon().actualSize(QtCore.QSize(self.default_width, self.default_height)))
         
 class GImageGrid(QtWidgets.QScrollArea):
-	
 	onClick = QtCore.pyqtSignal(int)
 	onDownloadFinished = QtCore.pyqtSignal()
 	
-	def __init__(self, parent = None):
+	clickable  = 0
+	selectable = 1
+	
+	def __init__(self, mode = clickable, parent = None):
 		QtWidgets.QScrollArea.__init__(self, parent)
 		self.imgGrid = QtWidgets.QGridLayout()
 		self.n_images = 0
 		self.dl_index = 0
+		self.mode = mode
 
 		self.onDownloadFinished.connect(self.onImageDownloaded)
 
@@ -50,9 +74,14 @@ class GImageGrid(QtWidgets.QScrollArea):
 		
 		self.imgGrid = QtWidgets.QGridLayout()
 		for filename in names:
-			label = GImageButton(filename, self.n_images + 1, self)
+			
+			if self.mode == GImageGrid.clickable:
+				label = GImageButton(filename, self.n_images + 1, self)
+				label.onClick.connect(self.imageClicked)
+			else:
+				label = GImageCheckBox(filename, self.n_images + 1, self)
+				
 			self.imgGrid.addWidget(label, 0, self.n_images)
-			label.onClick.connect(self.imageClicked)
 			self.n_images += 1
 		
 		view = QtWidgets.QWidget()
@@ -88,5 +117,13 @@ class GImageGrid(QtWidgets.QScrollArea):
 		subprocess.run(cmd, shell=True)
 		self.onDownloadFinished.emit()
 	
+	def mode(self):
+		return self.mode
+	
+	def setMode(self, mode):
+		self.mode = mode
+		self.loadImages()
+	
 	def clear(self):
 		return
+
