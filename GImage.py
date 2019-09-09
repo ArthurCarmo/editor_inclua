@@ -3,11 +3,14 @@ import threading
 import subprocess
 
 from shutil import copyfile
-from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5 import QtWidgets, QtGui , QtCore
 
+#################################
+#
+# Botões com imagens
+#
+#################################
 class GImageButton(QtWidgets.QPushButton):
-
     onClick = QtCore.pyqtSignal(int)
 
     default_width  = 120
@@ -18,8 +21,8 @@ class GImageButton(QtWidgets.QPushButton):
         self.image = img_url
         self.index = index
         self.parent = parent
-        pixmap = QPixmap(img_url)
-        self.setIcon(QIcon(pixmap))
+        pixmap = QtGui.QPixmap(img_url)
+        self.setIcon(QtGui.QIcon(pixmap))
         self.setIconSize(QtCore.QSize(self.default_width, self.default_height))
         self.setFixedSize(self.icon().actualSize(QtCore.QSize(self.default_width, self.default_height)))
 
@@ -28,10 +31,22 @@ class GImageButton(QtWidgets.QPushButton):
 #        lc = self.parent.text.textCursor()
 #        range_content = lc.selectedText()
 #        lc.insertText("__IMGX_" + str(self.index) + " " + range_content + " IMGX__")
-	
-	
-class GImageCheckBox(QtWidgets.QCheckBox):
 
+    def contextMenuEvent(self, ev):
+        menu = QtWidgets.QMenu()
+        delete = QtWidgets.QAction(self.style().standardIcon(QtWidgets.QStyle.SP_BrowserStop), "Remover", self)
+        delete.setStatusTip("Remover essa imagem da lista")
+	#delete.triggered.connect()
+	
+        menu.addAction(delete)
+        menu.exec(ev.globalPos())
+
+#################################
+#
+# CheckBoxes com imagens
+#
+#################################
+class GImageCheckBox(QtWidgets.QCheckBox):
     onClick = QtCore.pyqtSignal(int)
 
     default_width  = 120
@@ -43,11 +58,16 @@ class GImageCheckBox(QtWidgets.QCheckBox):
         self.index = index
         self.parent = parent
         self.setFixedSize(self.default_width, self.default_height)
-        pixmap = QPixmap(img_url)
-        self.setIcon(QIcon(pixmap))
+        pixmap = QtGui.QPixmap(img_url)
+        self.setIcon(QtGui.QIcon(pixmap))
         self.setIconSize(QtCore.QSize(self.default_width, self.default_height))
         self.setFixedSize(self.icon().actualSize(QtCore.QSize(self.default_width, self.default_height)))
-        
+       
+#################################
+#
+# Container em grid das imagens
+#
+################################# 
 class GImageGrid(QtWidgets.QScrollArea):
 	onClick = QtCore.pyqtSignal(int)
 	onDownloadFinished = QtCore.pyqtSignal()
@@ -61,7 +81,7 @@ class GImageGrid(QtWidgets.QScrollArea):
 		self.n_images = 0
 		self.dl_index = 0
 		self.mode = mode
-
+		
 		self.onDownloadFinished.connect(self.onImageDownloaded)
 
 	def loadImages(self):
@@ -84,7 +104,7 @@ class GImageGrid(QtWidgets.QScrollArea):
 			self.imgGrid.addWidget(label, 0, self.n_images)
 			self.n_images += 1
 		
-		view = QtWidgets.QWidget()
+		view = QtWidgets.QGroupBox()
 		view.setLayout(self.imgGrid)
 		self.setWidget(view)
 			

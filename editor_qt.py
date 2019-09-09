@@ -193,8 +193,7 @@ class Main(QtWidgets.QMainWindow):
 		self.pdf_widget.hide()
 		self.pdf_widget.sender.formattedReady.connect(self.onPDFTextReady)
 		
-		# Widget para permitir redimensionamento vertical do editor
-		# de texto (sem ele o splitter fica no tamanho exato da janela Xephyr)
+		# Widget que contém a janela do avatar e o grid com as imagens
 		self.filler	= QtWidgets.QSplitter(Qt.Vertical)
 		
 		# Setup do widget com o display virtual
@@ -206,7 +205,28 @@ class Main(QtWidgets.QMainWindow):
 		self.images_widget = GImageGrid()
 		self.images_widget.onClick.connect(self.onImageClick)
 
+		#####################################
+		#
+		# Toolbar para gerenciar imagens
+		#
+		#####################################
+		#self.images_toolbar = QtWidgets.QWidget()
+		#self.images_toolbar.setMaximumHeight(40)
+		
+		#self.it_layout = QtWidgets.QHBoxLayout()
+		
+		#self.confirmar_selecao = QtWidgets.QPushButton(self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton), "", self)
+		#self.confirmar_selecao.setStatusTip("Remover as imagens selecionadas")
+		#self.deletar_imagens = QtWidgets.QPushButton(self.style().standardIcon(QtWidgets.QStyle.SP_TrashIcon), "", self)
+		#self.deletar_imagens.setStatusTip("Remover imagens da lista")
+		
+		#self.it_layout.addWidget(self.confirmar_selecao, alignment = Qt.AlignLeft | Qt.AlignTop)
+		#self.it_layout.addWidget(self.deletar_imagens, alignment = Qt.AlignRight | Qt.AlignTop)
+		
+		#self.images_toolbar.setLayout(self.it_layout)
+
 		self.filler.addWidget(self.server_widget)
+		#self.filler.addWidget(self.images_toolbar)
 		self.filler.addWidget(self.images_widget)
 		
 		# Widget que aparece na janela é um splitter
