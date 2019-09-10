@@ -15,19 +15,64 @@ class GImageButton(QtWidgets.QPushButton):
 
     default_width  = 120
     default_height = 120
+    default_box_width  = 130
+    default_box_height = 130
+    
+    default_alignment = QtCore.Qt.AlignRight | QtCore.Qt.AlignTop
 
     def __init__(self, img_url, index, parent=None):
         QtWidgets.QPushButton.__init__(self, parent)
         self.image = img_url
         self.index = index
+
         self.parent = parent
+
+        self.selected = False
+        
         pixmap = QtGui.QPixmap(img_url)
         self.setIcon(QtGui.QIcon(pixmap))
         self.setIconSize(QtCore.QSize(self.default_width, self.default_height))
         self.setFixedSize(self.icon().actualSize(QtCore.QSize(self.default_width, self.default_height)))
+        self.setFixedSize(QtCore.QSize(self.default_box_width, self.default_box_height))
+        self.setStyleSheet("QPushButton { border-style: outset }") 
+        
+        self.layout = QtWidgets.QVBoxLayout()
+        self.checkbox = QtWidgets.QCheckBox()
+        self.layout.addWidget(self.checkbox, alignment = self.default_alignment)
+        self.setLayout(self.layout)
+       
+        self.checkbox.hide()
+       	self.checkbox.toggled.connect(self.toggleSelected)
+    
+    def toggleSelected(self, checked):
+        self.selected = checked
+        print("Selected -> %d" % int(self.selected))
+    
+    def toggleSelectionView(self):
+        self.selected = False
+        self.checkbox.setChecked(False)
+        if self.checkbox.isVisible():
+            self.checkbox.hide()
+        else:
+            self.checkbox.show()
+
+    def setSelectionView(self, visible):
+        self.selected = False
+        self.checkbox.setChecked(False)
+        if visible:
+            self.checkbox.show()
+        else:
+            self.checkbox.hide()
 
     def mousePressEvent(self, ev):
-    	self.onClick.emit(self.index)
+        mouseButton = ev.buttons()
+        if mouseButton == QtCore.Qt.LeftButton:
+            if self.checkbox.isVisible():
+                self.checkbox.toggle()
+            else:
+                self.onClick.emit(self.index)
+            	
+        super().mousePressEvent(ev)
 #        lc = self.parent.text.textCursor()
 #        range_content = lc.selectedText()
 #        lc.insertText("__IMGX_" + str(self.index) + " " + range_content + " IMGX__")
@@ -40,28 +85,6 @@ class GImageButton(QtWidgets.QPushButton):
 	
         menu.addAction(delete)
         menu.exec(ev.globalPos())
-
-#################################
-#
-# CheckBoxes com imagens
-#
-#################################
-class GImageCheckBox(QtWidgets.QCheckBox):
-    onClick = QtCore.pyqtSignal(int)
-
-    default_width  = 120
-    default_height = 120
-
-    def __init__(self, img_url, index, parent=None):
-        QtWidgets.QLabel.__init__(self, parent)
-        self.image = img_url
-        self.index = index
-        self.parent = parent
-        self.setFixedSize(self.default_width, self.default_height)
-        pixmap = QtGui.QPixmap(img_url)
-        self.setIcon(QtGui.QIcon(pixmap))
-        self.setIconSize(QtCore.QSize(self.default_width, self.default_height))
-        self.setFixedSize(self.icon().actualSize(QtCore.QSize(self.default_width, self.default_height)))
        
 #################################
 #
@@ -94,17 +117,13 @@ class GImageGrid(QtWidgets.QScrollArea):
 		
 		self.imgGrid = QtWidgets.QGridLayout()
 		for filename in names:
-			
-			if self.mode == GImageGrid.clickable:
-				label = GImageButton(filename, self.n_images + 1, self)
-				label.onClick.connect(self.imageClicked)
-			else:
-				label = GImageCheckBox(filename, self.n_images + 1, self)
-				
+			label = GImageButton(filename, self.n_images + 1, self)
+			label.onClick.connect(self.imageClicked)				
 			self.imgGrid.addWidget(label, 0, self.n_images)
 			self.n_images += 1
 		
-		view = QtWidgets.QGroupBox()
+		#view = QtWidgets.QGroupBox()
+		view = QtWidgets.QWidget()
 		view.setLayout(self.imgGrid)
 		self.setWidget(view)
 			
@@ -142,7 +161,9 @@ class GImageGrid(QtWidgets.QScrollArea):
 	
 	def setMode(self, mode):
 		self.mode = mode
-		self.loadImages()
+		visible = self.mode == self.selectable
+		for img in self.findChildren(GImageButton):
+			img.setSelectionView(visible)
 	
 	def clear(self):
 		return

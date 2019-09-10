@@ -34,6 +34,7 @@ class Main(QtWidgets.QMainWindow):
 		self.translationFileName = ""
 		self.server = GServer()
 		self.server.sender.finishedRecording.connect(self.createVideo)
+		self.ensureImagesFolder()
 		self.clearImages()
 		self.initUI()
 
@@ -155,7 +156,7 @@ class Main(QtWidgets.QMainWindow):
 		
 		self.imagensDelete = QtWidgets.QAction("Remover imagens")
 		self.imagensDelete.setStatusTip("Remover imagens da área de seleção")
-		self.imagensDelete.triggered.connect(self.setRemoveImagesStatus)
+		self.imagensDelete.triggered.connect(self.setRemoveImagesState)
 		
 		imagens.addAction(imagensNewFromFile)
 		imagens.addAction(imagensNewFromUrl)
@@ -210,23 +211,28 @@ class Main(QtWidgets.QMainWindow):
 		# Toolbar para gerenciar imagens
 		#
 		#####################################
-		#self.images_toolbar = QtWidgets.QWidget()
-		#self.images_toolbar.setMaximumHeight(40)
+		self.images_toolbar = QtWidgets.QWidget()
+		self.images_toolbar.setMaximumHeight(20)
 		
-		#self.it_layout = QtWidgets.QHBoxLayout()
+		self.it_layout = QtWidgets.QHBoxLayout()
+		self.it_layout.setContentsMargins(0, 0, 5, 0)
 		
-		#self.confirmar_selecao = QtWidgets.QPushButton(self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton), "", self)
-		#self.confirmar_selecao.setStatusTip("Remover as imagens selecionadas")
-		#self.deletar_imagens = QtWidgets.QPushButton(self.style().standardIcon(QtWidgets.QStyle.SP_TrashIcon), "", self)
-		#self.deletar_imagens.setStatusTip("Remover imagens da lista")
+		self.confirmar_selecao = QtWidgets.QPushButton(self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton), "", self)
+		self.confirmar_selecao.setStatusTip("Remover as imagens selecionadas")
+		self.confirmar_selecao.hide()
+
+		self.deletar_imagens = QtWidgets.QPushButton(self.style().standardIcon(QtWidgets.QStyle.SP_TrashIcon), "", self)
+		self.deletar_imagens.setStatusTip("Remover imagens da lista")
+		self.deletar_imagens.setCheckable(True)
+		self.deletar_imagens.toggled.connect(self.changeImageViewerState)
 		
-		#self.it_layout.addWidget(self.confirmar_selecao, alignment = Qt.AlignLeft | Qt.AlignTop)
-		#self.it_layout.addWidget(self.deletar_imagens, alignment = Qt.AlignRight | Qt.AlignTop)
+		self.it_layout.addWidget(self.confirmar_selecao, alignment = Qt.AlignLeft | Qt.AlignBottom)
+		self.it_layout.addWidget(self.deletar_imagens, alignment = Qt.AlignRight | Qt.AlignBottom)
 		
-		#self.images_toolbar.setLayout(self.it_layout)
+		self.images_toolbar.setLayout(self.it_layout)
 
 		self.filler.addWidget(self.server_widget)
-		#self.filler.addWidget(self.images_toolbar)
+		self.filler.addWidget(self.images_toolbar)
 		self.filler.addWidget(self.images_widget)
 		
 		# Widget que aparece na janela é um splitter
@@ -395,13 +401,27 @@ class Main(QtWidgets.QMainWindow):
 			return
 		self.images_widget.addImageFromUrl(lineEdit[0])
 
-	
 	def clearImages(self):
 		subprocess.run("rm %s/media/images/*" % (self.cwd), shell=True)
 
-	def setRemoveImagesStatus(self):
+	def ensureImagesFolder(self):
+		subprocess.run("mkdir -p %s/media/images" % (self.cwd), shell=True)
+
+	def setRemoveImagesState(self):
+		self.confirmar_selecao.show()
+		self.deletar_imagens.setChecked(True)
 		self.images_widget.setMode(GImageGrid.selectable)
 
+	def setClickableImagesState(self):
+		self.confirmar_selecao.hide()
+		self.images_widget.setMode(GImageGrid.clickable)
+		
+	def changeImageViewerState(self, checked):
+		if checked:
+			self.setRemoveImagesState()
+		else:
+			self.setClickableImagesState()
+	
 	def onImageClick(self, index):
 		print(index)
 	
