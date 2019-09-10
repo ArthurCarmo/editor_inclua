@@ -5,6 +5,7 @@
 # pyqtwebengine
 # pyahocorasick
 # python3-hunspell # instalar pelo apt
+# libhunspell-dev  # instalar pelo apt
 #
 # unoconv
 # pdfminer.six
