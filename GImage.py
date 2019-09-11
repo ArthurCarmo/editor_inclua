@@ -31,10 +31,11 @@ class GImageButton(QtWidgets.QPushButton):
 
         self.selected = False
         
-        pixmap = QtGui.QPixmap(img_url)
-        self.setIcon(QtGui.QIcon(pixmap))
+        self.pixmap = QtGui.QPixmap(img_url)
+        print(img_url)
+        self.setIcon(QtGui.QIcon(self.pixmap))
         self.setIconSize(QtCore.QSize(self.default_width, self.default_height))
-        self.setFixedSize(self.icon().actualSize(QtCore.QSize(self.default_width, self.default_height)))
+#        self.setFixedSize(self.icon().actualSize(QtCore.QSize(self.default_width, self.default_height)))
         self.setFixedSize(QtCore.QSize(self.default_box_width, self.default_box_height))
 #        self.setStyleSheet("QPushButton { border-style: outset }") 
         
@@ -42,7 +43,6 @@ class GImageButton(QtWidgets.QPushButton):
         self.checkbox = QtWidgets.QCheckBox()
         self.layout.addWidget(self.checkbox, alignment = self.default_alignment)
         self.setLayout(self.layout)
-#        self.checkbox.raise_()
        
         self.checkbox.hide()
        	self.checkbox.toggled.connect(self.setSelected)
@@ -116,7 +116,7 @@ class GImageGrid(QtWidgets.QScrollArea):
 	clickable  = 0
 	selectable = 1
 	
-	def __init__(self, mode = clickable, parent = None):
+	def __init__(self, imagesDir, mode = clickable, parent = None):
 		QtWidgets.QScrollArea.__init__(self, parent)
 		self.imgGrid = QtWidgets.QGridLayout()
 		self.next_id = 0
@@ -125,20 +125,34 @@ class GImageGrid(QtWidgets.QScrollArea):
 		self.dl_index = 0
 		self.mode = mode
 		self.imagesPerRow = 5
+
+		self.imagesDir = imagesDir
 		
 		self.onDownloadFinished.connect(self.onImageDownloaded)
 
+		self.ensureImagesDir()
+		self.clearImages()
+	
+	def __del__(self):
+		self.clearImages()
+	
+	def ensureImagesDir(self):
+		subprocess.run("mkdir -p %s" % (self.imagesDir), shell=True)
+	
+	def clearImages(self):
+		subprocess.run("rm %s/*" % (self.imagesDir), shell=True)
+
+		
 	def loadImages(self):
 		names = []
-		for filename in os.listdir("media/images/"):
-			names.append("media/images/" + filename)
+		for filename in os.listdir(self.imagesDir):
+			names.append(filename)
 		names = natsorted(names)
 		
 		self.n_images = 0
-		
 		self.imgGrid = QtWidgets.QGridLayout()
 		for filename in names:
-			label = GImageButton(filename, self.n_images, self)
+			label = GImageButton("%s/%s" % (self.imagesDir, filename), self.n_images, self)
 			label.onClick.connect(self.imageClicked)				
 			self.imgGrid.addWidget(label, self.n_images // self.imagesPerRow, self.n_images % self.imagesPerRow)
 			self.next_id  += self.raise_id
@@ -158,8 +172,8 @@ class GImageGrid(QtWidgets.QScrollArea):
 		
 		for src in files:
 			filename, file_extension = os.path.splitext(src)
-			filename = "media/images/IMG%d%s" % (self.next_id, file_extension.upper())
-			copyfile(src, "%s/%s" % (cwd, filename))
+			filename = "%s/IMG%d%s" % (self.imagesDir, self.next_id, file_extension.upper())
+			copyfile(src, filename)
 			self.next_id += 1
 		
 		self.loadImages()
@@ -174,7 +188,7 @@ class GImageGrid(QtWidgets.QScrollArea):
 	def handle_web_image(self, src):
 		cwd = os.getcwd()
 		filename, file_extension = os.path.splitext(src)
-		cmd = "wget -O %s/media/images/DL%d%s %s" % (cwd, self.dl_index, file_extension, src)
+		cmd = "wget -O %s/DL%d%s %s" % (self.imagesDir, self.dl_index, file_extension, src)
 		subprocess.run(cmd, shell=True)
 		self.onDownloadFinished.emit()
 	

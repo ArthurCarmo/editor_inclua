@@ -24,6 +24,7 @@ class Main(QtWidgets.QMainWindow):
 	home		= os.path.expanduser("~")
 	default_pngDir  = home + "/.config/unity3d/LAViD/VLibrasVideoMaker"
 	default_videoId = "teste_renderer"
+	default_imgDir  = cwd + "/media/images"
 	
 
 	def __init__(self, parent = None):
@@ -34,8 +35,6 @@ class Main(QtWidgets.QMainWindow):
 		self.translationFileName = ""
 		self.server = GServer()
 		self.server.sender.finishedRecording.connect(self.createVideo)
-		self.ensureImagesFolder()
-		self.clearImages()
 		self.initUI()
 
 	#####################################
@@ -203,7 +202,7 @@ class Main(QtWidgets.QMainWindow):
 		self.server_widget.setMaximumSize(QtCore.QSize(640, 480))
 		
 		# Widget das imagens
-		self.images_widget = GImageGrid()
+		self.images_widget = GImageGrid(self.default_imgDir)
 		self.images_widget.onClick.connect(self.onImageClick)
 
 		#####################################
@@ -404,12 +403,6 @@ class Main(QtWidgets.QMainWindow):
 			return
 		self.images_widget.addImageFromUrl(lineEdit[0])
 
-	def clearImages(self):
-		subprocess.run("rm %s/media/images/*" % (self.cwd), shell=True)
-
-	def ensureImagesFolder(self):
-		subprocess.run("mkdir -p %s/media/images" % (self.cwd), shell=True)
-
 	def setRemoveImagesState(self):
 		self.confirmar_selecao.show()
 		self.deletar_imagens.setChecked(True)
@@ -497,7 +490,6 @@ class Main(QtWidgets.QMainWindow):
 	def __del__(self):
 		print("Destrutor")
 		self.server.kill()
-		self.clearImages()
 		exit()
 	
 	def closeEvent(self, event):
