@@ -219,7 +219,7 @@ class Main(QtWidgets.QMainWindow):
 		
 		self.confirmar_selecao = QtWidgets.QPushButton(self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton), "", self)
 		self.confirmar_selecao.setStatusTip("Remover as imagens selecionadas")
-		self.confirmar_selecao.clicked.connect(lambda : print("hi"))
+		self.confirmar_selecao.clicked.connect(self.removeSelected)
 		
 		self.confirmar_selecao.setFixedSize(QtCore.QSize(150, 20))
 		self.confirmar_selecao.hide()
@@ -417,6 +417,7 @@ class Main(QtWidgets.QMainWindow):
 
 	def setClickableImagesState(self):
 		self.confirmar_selecao.hide()
+		self.deletar_imagens.setChecked(False)
 		self.images_widget.setMode(GImageGrid.clickable)
 		
 	def changeImageViewerState(self, checked):
@@ -424,6 +425,10 @@ class Main(QtWidgets.QMainWindow):
 			self.setRemoveImagesState()
 		else:
 			self.setClickableImagesState()
+	
+	def removeSelected(self):
+		self.images_widget.removeSelected()
+		self.setClickableImagesState()
 	
 	def onImageClick(self, index):
 		print(index)

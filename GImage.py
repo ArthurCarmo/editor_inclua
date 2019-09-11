@@ -79,6 +79,9 @@ class GImageButton(QtWidgets.QPushButton):
     def getIndex(self):
         return self.index
 
+    def remove(self):
+        os.remove(self.image)
+
     def mousePressEvent(self, ev):
         mouseButton = ev.buttons()
         if mouseButton == QtCore.Qt.LeftButton:
@@ -194,6 +197,14 @@ class GImageGrid(QtWidgets.QScrollArea):
 			if img.isSelected():
 				l.append(img.index)
 	
+	def removeSelected(self):
+		for img in self.findChildren(GImageButton):
+			if img.isSelected():
+				img.remove()
+		self.loadImages()
+	
 	def clear(self):
-		return
+		self.next_id  = 0
+		self.n_images = 0
+		self.raise_id = 1
 
