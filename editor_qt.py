@@ -215,10 +215,13 @@ class Main(QtWidgets.QMainWindow):
 		self.images_toolbar.setMaximumHeight(20)
 		
 		self.it_layout = QtWidgets.QHBoxLayout()
-		self.it_layout.setContentsMargins(0, 0, 5, 0)
+		self.it_layout.setContentsMargins(5, 0, 5, 0)
 		
 		self.confirmar_selecao = QtWidgets.QPushButton(self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton), "", self)
 		self.confirmar_selecao.setStatusTip("Remover as imagens selecionadas")
+		self.confirmar_selecao.clicked.connect(lambda : print("hi"))
+		
+		self.confirmar_selecao.setFixedSize(QtCore.QSize(150, 20))
 		self.confirmar_selecao.hide()
 
 		self.deletar_imagens = QtWidgets.QPushButton(self.style().standardIcon(QtWidgets.QStyle.SP_TrashIcon), "", self)
@@ -296,7 +299,7 @@ class Main(QtWidgets.QMainWindow):
 
 	#################################
 	#
-	# Arquivos de traudçao
+	# Arquivos de traduçao
 	#
 	#################################
 	def newTextFile(self):

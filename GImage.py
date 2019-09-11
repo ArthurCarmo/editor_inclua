@@ -1,4 +1,5 @@
 import os
+from natsort import natsorted
 import threading
 import subprocess
 
@@ -18,7 +19,8 @@ class GImageButton(QtWidgets.QPushButton):
     default_box_width  = 130
     default_box_height = 130
     
-    default_alignment = QtCore.Qt.AlignRight | QtCore.Qt.AlignTop
+#    default_alignment = QtCore.Qt.AlignRight | QtCore.Qt.AlignTop
+    default_alignment = QtCore.Qt.AlignCenter | QtCore.Qt.AlignTop
 
     def __init__(self, img_url, index, parent=None):
         QtWidgets.QPushButton.__init__(self, parent)
@@ -34,19 +36,16 @@ class GImageButton(QtWidgets.QPushButton):
         self.setIconSize(QtCore.QSize(self.default_width, self.default_height))
         self.setFixedSize(self.icon().actualSize(QtCore.QSize(self.default_width, self.default_height)))
         self.setFixedSize(QtCore.QSize(self.default_box_width, self.default_box_height))
-        self.setStyleSheet("QPushButton { border-style: outset }") 
+#        self.setStyleSheet("QPushButton { border-style: outset }") 
         
         self.layout = QtWidgets.QVBoxLayout()
         self.checkbox = QtWidgets.QCheckBox()
         self.layout.addWidget(self.checkbox, alignment = self.default_alignment)
         self.setLayout(self.layout)
+#        self.checkbox.raise_()
        
         self.checkbox.hide()
-       	self.checkbox.toggled.connect(self.toggleSelected)
-    
-    def toggleSelected(self, checked):
-        self.selected = checked
-        print("Selected -> %d" % int(self.selected))
+       	self.checkbox.toggled.connect(self.setSelected)
     
     def toggleSelectionView(self):
         self.selected = False
@@ -63,6 +62,22 @@ class GImageButton(QtWidgets.QPushButton):
             self.checkbox.show()
         else:
             self.checkbox.hide()
+    
+    def toggleSelected(self):
+        self.selected = not self.selected
+        self.checkbox.setChecked(self.selected)
+        print("Selected -> %d" % int(self.selected))
+        
+    def setSelected(self, selected):
+        self.selected = selected
+        self.checkbox.setChecked(self.selected)
+        print("Selected -> %d" % int(self.selected))
+
+    def isSelected(self):
+        return self.selected
+    
+    def getIndex(self):
+        return self.index
 
     def mousePressEvent(self, ev):
         mouseButton = ev.buttons()
@@ -101,9 +116,12 @@ class GImageGrid(QtWidgets.QScrollArea):
 	def __init__(self, mode = clickable, parent = None):
 		QtWidgets.QScrollArea.__init__(self, parent)
 		self.imgGrid = QtWidgets.QGridLayout()
+		self.next_id = 0
+		self.raise_id = 1
 		self.n_images = 0
 		self.dl_index = 0
 		self.mode = mode
+		self.imagesPerRow = 5
 		
 		self.onDownloadFinished.connect(self.onImageDownloaded)
 
@@ -111,34 +129,35 @@ class GImageGrid(QtWidgets.QScrollArea):
 		names = []
 		for filename in os.listdir("media/images/"):
 			names.append("media/images/" + filename)
-		names.sort()
+		names = natsorted(names)
 		
 		self.n_images = 0
 		
 		self.imgGrid = QtWidgets.QGridLayout()
 		for filename in names:
-			label = GImageButton(filename, self.n_images + 1, self)
+			label = GImageButton(filename, self.n_images, self)
 			label.onClick.connect(self.imageClicked)				
-			self.imgGrid.addWidget(label, 0, self.n_images)
+			self.imgGrid.addWidget(label, self.n_images // self.imagesPerRow, self.n_images % self.imagesPerRow)
+			self.next_id  += self.raise_id
 			self.n_images += 1
 		
+		self.raise_id = 0
 		#view = QtWidgets.QGroupBox()
 		view = QtWidgets.QWidget()
 		view.setLayout(self.imgGrid)
 		self.setWidget(view)
-			
+
 	def imageClicked(self, index):
 		self.onClick.emit(index)
 		
 	def addImagesFromFile(self, files):
 		cwd = os.getcwd()
 		
-		i = self.n_images
 		for src in files:
 			filename, file_extension = os.path.splitext(src)
-			filename = "media/images/IMG%d%s" % (i, file_extension.upper())
+			filename = "media/images/IMG%d%s" % (self.next_id, file_extension.upper())
 			copyfile(src, "%s/%s" % (cwd, filename))
-			i += 1
+			self.next_id += 1
 		
 		self.loadImages()
 		
@@ -164,6 +183,16 @@ class GImageGrid(QtWidgets.QScrollArea):
 		visible = self.mode == self.selectable
 		for img in self.findChildren(GImageButton):
 			img.setSelectionView(visible)
+	
+	def selectAll(self):
+		for img in self.findChildren(GImageButton):
+			img.setSelection(True)
+			
+	def getSelected(self):
+		l = []
+		for img in self.findChildren(GImageButton):
+			if img.isSelected():
+				l.append(img.index)
 	
 	def clear(self):
 		return
