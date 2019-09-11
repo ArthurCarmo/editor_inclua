@@ -427,8 +427,10 @@ class Main(QtWidgets.QMainWindow):
 			self.setClickableImagesState()
 	
 	def removeSelected(self):
-		self.images_widget.removeSelected()
-		self.setClickableImagesState()
+		reply = QtWidgets.QMessageBox.question(self, "Remover imagens", "Remover todas as imagens selecionadas?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+		if reply == QtWidgets.QMessageBox.Yes:
+			self.images_widget.removeSelected()
+			self.setClickableImagesState()
 	
 	def onImageClick(self, index):
 		print(index)
