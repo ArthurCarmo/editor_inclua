@@ -80,10 +80,28 @@ class GTextEdit(QtWidgets.QTextEdit):
 			self.completer.setCompletionMode(self.completer.PopupCompletion)
 			return
 		
+		srcCursor = self.textCursor()
+		moveWordFlag = False
+		if self.isPressed(QtCore.Qt.Key_Control) and ek in (QtCore.Qt.Key_Left, QtCore.Qt.Key_Right):
+			moveWordFlag = True
+			srcCursor.movePosition(srcCursor.StartOfWord, srcCursor.MoveAnchor)
+			self.setTextCursor(srcCursor)
+			
 		QtWidgets.QTextEdit.keyPressEvent(self, event)
 		
-#		newEvent = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, event.key(), event.modifiers(), event.nativeScanCode(), event.nativeVirtualKey(), event.nativeModifiers(), event.text().upper(), event.isAutoRepeat(), event.count())
+		dstCursor = self.textCursor()
+		dstCursor.movePosition(dstCursor.StartOfWord, dstCursor.MoveAnchor)
+		if moveWordFlag and srcCursor != dstCursor:
+			srcCursor.select(srcCursor.WordUnderCursor)
+			dstCursor.select(dstCursor.WordUnderCursor)
+			w1 = srcCursor.selection().toPlainText()
+			w2 = dstCursor.selection().toPlainText()
+			srcCursor.insertText(w2)
+			dstCursor.insertText(w1)
+		
+#		newEvent = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, event.key(), event.modifiers(), event.nativeScanCode(), event.nativeVirtualKey(), event.nativeModifiers(), event.text().upper(), event.isAutoRepeat(), event.count())	
 #		QtWidgets.QTextEdit.keyPressEvent(self, newEvent)
+
 		
 		if not event.text().isalpha() and not ek == QtCore.Qt.Key_Shift and not event.text() in ('_', '<'):
 			self.completer.popup().hide()
