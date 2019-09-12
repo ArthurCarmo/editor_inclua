@@ -63,6 +63,32 @@ class GTextEdit(QtWidgets.QTextEdit):
 	
 	####################################
 	#
+	# Funções auxiliares para selecionar
+	# tokens com separators padrão
+	#
+	####################################
+	def selectToken(self, stopChars = [' ','\t','\n']):
+		cursor = self.textCursor()
+		start = cursor.position()
+		cursor.movePosition(cursor.EndOfWord, cursor.MoveAnchor)
+		while cursor.movePosition(cursor.Right, cursor.KeepAnchor):
+			if cursor.selectedText()[-1] in stopChars:
+				cursor.movePosition(cursor.Left, cursor.KeepAnchor)
+				break
+		print("Peguei 1: " + cursor.selectedText() + "|")		
+		
+		cursor.setPosition(cursor.position(), cursor.MoveAnchor)
+		cursor.setPosition(start, cursor.KeepAnchor)
+		while cursor.movePosition(cursor.Left, cursor.KeepAnchor):
+			if cursor.selectedText()[0] in stopChars:
+				cursor.movePosition(cursor.Right, cursor.KeepAnchor)
+				break
+				
+		print("Peguei 2: " + cursor.selectedText() + "|")
+		return cursor
+	
+	####################################
+	#
 	# keyPressEvent
 	#
 	####################################
@@ -80,24 +106,40 @@ class GTextEdit(QtWidgets.QTextEdit):
 			self.completer.setCompletionMode(self.completer.PopupCompletion)
 			return
 		
-		srcCursor = self.textCursor()
 		moveWordFlag = False
 		if self.isPressed(QtCore.Qt.Key_Control) and ek in (QtCore.Qt.Key_Left, QtCore.Qt.Key_Right):
 			moveWordFlag = True
-			srcCursor.movePosition(srcCursor.StartOfWord, srcCursor.MoveAnchor)
-			self.setTextCursor(srcCursor)
-			
-		QtWidgets.QTextEdit.keyPressEvent(self, event)
 		
-		dstCursor = self.textCursor()
-		dstCursor.movePosition(dstCursor.StartOfWord, dstCursor.MoveAnchor)
-		if moveWordFlag and srcCursor != dstCursor:
-			srcCursor.select(srcCursor.WordUnderCursor)
-			dstCursor.select(dstCursor.WordUnderCursor)
-			w1 = srcCursor.selection().toPlainText()
-			w2 = dstCursor.selection().toPlainText()
-			srcCursor.insertText(w2)
-			dstCursor.insertText(w1)
+			srcCursor = self.selectToken()
+			dstCursor = self.selectToken()
+			
+			if ek == QtCore.Qt.Key_Left:
+				direction = dstCursor.Left
+				print("LEFT")
+				dstCursor.setPosition(dstCursor.selectionStart(), dstCursor.MoveAnchor)
+				dstCursor.movePosition(direction, dstCursor.MoveAnchor)
+			else:
+				direction = dstCursor.Right
+				print("RIGHT")
+				dstCursor.setPosition(dstCursor.selectionEnd(), dstCursor.MoveAnchor)
+				dstCursor.movePosition(direction, dstCursor.MoveAnchor)
+			
+			
+			
+			self.setTextCursor(dstCursor)
+			dstCursor = self.selectToken()
+		
+			if srcCursor != dstCursor:
+				w1 = srcCursor.selectedText()
+				w2 = dstCursor.selectedText()
+				self.textCursor().beginEditBlock()
+				srcCursor.insertText(w2)
+				dstCursor.insertText(w1)
+				self.textCursor().endEditBlock()
+		
+		
+		if not moveWordFlag:
+			QtWidgets.QTextEdit.keyPressEvent(self, event)
 		
 #		newEvent = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, event.key(), event.modifiers(), event.nativeScanCode(), event.nativeVirtualKey(), event.nativeModifiers(), event.text().upper(), event.isAutoRepeat(), event.count())	
 #		QtWidgets.QTextEdit.keyPressEvent(self, newEvent)
@@ -156,7 +198,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 	def getClickedWord(self):
 		cursor = self.textCursor()
 		cursor.select(cursor.WordUnderCursor)	
-		return cursor.selection().toPlainText(), cursor
+		return cursor.selectedText(), cursor
 
 	
 	def mouseReleaseEvent(self, event):
