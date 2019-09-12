@@ -398,10 +398,17 @@ class Main(QtWidgets.QMainWindow):
 		self.images_widget.addImagesFromFile(filename[0])
 	
 	def addImageFromUrl(self):
-		lineEdit = QtWidgets.QInputDialog().getText(self, "Adiocinar imagem por url", "Url da imagem:")
-		if lineEdit[0] == '':
+		dlg = QtWidgets.QInputDialog(self)                 
+		dlg.setInputMode(QtWidgets.QInputDialog.TextInput) 
+		dlg.setWindowTitle("Adicionar imagem por url")
+		dlg.setLabelText("Url da imagem:")
+		dlg.resize(500,100)                             
+		ok = dlg.exec_()                                
+		lineEdit = dlg.textValue()
+		print ("LINEEDIT " + lineEdit)
+		if lineEdit == '':
 			return
-		self.images_widget.addImageFromUrl(lineEdit[0])
+		self.images_widget.addImageFromUrl(lineEdit)
 
 	def setRemoveImagesState(self):
 		self.confirmar_selecao.show()

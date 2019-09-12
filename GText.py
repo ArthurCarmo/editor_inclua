@@ -67,20 +67,26 @@ class GTextEdit(QtWidgets.QTextEdit):
 	# tokens com separators padrão
 	#
 	####################################
-	def selectToken(self, stopChars = [' ','\t','\n']):
+	
+	# QChar::QParagraphSeparator = chr(0x2029)
+	# QChar::LineSeparator = chr(0x2028)
+	def selectToken(self, stopChars = (' ','\t', '\n', '\r', '\n\r', chr(0x2029), chr(0x2028))):
 		cursor = self.textCursor()
 		start = cursor.position()
-		cursor.movePosition(cursor.EndOfWord, cursor.MoveAnchor)
+		#cursor.movePosition(cursor.EndOfWord, cursor.MoveAnchor)
 		while cursor.movePosition(cursor.Right, cursor.KeepAnchor):
-			if cursor.selectedText()[-1] in stopChars:
+			if cursor.selectedText().endswith(stopChars):
 				cursor.movePosition(cursor.Left, cursor.KeepAnchor)
 				break
 		print("Peguei 1: " + cursor.selectedText() + "|")		
 		
 		cursor.setPosition(cursor.position(), cursor.MoveAnchor)
 		cursor.setPosition(start, cursor.KeepAnchor)
+		if cursor.selectedText() != "" and cursor.selectedText().startswith(stopChars):
+			cursor.movePosition(cursor.Right, cursor.KeepAnchor)
 		while cursor.movePosition(cursor.Left, cursor.KeepAnchor):
-			if cursor.selectedText()[0] in stopChars:
+			print("char:", ord(cursor.selectedText()[0]), "oi")
+			if cursor.selectedText().startswith(stopChars):
 				cursor.movePosition(cursor.Right, cursor.KeepAnchor)
 				break
 				
