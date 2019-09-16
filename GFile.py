@@ -124,9 +124,9 @@ class GDocument(QtWebEngineWidgets.QWebEngineView):
 		self.rawText = s
 
 		i = 0
-		print(os.listdir("media/images/"))
+		#print(os.listdir("media/images/"))
 		for filename in os.listdir("media/images/"): 
-			print(filename)
+			#print(filename)
 			dst ="IMG" + str(i) + ".JPG"
 			src ='media/images/'+ filename 
 			dst ='media/images/'+ dst 
@@ -159,6 +159,11 @@ class GDocument(QtWebEngineWidgets.QWebEngineView):
 				encontrou = True
 				if(refino[-3:] != "\n"):
 					refino = refino + "\n"
+
+		for count, caracter in enumerate(refino): #juntar palavras quebradas no fim de linha
+			if caracter == "-" and refino[count+1] == " " and refino[count-1] != " ":
+				refino = refino[:count] + refino[count+2:]
+
 		self.formattedText = refino
 		self.sender.formattedReady.emit()
 		return self.formattedText

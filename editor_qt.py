@@ -398,7 +398,9 @@ class Main(QtWidgets.QMainWindow):
 		self.images_widget.addImagesFromFile(filename[0])
 	
 	def addImageFromUrl(self):
-		dlg = QtWidgets.QInputDialog(self)                 
+		dlg = QtWidgets.QInputDialog(self)
+		dlg.setOkButtonText("Enviar")
+		dlg.setCancelButtonText("Cancelar")
 		dlg.setInputMode(QtWidgets.QInputDialog.TextInput) 
 		dlg.setWindowTitle("Adicionar imagem por url")
 		dlg.setLabelText("Url da imagem:")

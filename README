@@ -9,6 +9,7 @@
 # python3-hunspell # instalar pelo apt
 # libhunspell-dev  # instalar pelo apt
 #
+#
 # unoconv
 # pdfminer.six
 # unidecode
@@ -38,39 +39,30 @@
 #	-> Highlighter
 #	-> Completer (se precisar)
 #
-# 2 -> Deixar tudo maiúsculo tem problemas com acentuação
+# 2 -> Deixar tudo maiúsculo tem problemas com acentuação  ?????
 #
 # 3 -> Imagens
-#	-> Fazer as Imagens aparecerem
 #	-> Pausa ao mostrar imagens
-#	-> Fazer upload de imagem (DO PC e URL?)
-#		-> Criar cópias das imagens para a pasta do programa
+#	-> Colocar carregamento da imagem por URL (thread)
 #	
-# 4 -> Verificar sinergia vlibras_translate <-> boneco
-#
-# 5 -> Fórmulas e tabelas em texto
+# 4 -> Fórmulas e tabelas em texto ?????
 # 
-# 6 -> Atualização do joguinho do VLIBRAS
+# 5 -> Programa para o pessoal da letras
 #
-# 7 -> Programa para o pessoal da letras
+# 6 -> Arrastar palavras ?????
 #
-# 8 -> Arrastar palavras
+# 7 -> PDF
+#	-> Remover cabeçalho e rodapé do pdf miner  ?????
+#   -> Validar extração de imagens
 #
-# 9 -> PDF
-#	-> Remover cabeçalho e rodapé do pdf miner
-#	-> Refino pdf -> txt melhorar (quebras de linha, etc, etc, etc)
-#
-# 10 -> Pré processamento:
-#	-> Palavras quebradas por hífem
-#
-# 11 -> Salvar vídeo
-#
-# 12 -> Refino GLOSA (G U S T A V O)
+# 8 -> Refino GLOSA (G U S T A V O)
 #	-> Ordem palavras
 #	-> Sinônimos
 #	-> Substituição errada (consigo - com tu)
 #	-> Espaço depois da vírgula
 #	...
+#
+# 9 -> Mudar dialog_box para Sim/Não
 #
 # GLOSA ESTENDIDA
 #
