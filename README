@@ -35,7 +35,7 @@
 # TO DO
 #
 # -> A função load da classe GDocument ainda segura o fluxo do programa, 
-#	tentar threadificar é um pouco mais difícil por quê é um
+#	tentar threadificar é um pouco mais difícil porque é um
 #	método sobrecarregado que precisa do super()
 #
 # -> Imagens
@@ -46,7 +46,7 @@
 # 
 # -> Programa para o pessoal da letras
 #
-# -> Arrastar palavras funciona com Ctrl+Setas, talvez implementar alguma coisa com mouse
+# -> Trocar ordem das palavras pelo mouse
 #
 # -> PDF
 #	-> Remover cabeçalho e rodapé do pdf miner  ?????
