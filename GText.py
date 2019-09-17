@@ -42,8 +42,6 @@ class GTextEdit(QtWidgets.QTextEdit):
 		
 		self.completionEnd = " "
 		
-		self.textChanged.connect(self.onTextChanged)
-		# self.setAttribute(QtCore.Qt.WA_KeyCompression)
 		self.setAttribute(QtCore.Qt.WA_InputMethodEnabled)
 	
 	#####################################
@@ -68,12 +66,12 @@ class GTextEdit(QtWidgets.QTextEdit):
 	#
 	####################################
 	
-	# QChar::QParagraphSeparator = chr(0x2029)
-	# QChar::LineSeparator = chr(0x2028)
+	# QChar::QParagraphSeparator 	= chr(0x2029)
+	# QChar::LineSeparator 		= chr(0x2028)
 	def selectToken(self, stopChars = (' ','\t', '\n', '\r', '\n\r', chr(0x2029), chr(0x2028))):
 		cursor = self.textCursor()
 		start = cursor.position()
-		#cursor.movePosition(cursor.EndOfWord, cursor.MoveAnchor)
+		
 		while cursor.movePosition(cursor.Right, cursor.KeepAnchor):
 			if cursor.selectedText().endswith(stopChars):
 				cursor.movePosition(cursor.Left, cursor.KeepAnchor)
@@ -92,6 +90,30 @@ class GTextEdit(QtWidgets.QTextEdit):
 				
 		print("Peguei 2: " + cursor.selectedText() + "|")
 		return cursor
+	
+	#########################################
+	#
+	# Controle fino do input
+	#
+	# Mexer aqui para tratar teclas mortas
+	# ( `, ´, ~, ^ )
+	#
+	#########################################
+	def inputMethodEvent(self, event):
+		commitString  = event.commitString()
+		preeditString = event.preeditString()
+
+		print("UIA")
+		print("COMMIT: |" + commitString + "|")
+		print("PREDIT: |" + preeditString + "|")
+		
+		# Se for uma tecla morta que não invoca o keyPressEvent
+		# cria o evento na mão já com o caractere em maiúsculo
+		if commitString.upper() in GParser().getAccentedCharacters():
+			newEvent = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, QtCore.Qt.Key_Any, QtCore.Qt.NoModifier, commitString.upper())
+			self.keyPressEvent(newEvent)
+		else:
+			super().inputMethodEvent(event)
 	
 	####################################
 	#
@@ -143,21 +165,34 @@ class GTextEdit(QtWidgets.QTextEdit):
 				dstCursor.insertText(w1)
 				self.textCursor().endEditBlock()
 		
+		# Cópia do evento, mas com o texto em maiúsculo
+		newEvent = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, event.key(), event.modifiers(), event.nativeScanCode(), event.nativeVirtualKey(), event.nativeModifiers(), event.text().upper(), event.isAutoRepeat(), event.count())
 		
 		if not moveWordFlag:
-			QtWidgets.QTextEdit.keyPressEvent(self, event)
-		
-#		newEvent = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, event.key(), event.modifiers(), event.nativeScanCode(), event.nativeVirtualKey(), event.nativeModifiers(), event.text().upper(), event.isAutoRepeat(), event.count())	
-#		QtWidgets.QTextEdit.keyPressEvent(self, newEvent)
-
-		
-		if not event.text().isalpha() and not ek == QtCore.Qt.Key_Shift and not event.text() in ('_', '<'):
-			self.completer.popup().hide()
+			QtWidgets.QTextEdit.keyPressEvent(self, newEvent)
 			
-		# Só mostra sugestão em caso de adicionar uma letra Ctrl+Espaço
-		if self.popupShowConditions(event.text(), ek):
-			self.onTextChanged()
-	
+		txt = newEvent.text()
+		
+		# Aparece o completer ao digitar uma letra, símbolo de tag ou comando, ou Ctrl+Espaço
+		if txt.isalpha() or txt in ('_', '<') or (self.isPressed(QtCore.Qt.Key_Control) and ek == QtCore.Qt.Key_Space):
+			tc = self.selectToken()
+			cr = self.cursorRect()
+			
+			word = tc.selectedText()
+			if len(word) > 0:
+				print("|->"+word)
+				self.completer.setCompletionPrefix(word)
+				popup = self.completer.popup()
+				popup.setCurrentIndex(self.completer.completionModel().index(0,0))
+				cr.setWidth(self.completer.popup().sizeHintForColumn(0) | self.completer.popup().verticalScrollBar().sizeHint().width())
+				self.completer.complete(cr)
+				if self.completer.completionCount() == 0:
+					self.completer.popup().hide()
+			else:
+				self.completer.popup().hide()
+		else:
+			self.completer.popup().hide()	
+
 	###########################################
 	#
 	# Ações do completer
@@ -242,89 +277,3 @@ class GTextEdit(QtWidgets.QTextEdit):
 			menu.triggered[QtWidgets.QAction].connect(lambda w: self.wordSubFunction(w, cursor))
 			menu.exec(event.globalPos())
 		"""
-		
-	#########################################
-	#
-	# Controle fino do input
-	#
-	# Mexer aqui para tratar teclas mortas
-	# ( `, ´, ~, ^ )
-	#
-	#########################################
-	def inputMethodEvent(self, event):
-		print("HI")
-		
-		commitString  = event.commitString()
-		preeditString = event.preeditString()
-		
-		print("COMMIT: |" + commitString + "|")
-		print("PREDIT: |" + preeditString + "|")
-		
-		# Desse jeito o usuário não pode digitar
-		# os caracteres ~, ´, ` e ^ sozinhos, 
-		# talvez depois tentar algum fix
-		if commitString in ('´', '^', '~', '`'):
-			event.setCommitString("")
-		
-		print("++++++++++++++++++++++++")
-		super().inputMethodEvent(event)
-	
-	#########################################
-	#
-	# Teste textChanged
-	#
-	#########################################
-	def onTextChanged(self):
-		tc = self.textCursor()
-		lc = self.textCursor()
-		lc.movePosition(lc.Left, lc.KeepAnchor)
-		ek = lc.selectedText()
-
-		if self.onDeadKey:
-			self.onDeadKey = False
-			return
-
-		if not ek.isalpha() and not ek.isdigit() and not ek in ('<', '_'):
-			self.completer.popup().hide()
-			return
-		
-		tc.select(QtGui.QTextCursor.WordUnderCursor)
-
-		if ek.isalpha() and not ek.isupper() and not tc.selectedText().startswith('_'):
-			self.textChanged.disconnect()
-			lc.insertText(ek.upper())
-			self.textChanged.connect(self.onTextChanged)
-
-
-		lc.select(QtGui.QTextCursor.WordUnderCursor)
-
-		word = lc.selectedText()
-		
-		if ek == '_' or ek == '<':
-			word = ek
-		
-		lc.movePosition(lc.StartOfWord, lc.MoveAnchor)
-		lc.movePosition(lc.Left, lc.KeepAnchor)
-		lc = lc.selectedText()
-		
-		if lc == '<' and not word.startswith('<'):
-			word = '<' + word
-			
-		print("lc: " + lc)
-		print("word:" + word)
-
-		cr = self.cursorRect()
-		
-		if len(word) > 0:
-			print("|->"+word)
-			self.completer.setCompletionPrefix(word)
-			popup = self.completer.popup()
-			popup.setCurrentIndex(self.completer.completionModel().index(0,0))
-			cr.setWidth(self.completer.popup().sizeHintForColumn(0) | self.completer.popup().verticalScrollBar().sizeHint().width())
-			# Essa linha causa bug com acentuação
-			self.completer.complete(cr)
-			#############################
-			if self.completer.completionCount() == 0:
-				self.completer.popup().hide()
-		else:
-			self.completer.popup().hide()

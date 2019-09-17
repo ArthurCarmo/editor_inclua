@@ -34,35 +34,32 @@
 #########################################################################
 # TO DO
 #
-# 1 -> THREADIFICAR ALGUMAS FUNÇÕES
-#	-> Abrir/Gerenciar documentos
-#	-> Highlighter
-#	-> Completer (se precisar)
+# -> A função load da classe GDocument ainda segura o fluxo do programa, 
+#	tentar threadificar é um pouco mais difícil por quê é um
+#	método sobrecarregado que precisa do super()
 #
-# 2 -> Deixar tudo maiúsculo tem problemas com acentuação  ?????
-#
-# 3 -> Imagens
+# -> Imagens
 #	-> Pausa ao mostrar imagens
 #	-> Colocar carregamento da imagem por URL (thread)
 #	
-# 4 -> Fórmulas e tabelas em texto ?????
+# -> Fórmulas e tabelas em texto ?????
 # 
-# 5 -> Programa para o pessoal da letras
+# -> Programa para o pessoal da letras
 #
-# 6 -> Arrastar palavras ?????
+# -> Arrastar palavras funciona com Ctrl+Setas, talvez implementar alguma coisa com mouse
 #
-# 7 -> PDF
+# -> PDF
 #	-> Remover cabeçalho e rodapé do pdf miner  ?????
-#   -> Validar extração de imagens
+#	-> Validar extração de imagens
 #
-# 8 -> Refino GLOSA (G U S T A V O)
+# -> Refino GLOSA (G U S T A V O)
 #	-> Ordem palavras
 #	-> Sinônimos
 #	-> Substituição errada (consigo - com tu)
 #	-> Espaço depois da vírgula
 #	...
 #
-# 9 -> Mudar dialog_box para Sim/Não
+# -> Mudar dialog_box para Sim/Não
 #
 # GLOSA ESTENDIDA
 #
@@ -74,6 +71,7 @@
 #
 #	-> Bug Unicode PC 1
 #	-> Redimensionar o boneco
+#	-> Verificar se é interessante threadificar o SyntaxHighlighter
 #
 ##############################################
 
@@ -88,6 +86,11 @@
 # ----------------------------------------------------------------------
 # 
 # O caractere '.' dá uma pausa de 2 segundos nas animações do avatar
+#
+# ----------------------------------------------------------------------
+#
+# Conferir separadores no método selectToken da classe GText
+# e tentar descobrir como invocar as macros ao invés do valor hardcoded
 #
 ##########################################################################
 

@@ -20,6 +20,12 @@ class GParser():
 			self.incomplete_keywords = ["<i", "<im", "<img", "<\\i", "<\\im", "<\\img"]
 			self.keywords = ["<img0=", "<img1=", "<img2=", "<img3=", "<\\img0>", "<\\img1>", "<\\img2>", "<\\img3>"]
 			self.commands = ["__save", "__stop", "__rec", "__last"]
+			self.accentedCharacters = ['Á', 'À', 'Â', 'Ã',\
+						   'É', 'È', 'Ê', 'Ẽ',\
+						   'Í', 'Ì', 'Î', 'Ĩ',\
+						   'Ó', 'Ò', 'Ô', 'Õ',\
+						   'Ú', 'Ù', 'Û', 'Ũ',\
+						   'Ń', 'Ǹ', 'Ñ', 'Ṕ']
 
 	def __init__(self):
 		if GParser.instance is None:
@@ -43,7 +49,8 @@ class GParser():
 	def commands(self):
 		return GParser.instance.commands
 
-
+	def getAccentedCharacters(self):
+		return GParser.instance.accentedCharacters
 	
 	def getAlphabet(self):
 		f = open("palavras")
