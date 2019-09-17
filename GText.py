@@ -175,23 +175,27 @@ class GTextEdit(QtWidgets.QTextEdit):
 		
 		# Aparece o completer ao digitar uma letra, símbolo de tag ou comando, ou Ctrl+Espaço
 		if txt.isalpha() or txt in ('_', '<') or (self.isPressed(QtCore.Qt.Key_Control) and ek == QtCore.Qt.Key_Space):
-			tc = self.selectToken()
-			cr = self.cursorRect()
-			
-			word = tc.selectedText()
-			if len(word) > 0:
-				print("|->"+word)
-				self.completer.setCompletionPrefix(word)
-				popup = self.completer.popup()
-				popup.setCurrentIndex(self.completer.completionModel().index(0,0))
-				cr.setWidth(self.completer.popup().sizeHintForColumn(0) | self.completer.popup().verticalScrollBar().sizeHint().width())
-				self.completer.complete(cr)
-				if self.completer.completionCount() == 0:
-					self.completer.popup().hide()
-			else:
-				self.completer.popup().hide()
+			self.completerHandler()
 		else:
 			self.completer.popup().hide()	
+
+
+	def completerHandler(self):
+		tc = self.selectToken()
+		cr = self.cursorRect()
+		
+		word = tc.selectedText()
+		if len(word) > 0:
+			print("|->"+word)
+			self.completer.setCompletionPrefix(word)
+			popup = self.completer.popup()
+			popup.setCurrentIndex(self.completer.completionModel().index(0,0))
+			cr.setWidth(self.completer.popup().sizeHintForColumn(0) | self.completer.popup().verticalScrollBar().sizeHint().width())
+			self.completer.complete(cr)
+			if self.completer.completionCount() == 0:
+				self.completer.popup().hide()
+		else:
+			self.completer.popup().hide()
 
 	###########################################
 	#
