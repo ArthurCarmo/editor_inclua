@@ -4,14 +4,23 @@ from GFile import GDocument
 class GRubberBand(QtWidgets.QRubberBand):
 	def __init__(self, shape, parent = None):
 		QtWidgets.QRubberBand.__init__(self, shape, parent)
-		self.origin = QtCore.QPoint(0, 0)
 
+		self.bottomRightGrip = QtWidgets.QSizeGrip(self)		
+		
+		self.layout = QtWidgets.QHBoxLayout()
+		self.layout.setContentsMargins(0, 0, 0, 0)
+		self.layout.addWidget(self.bottomRightGrip, 0, QtCore.Qt.AlignRight | QtCore.Qt.AlignBottom)
+		self.setLayout(self.layout)
+
+	def mouseClicked(self, event):
+		click = self.mapFromParent(event.pos())
+		return self.bottomRightGrip.geometry().contains(click)
+		
 class GScreenshot(QtWidgets.QWidget):
 	def __init__(self, parent = None):
 		QtWidgets.QWidget.__init__(self, parent)
 		self.pixmap = QtGui.QPixmap()
 	
-
 class GLayeredDocumentCanvas(QtWidgets.QWidget):
 	def __init__(self, parent = None):
 		QtWidgets.QWidget.__init__(self, parent)
@@ -55,9 +64,7 @@ class GLayeredDocumentCanvas(QtWidgets.QWidget):
 			self.area.setGeometry(QtCore.QRect(self.origin, QtCore.QSize()))
 			self.area.show()	
 		else:
-			self.drag = True
-		
-		
+			self.drag = not self.area.mouseClicked(event)
 		
 	def mouseMoveEvent(self, event):
 		if self.drag:
