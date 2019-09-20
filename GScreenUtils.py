@@ -20,8 +20,20 @@ class GScreenshot(QtWidgets.QWidget):
 	def __init__(self, parent = None):
 		QtWidgets.QWidget.__init__(self, parent)
 		self.pixmap = QtGui.QPixmap()
+		
+	def shootScreen(self, region):
+		screen = QtGui.QGuiApplication.primaryScreen()
+		
+		QtWidgets.QApplication.beep()
+		
+		pixmap = screen.grabWindow(QtWidgets.QDesktopWidget().winId(), region.left(), region.top(), region.width(), region.height())
+		
+		return pixmap
 	
 class GLayeredDocumentCanvas(QtWidgets.QWidget):
+
+	screenShot = QtCore.pyqtSignal(QtGui.QPixmap)
+
 	def __init__(self, parent = None):
 		QtWidgets.QWidget.__init__(self, parent)
 		self.area = GRubberBand(GRubberBand.Rectangle, self)
@@ -56,7 +68,8 @@ class GLayeredDocumentCanvas(QtWidgets.QWidget):
 		self.drag = False
 		
 		if event.buttons() != QtCore.Qt.LeftButton:
-			self.area.hide()
+			#self.area.hide()
+			self.takeScreenShot()
 			return
 		
 		if not self.area.isVisible() or not self.area.geometry().contains(self.mousePosition):
@@ -70,12 +83,33 @@ class GLayeredDocumentCanvas(QtWidgets.QWidget):
 		if self.drag:
 			movement = event.pos()
 			self.mousePosition -= movement
-			self.origin -= self.mousePosition
-			self.area.move(self.origin)
+			
+			newOrigin = QtCore.QPoint(self.origin.x(), self.origin.y())
+			newOrigin -= self.mousePosition
 			self.mousePosition = movement
+			
+			size = self.area.size()
+			
+			newTop	= max(self.geometry().top(), newOrigin.y())
+			newLeft	= max(self.geometry().left(), newOrigin.x())
+			
+			if newTop + size.height() > self.geometry().bottom():
+				newTop = self.origin.y()
+				
+			if newLeft + size.width() > self.geometry().right():
+				newLeft = self.origin.x()
+				
+			self.origin = QtCore.QPoint(newLeft, newTop)
+			self.area.move(self.origin)
 		else:
 			self.area.setGeometry(QtCore.QRect(self.origin, event.pos()).normalized())
-
+			
+	def takeScreenShot(self):
+		pos = self.mapToGlobal(self.area.geometry().topLeft())
+		size = self.area.geometry().size()
+		region = QtCore.QRect(pos, size)
+		self.area.hide()
+		self.screenShot.emit(GScreenshot().shootScreen(region))
 
 class Main(QtWidgets.QMainWindow):
 	def __init__(self, parent = None):
@@ -84,9 +118,18 @@ class Main(QtWidgets.QMainWindow):
 		self.widg = GLayeredDocumentCanvas()
 		self.widg.show()
 		
+		self.lbl = QtWidgets.QLabel()
+		
 		self.splitter.addWidget(self.widg)
-		self.splitter.addWidget(QtWidgets.QGraphicsView())
+		self.splitter.addWidget(self.lbl)
 		self.setCentralWidget(self.splitter)
+		
+		self.widg.screenShot.connect(self.setLabel)
+		
+	def setLabel(self, px):
+		self.lbl.setPixmap(px)
+		self.lbl.hide()
+		self.lbl.show()
 		
 	
 def main():
@@ -96,6 +139,5 @@ def main():
 	main = Main()
 	main.show()
 	sys.exit(app.exec_())
-
 if __name__ == "__main__":
 	main()
