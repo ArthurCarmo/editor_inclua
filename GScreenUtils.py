@@ -80,6 +80,8 @@ class GLayeredDocumentCanvas(QtWidgets.QWidget):
 			self.drag = not self.area.mouseClicked(event)
 		
 	def mouseMoveEvent(self, event):
+		bounds = self.geometry()
+		
 		if self.drag:
 			movement = event.pos()
 			self.mousePosition -= movement
@@ -89,20 +91,23 @@ class GLayeredDocumentCanvas(QtWidgets.QWidget):
 			self.mousePosition = movement
 			
 			size = self.area.size()
+			newTop	= max(bounds.top(), newOrigin.y())
+			newLeft	= max(bounds.left(), newOrigin.x())
 			
-			newTop	= max(self.geometry().top(), newOrigin.y())
-			newLeft	= max(self.geometry().left(), newOrigin.x())
-			
-			if newTop + size.height() > self.geometry().bottom():
+			if newTop + size.height() > bounds.bottom():
 				newTop = self.origin.y()
 				
-			if newLeft + size.width() > self.geometry().right():
+			if newLeft + size.width() > bounds.right():
 				newLeft = self.origin.x()
 				
 			self.origin = QtCore.QPoint(newLeft, newTop)
 			self.area.move(self.origin)
 		else:
-			self.area.setGeometry(QtCore.QRect(self.origin, event.pos()).normalized())
+			target = event.pos()
+			newX = max(bounds.left(), min(target.x(), bounds.left() + bounds.width()))
+			newY = max(bounds.top(), min(target.y(), bounds.top() + bounds.height()))
+			target = QtCore.QPoint(newX, newY)
+			self.area.setGeometry(QtCore.QRect(self.origin, target).normalized())
 			
 	def takeScreenShot(self):
 		pos = self.mapToGlobal(self.area.geometry().topLeft())
