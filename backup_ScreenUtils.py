@@ -34,11 +34,12 @@ class GLayeredDocumentCanvas(QtWidgets.QWidget):
 
 	screenShot = QtCore.pyqtSignal(QtGui.QPixmap)
 
-	def __init__(self, target, parent = None):
+	def __init__(self, parent = None):
 		QtWidgets.QWidget.__init__(self, parent)
-		self.document = target
 		self.area = GRubberBand(GRubberBand.Rectangle, self)
-
+		
+		self.document = GDocument(self)
+		self.document.load("/home/arthur/Documents/editor_inclua/docs/fisica.pdf")
 		self.setCaptureMode(True)
 		
 		self.layout = QtWidgets.QVBoxLayout()
@@ -109,29 +110,20 @@ class GLayeredDocumentCanvas(QtWidgets.QWidget):
 			self.area.setGeometry(QtCore.QRect(self.origin, target).normalized())
 			
 	def takeScreenShot(self):
-		pos = self.document.mapFrom(self, self.area.geometry().topLeft())
+		pos = self.mapToGlobal(self.area.geometry().topLeft())
 		size = self.area.geometry().size()
 		region = QtCore.QRect(pos, size)
-		px = QtGui.QPixmap(region.size())			
-		self.document.render(px, QtCore.QPoint(), QtGui.QRegion(region))
-		self.screenShot.emit(px)
-		
-		
+		self.area.hide()
+		self.screenShot.emit(GScreenshot().shootScreen(region))
 
 class Main(QtWidgets.QMainWindow):
 	def __init__(self, parent = None):
 		QtWidgets.QMainWindow.__init__(self, parent)
 		self.splitter = QtWidgets.QSplitter(self)
-
-		self.document = GDocument(self)
-		self.widg = GLayeredDocumentCanvas(self.document)
-
+		self.widg = GLayeredDocumentCanvas()
 		self.widg.show()
 		
 		self.lbl = QtWidgets.QLabel()
-		
-		
-		self.document.load("/home/arthur/Documents/editor_inclua/docs/fisica.pdf")
 		
 		self.splitter.addWidget(self.widg)
 		self.splitter.addWidget(self.lbl)
