@@ -181,6 +181,11 @@ class GImageGrid(QtWidgets.QScrollArea):
 	def addImageFromUrl(self, src):
 		threading.Thread(target=self.handle_web_image, args=([src])).start()
 	
+	def addImageFromPixmap(self, px, file_extension = "JPG"):
+		filename = "%s/IMG%d%s" % (self.imagesDir, self.next_id, file_extension.upper())
+		px.save(filename)
+		self.loadImages()
+	
 	def onImageDownloaded(self):
 		self.loadImages()
 		self.dl_index += 1
