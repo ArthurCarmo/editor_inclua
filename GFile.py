@@ -190,7 +190,6 @@ class GTranslation():
 		self.translator.sender.updateProgress.connect(self.updateProgress)
 		
 		if self.text is not None and raw:
-			print("Aqui?!")
 			self.translate()
 		
 	def __getitem__(self, key):
@@ -207,7 +206,7 @@ class GTranslation():
 			self.parseIndex = int(doc.readline())
 			self.text = doc.read()
 			print(self.text)
-			self.paragraphs = self.text.split(GTranslator.endl)
+			self.paragraphs = [line if line else '\n' for line in self.text.split(GTranslator.endl)]
 		self.raw = False
 		
 	def save(self, document):
@@ -237,7 +236,7 @@ class GTranslation():
 	
 	def updateStatus(self, text):
 		self.text = text
-		self.paragraphs = text.split(GTranslator.endl)
+		self.paragraphs = [line if line else '\n' for line in self.text.split(GTranslator.endl)]
 		self.parseIndex = 0
 		self.raw  = False
 		self.progress.hide()

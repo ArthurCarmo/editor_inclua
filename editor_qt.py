@@ -361,9 +361,18 @@ class Main(QtWidgets.QMainWindow):
 	def addNextTranslationParagraph(self):
 		cursor = self.text.textCursor()
 		cursor.movePosition(cursor.End, cursor.MoveAnchor)
+		
+		spaces = ""
 		text = self.translation.next()
-		if text != "\n" and text != "":
-			text += "\n"
+		
+		while text.isspace():
+			spaces += text
+			text = self.translation.next()
+		
+		end = "\n"
+		if text == "":
+			end = ""
+		text = spaces + text + end
 		cursor.insertText(text)
 
 	def showAllTranslation(self):
