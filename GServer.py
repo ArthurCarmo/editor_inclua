@@ -73,7 +73,7 @@ class GServer():
 	# Avatar precisa de uma thread
 	def startGameThread(self):
 		print("Iniciando o avatar")
-		run(["./unityVideo/videoCreator.x86_64", "teste_renderer", "1", "30", "32", "37", "-screen-fullscreen", "0", "-screen-quality", "Fantastic", "-force-opengl", "2>&1", "/dev/null", "&"], shell=False, env=dict(environ, DISPLAY=":100"))
+		run(["./unityVideo/videoCreator.x86_64", "teste_renderer", "0", "30", "32", "37", "-screen-fullscreen", "0", "-screen-quality", "Fantastic", "-force-opengl", "2>&1", "/dev/null", "&"], shell=False, env=dict(environ, DISPLAY=":100"))
 
 	def startCommunication(self):
 		if self.game is None:
