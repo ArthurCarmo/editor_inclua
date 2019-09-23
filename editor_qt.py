@@ -49,10 +49,7 @@ class Main(QtWidgets.QMainWindow):
 		traducao = menubar.addMenu("Tradução")
 		imagens = menubar.addMenu("Imagens")
 		edit = menubar.addMenu("Preferências")
-		bar = QtWidgets.QMenuBar(menubar)
-		help = bar.addMenu("Ajuda")
-		sobre = bar.addMenu("Sobre o projeto")
-		menubar.setCornerWidget(bar, QtCore.Qt.TopRightCorner)
+		
 
 		fileNovo = QtWidgets.QAction("Novo", self)
 		fileNovo.setShortcut("Ctrl+N")
@@ -64,7 +61,7 @@ class Main(QtWidgets.QMainWindow):
 		fileAbrir.setStatusTip("Abre novo documento")
 		fileAbrir.triggered.connect(self.openDocument)
 
-		fileImportar = QtWidgets.QAction("Importar tadução", self)
+		fileImportar = QtWidgets.QAction("Importar tradução", self)
 		fileImportar.setShortcut("Ctrl+I")
 		fileImportar.setStatusTip("Importa tradução")
 		fileImportar.triggered.connect(self.importTextFile)
@@ -164,6 +161,16 @@ class Main(QtWidgets.QMainWindow):
 		imagens.addAction(imagensNewFromUrl)
 		imagens.addSeparator()
 		imagens.addAction(self.imagensDelete)
+		
+		bar = QtWidgets.QMenuBar(menubar)
+		menubar.setCornerWidget(bar, QtCore.Qt.TopRightCorner)
+
+		help = bar.addMenu("Ajuda")
+		
+		sobre = QtWidgets.QAction("Sobre o projeto", self)
+		sobre.setStatusTip("Conheça mais sobre o projeto")
+		sobre.triggered.connect(lambda: self.showOne(self.sobre_view))
+		bar.addAction(sobre)
 
 		#btn_nxt.setText("Próxima linha")
 
@@ -208,6 +215,12 @@ class Main(QtWidgets.QMainWindow):
 		self.images_widget = GImageGrid(self.default_imgDir)
 		self.images_widget.onClick.connect(self.onImageClick)
 
+		#Sobre o projeto
+		self.scene = QtWidgets.QGraphicsScene()
+		self.sobre_view = QtWidgets.QGraphicsView(self.scene)
+		self.sobre_view.hide()
+		self.initScene()
+
 		#####################################
 		#
 		# Toolbar para gerenciar imagens
@@ -246,6 +259,7 @@ class Main(QtWidgets.QMainWindow):
 		self.splitter.addWidget(self.text)
 		self.splitter.addWidget(self.filler)
 		self.splitter.addWidget(self.pdf_widget)
+		self.splitter.addWidget(self.sobre_view)
 		
 		# Init
 		self.initMenubar()
@@ -505,6 +519,21 @@ class Main(QtWidgets.QMainWindow):
 	def onVideoReady(self, title):
 		QtWidgets.QMessageBox.question(self, "Gerar vídeo", "Vídeo %s criado com sucesso!" % title, (QtWidgets.QMessageBox.Ok))
 
+	####################################
+	#
+	# TELAS ESTÁTICAS
+	#
+	###################################
+
+	def showOne(self, widget):
+		for i in range(self.splitter.count()):
+			self.splitter.widget(i).hide()
+		widget.show()
+
+	def initScene(self):
+		self.scene.addText("EQUIPE")
+
+
 	##################################
 	#
 	# DESTRUTOR
@@ -518,6 +547,7 @@ class Main(QtWidgets.QMainWindow):
 	
 	def closeEvent(self, event):
 		self.__del__()
+
 		
 ########################################################
 
