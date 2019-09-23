@@ -227,3 +227,29 @@ class GImageGrid(QtWidgets.QScrollArea):
 		self.n_images = 0
 		self.raise_id = 1
 
+class GCustomImageDialog(QtWidgets.QDialog):
+	def __init__(self, parent = None):
+		QtWidgets.QDialog.__init__(self, parent)
+		
+		self.hide()
+		self.setWindowTitle("Posição da imagem")
+		self.layout = QtWidgets.QGridLayout()
+		self.b0 = QtWidgets.QPushButton("Topo esquerdo")
+		self.b1 = QtWidgets.QPushButton("Topo direito")
+		self.b2 = QtWidgets.QPushButton("Base esquerda")
+		self.b3 = QtWidgets.QPushButton("Base direita")
+		
+		self.layout.addWidget(self.b0, 0, 0)
+		self.layout.addWidget(self.b1, 0, 1)
+		self.layout.addWidget(self.b2, 1, 0)
+		self.layout.addWidget(self.b3, 1, 1)
+		
+		self.b0.clicked.connect(lambda : self.done(0))
+		self.b1.clicked.connect(lambda : self.done(1))
+		self.b2.clicked.connect(lambda : self.done(2))
+		self.b3.clicked.connect(lambda : self.done(3))
+				
+		self.setLayout(self.layout)
+	
+	def question(self):
+		return self.exec()

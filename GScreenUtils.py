@@ -1,5 +1,6 @@
 from PyQt5 import QtGui, QtCore, QtWidgets
 from GFile import GDocument
+from GImage import GCustomImageDialog
 
 class GRubberBand(QtWidgets.QRubberBand):
 	def __init__(self, shape, parent = None):
@@ -25,7 +26,7 @@ class GLayeredDocumentCanvas(QtWidgets.QWidget):
 		self.document = target
 		self.area = GRubberBand(GRubberBand.Rectangle, self)
 
-		self.setCaptureMode(True)
+		self.setCaptureMode(False)
 		
 		self.layout = QtWidgets.QVBoxLayout()
 		self.layout.addWidget(self.document)
@@ -102,7 +103,19 @@ class GLayeredDocumentCanvas(QtWidgets.QWidget):
 		self.document.render(px, QtCore.QPoint(), QtGui.QRegion(region))
 		self.screenShot.emit(px)
 		
+	def keyPressEvent(self, event):
+		ek = event.key()
+		if ek == QtCore.Qt.Key_Control:
+			self.setCaptureMode(True)
+			self.area.hide()
+		QtWidgets.QWidget.keyPressEvent(self, event)
 		
+	def keyReleaseEvent(self, event):
+		ek = event.key()
+		if ek == QtCore.Qt.Key_Control:
+			self.setCaptureMode(False)
+			self.area.hide()
+		QtWidgets.QWidget.keyReleaseEvent(self, event)
 
 class Main(QtWidgets.QMainWindow):
 	def __init__(self, parent = None):
@@ -116,14 +129,18 @@ class Main(QtWidgets.QMainWindow):
 		
 		self.lbl = QtWidgets.QLabel()
 		
-		
-		self.document.load("/home/arthur/Documents/editor_inclua/docs/fisica.pdf")
+		import os
+		cwd = os.getcwd()
+		self.document.load(cwd + "/docs/fisica.pdf")
 		
 		self.splitter.addWidget(self.widg)
 		self.splitter.addWidget(self.lbl)
 		self.setCentralWidget(self.splitter)
 		
 		self.widg.screenShot.connect(self.setLabel)
+		
+		teste = GCustomImageDialog().question()
+		print(teste)
 		
 	def setLabel(self, px):
 		self.lbl.setPixmap(px)

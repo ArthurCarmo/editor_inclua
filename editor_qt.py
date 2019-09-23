@@ -14,7 +14,7 @@ from PyQt5.QtGui import QDesktopServices
 from GText import GTextEdit
 from GSyntax import GSyntaxHighlighter
 from GFile import GDocument, GTranslation, GVideo
-from GImage import GImageGrid
+from GImage import GImageGrid, GCustomImageDialog
 
 from time import sleep
 from GServer import GServer
@@ -463,7 +463,16 @@ class Main(QtWidgets.QMainWindow):
 	def onImageClick(self, index):
 		lc = self.text.textCursor()
 		range_content = lc.selectedText()
-		lc.insertText("<imgX=" + str(index) + "> " + range_content + "<\imgX>")
+		pos = GCustomImageDialog().question()
+		lc.insertText("<img%d=%s> %s <\img%d>" % (pos, str(index), range_content, pos))
+	
+	##################################
+	#
+	# SCREENSHOTS
+	#
+	##################################
+	def onScreenShot(self, pixmap):
+		print("HA!")
 	
 	##################################
 	#
