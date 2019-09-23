@@ -216,10 +216,10 @@ class Main(QtWidgets.QMainWindow):
 		self.images_widget.onClick.connect(self.onImageClick)
 
 		#Sobre o projeto
-		self.scene = QtWidgets.QGraphicsScene()
-		self.sobre_view = QtWidgets.QGraphicsView(self.scene)
+		self.sobre_view = QtWidgets.QTextEdit()
+		self.sobre_view.setReadOnly(True)
 		self.sobre_view.hide()
-		self.initScene()
+		self.initSobre()
 
 		#####################################
 		#
@@ -530,8 +530,16 @@ class Main(QtWidgets.QMainWindow):
 			self.splitter.widget(i).hide()
 		widget.show()
 
-	def initScene(self):
-		self.scene.addText("EQUIPE")
+	def initSobre(self):
+		self.textGrid = QtWidgets.QGridLayout()
+		cursor = self.sobre_view.textCursor()
+		cursor.insertText("\n")
+		cursor.insertText("Equipe\n\n")
+		cursor.insertText("Marcus\n")
+		cursor.insertText("Arthur\n")
+		cursor.insertText("Gustavo\n")
+		cursor.insertText("Maria Eduarda\n")
+		cursor.insertText("Róger\n")
 
 
 	##################################
