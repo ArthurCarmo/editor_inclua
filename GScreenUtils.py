@@ -15,20 +15,6 @@ class GRubberBand(QtWidgets.QRubberBand):
 	def mouseClicked(self, event):
 		click = self.mapFromParent(event.pos())
 		return self.bottomRightGrip.geometry().contains(click)
-		
-class GScreenshot(QtWidgets.QWidget):
-	def __init__(self, parent = None):
-		QtWidgets.QWidget.__init__(self, parent)
-		self.pixmap = QtGui.QPixmap()
-		
-	def shootScreen(self, region):
-		screen = QtGui.QGuiApplication.primaryScreen()
-		
-		QtWidgets.QApplication.beep()
-		
-		pixmap = screen.grabWindow(QtWidgets.QDesktopWidget().winId(), region.left(), region.top(), region.width(), region.height())
-		
-		return pixmap
 	
 class GLayeredDocumentCanvas(QtWidgets.QWidget):
 
@@ -67,7 +53,7 @@ class GLayeredDocumentCanvas(QtWidgets.QWidget):
 		self.drag = False
 		
 		if event.buttons() != QtCore.Qt.LeftButton:
-			#self.area.hide()
+			self.area.hide()
 			self.takeScreenShot()
 			return
 		
