@@ -49,7 +49,10 @@ class Main(QtWidgets.QMainWindow):
 		traducao = menubar.addMenu("Tradução")
 		imagens = menubar.addMenu("Imagens")
 		edit = menubar.addMenu("Preferências")
-		help = menubar.addMenu("Ajuda!")
+		bar = QtWidgets.QMenuBar(menubar)
+		help = bar.addMenu("Ajuda")
+		sobre = bar.addMenu("Sobre o projeto")
+		menubar.setCornerWidget(bar, QtCore.Qt.TopRightCorner)
 
 		fileNovo = QtWidgets.QAction("Novo", self)
 		fileNovo.setShortcut("Ctrl+N")
@@ -444,7 +447,9 @@ class Main(QtWidgets.QMainWindow):
 			self.setClickableImagesState()
 	
 	def onImageClick(self, index):
-		print(index)
+		lc = self.text.textCursor()
+		range_content = lc.selectedText()
+		lc.insertText("<imgX=" + str(index) + "> " + range_content + "<\imgX>")
 	
 	##################################
 	#

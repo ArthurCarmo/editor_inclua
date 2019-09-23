@@ -41,7 +41,9 @@
 # -> Imagens
 #	-> Pausa ao mostrar imagens
 #	-> Colocar carregamento da imagem por URL (thread)
-#	
+#	-> Arrumar indexação de imagens
+#   -> Aparecer imagens no vídeo
+#
 # -> Fórmulas e tabelas em texto ?????
 # 
 # -> Programa para o pessoal da letras
@@ -63,6 +65,7 @@
 #
 #-> Página "Sobre o projeto"
 #
+#-> Opção de desativar legenda
 # GLOSA ESTENDIDA
 #
 #########################################################################
