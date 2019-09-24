@@ -205,6 +205,7 @@ class Main(QtWidgets.QMainWindow):
 		self.pdf_widget.sender.formattedReady.connect(self.onPDFTextReady)
 		
 		self.screenshotLayer = GLayeredDocumentCanvas(self.pdf_widget)
+		self.screenshotLayer.screenShot.connect(self.onScreenShot)
 		self.screenshotLayer.hide()
 		
 		# Widget que contém a janela do avatar e o grid com as imagens
