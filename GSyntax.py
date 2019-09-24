@@ -4,6 +4,8 @@ import ahocorasick
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import Qt
 
+from GSettings import GDefaultValues
+
 class GParser():
 	instance = None
 
@@ -68,6 +70,7 @@ class GParser():
 
 	def cleanText(self, text):
 		text = re.sub(r'[\n,\'; ]+', ' ', text)
+		text = re.sub(r"(<img[0-9]=)([0-9]+.[A-Za-z]+>)", r"\1%s/%s\2" % (GDefaultValues.imgDir, GDefaultValues.imgPrefix), text)
 		return text
 	
 	def getCommandBlocks(self, text):

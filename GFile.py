@@ -16,6 +16,8 @@ from PyQt5.QtCore import QUrl
 
 from GTranslatorInterface import GTranslator
 
+from GSettings import GDefaultValues
+
 ############################################
 # Classe para converter documentos para PDF
 # extrair os textos e providenciar o widget
@@ -28,7 +30,7 @@ class documentSenderObject(QtCore.QObject):
 
 class GDocument(QtWebEngineWidgets.QWebEngineView):
 
-	__pdfjs = 'file://' + os.getcwd() + '/pdfjs/web/viewer.html'
+	__pdfjs = GDefaultValues.pdfJs
 
 	def __init__(self, parent = None):
 		QtWebEngineWidgets.QWebEngineView.__init__(self, parent)

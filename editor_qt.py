@@ -21,12 +21,14 @@ from GScreenUtils import GLayeredDocumentCanvas
 from time import sleep
 from GServer import GServer
 
+from GSettings import GDefaultValues
+
 class Main(QtWidgets.QMainWindow):
-	cwd		= os.getcwd()
-	home		= os.path.expanduser("~")
-	default_pngDir  = home + "/.config/unity3d/LAViD/VLibrasVideoMaker"
-	default_videoId = "teste_renderer"
-	default_imgDir  = cwd + "/media/images"
+	cwd		= GDefaultValues.cwd
+	home		= GDefaultValues.home
+	default_pngDir  = GDefaultValues.pngDir
+	default_videoId = GDefaultValues.videoId
+	default_imgDir  = GDefaultValues.imgDir
 	
 
 	def __init__(self, parent = None):
@@ -469,7 +471,7 @@ class Main(QtWidgets.QMainWindow):
 		lc = self.text.textCursor()
 		range_content = lc.selectedText()
 		pos = GCustomImageDialog().question()
-		lc.insertText("<img%d=%s> %s <\img%d>" % (pos, str(index), range_content, pos))
+		lc.insertText("<img%d=%s%s> %s <\\img%d>" % (pos, str(index), self.images_widget.getImageButtonFromIndex(index).getExtension(), range_content, pos))
 	
 	##################################
 	#

@@ -6,6 +6,8 @@ import subprocess
 from shutil import copyfile
 from PyQt5 import QtWidgets, QtGui , QtCore
 
+from GSettings import GDefaultValues
+
 #################################
 #
 # Botões com imagens
@@ -76,6 +78,12 @@ class GImageButton(QtWidgets.QPushButton):
     def isSelected(self):
         return self.selected
     
+    def getImagePath(self):
+        return self.image
+    	
+    def getExtension(self):
+        return os.path.splitext(self.image)[1]
+    
     def getIndex(self):
         return self.index
 
@@ -91,9 +99,6 @@ class GImageButton(QtWidgets.QPushButton):
                 self.onClick.emit(self.index)
             	
         super().mousePressEvent(ev)
-#        lc = self.parent.text.textCursor()
-#        range_content = lc.selectedText()
-#        lc.insertText("__IMGX_" + str(self.index) + " " + range_content + " IMGX__")
 
     def contextMenuEvent(self, ev):
         menu = QtWidgets.QMenu()
@@ -169,21 +174,20 @@ class GImageGrid(QtWidgets.QScrollArea):
 		self.onClick.emit(index)
 		
 	def addImagesFromFile(self, files):
-		cwd = os.getcwd()
-		
 		for src in files:
 			filename, file_extension = os.path.splitext(src)
-			filename = "%s/IMG%d%s" % (self.imagesDir, self.next_id, file_extension.upper())
+			filename = "%s/%s%d%s" % (self.imagesDir, GDefaultValues.imgPrefix, self.next_id, file_extension.upper())
 			copyfile(src, filename)
 			self.next_id += 1
 		
 		self.loadImages()
 		
 	def addImageFromUrl(self, src):
+		next_id += 1
 		threading.Thread(target=self.handle_web_image, args=([src])).start()
 	
 	def addImageFromPixmap(self, px, file_extension = "JPG"):
-		filename = "%s/IMG%d.%s" % (self.imagesDir, self.next_id, file_extension.upper())
+		filename = "%s/%s%d.%s" % (self.imagesDir, GDefaultValues.imgPrefix, self.next_id, file_extension.upper())
 		if px.save(filename):
 			self.next_id += 1
 			self.loadImages()
@@ -193,9 +197,8 @@ class GImageGrid(QtWidgets.QScrollArea):
 		self.dl_index += 1
 	
 	def handle_web_image(self, src):
-		cwd = os.getcwd()
 		filename, file_extension = os.path.splitext(src)
-		cmd = "wget -O %s/DL%d%s %s" % (self.imagesDir, self.dl_index, file_extension, src)
+		cmd = "wget -O %s/%s%d%s %s" % (self.imagesDir, GDefaultValues.imgPrefix, self.next_id-1, file_extension, src)
 		subprocess.run(cmd, shell=True)
 		self.onDownloadFinished.emit()
 	
@@ -212,6 +215,12 @@ class GImageGrid(QtWidgets.QScrollArea):
 		for img in self.findChildren(GImageButton):
 			img.setSelection(True)
 			
+	def getImageButtonFromIndex(self, index):
+		for img in self.findChildren(GImageButton):
+			if img.getIndex() == index:
+				return img
+		return None
+		
 	def getSelected(self):
 		l = []
 		for img in self.findChildren(GImageButton):
