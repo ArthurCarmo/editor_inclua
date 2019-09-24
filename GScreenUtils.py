@@ -42,6 +42,7 @@ class GLayeredDocumentCanvas(QtWidgets.QWidget):
 		self.document = document
 		
 	def setCaptureMode(self, capture):
+		self.area.hide()
 		self.document.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents, capture)
 	
 	def getCaptureMode(self):
@@ -100,18 +101,4 @@ class GLayeredDocumentCanvas(QtWidgets.QWidget):
 		px = QtGui.QPixmap(region.size())			
 		self.document.render(px, QtCore.QPoint(), QtGui.QRegion(region))
 		self.screenShot.emit(px)
-		
-	def keyPressEvent(self, event):
-		ek = event.key()
-		if ek == QtCore.Qt.Key_Control:
-			self.setCaptureMode(True)
-			self.area.hide()
-		QtWidgets.QWidget.keyPressEvent(self, event)
-		
-	def keyReleaseEvent(self, event):
-		ek = event.key()
-		if ek == QtCore.Qt.Key_Control:
-			self.setCaptureMode(False)
-			self.area.hide()
-		QtWidgets.QWidget.keyReleaseEvent(self, event)
 

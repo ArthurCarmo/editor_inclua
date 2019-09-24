@@ -478,6 +478,14 @@ class Main(QtWidgets.QMainWindow):
 	# SCREENSHOTS
 	#
 	##################################
+	def keyPressEvent(self, event):
+		ek = event.key()
+		ev = self.screenshotLayer.getCaptureMode()
+		print(ev)
+		if ek == QtCore.Qt.Key_Control:
+			self.screenshotLayer.setCaptureMode(not ev)
+		QtWidgets.QMainWindow.keyPressEvent(self, event)
+	
 	def onScreenShot(self, pixmap):
 		self.targetPixmap = pixmap
 		self.images_widget.addImageFromPixmap(self.targetPixmap)
