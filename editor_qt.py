@@ -16,6 +16,8 @@ from GSyntax import GSyntaxHighlighter
 from GFile import GDocument, GTranslation, GVideo
 from GImage import GImageGrid, GCustomImageDialog
 
+from GScreenUtils import GLayeredDocumentCanvas
+
 from time import sleep
 from GServer import GServer
 
@@ -200,8 +202,10 @@ class Main(QtWidgets.QMainWindow):
 		
 		# Visualizador de pdf pode ser uma página web dentro de um webView
 		self.pdf_widget = GDocument()
-		self.pdf_widget.hide()
 		self.pdf_widget.sender.formattedReady.connect(self.onPDFTextReady)
+		
+		self.screenshotLayer = GLayeredDocumentCanvas(self.pdf_widget)
+		self.screenshotLayer.hide()
 		
 		# Widget que contém a janela do avatar e o grid com as imagens
 		self.filler	= QtWidgets.QSplitter(Qt.Vertical)
@@ -258,7 +262,7 @@ class Main(QtWidgets.QMainWindow):
 		self.setCentralWidget(self.splitter)
 		self.splitter.addWidget(self.text)
 		self.splitter.addWidget(self.filler)
-		self.splitter.addWidget(self.pdf_widget)
+		self.splitter.addWidget(self.screenshotLayer)
 		self.splitter.addWidget(self.sobre_view)
 		
 		# Init
@@ -298,9 +302,9 @@ class Main(QtWidgets.QMainWindow):
 		self.pdf_widget.load(filename[0])
 		
 		# Força o widget a atualizar
-		self.pdf_widget.hide()
-		self.pdf_widget.show()
-		self.pdf_widget.setGeometry(0, 0, self.screen_rect.width() / 10, self.screen_rect.height())
+		self.screenshotLayer.hide()
+		self.screenshotLayer.show()
+		self.screenshotLayer.setGeometry(0, 0, self.screen_rect.width() / 10, self.screen_rect.height())
 		
 		self.hasOpenDocument = True
 		

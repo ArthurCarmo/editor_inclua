@@ -1,6 +1,4 @@
 from PyQt5 import QtGui, QtCore, QtWidgets
-from GFile import GDocument
-from GImage import GCustomImageDialog
 
 class GRubberBand(QtWidgets.QRubberBand):
 	def __init__(self, shape, parent = None):
@@ -37,10 +35,10 @@ class GLayeredDocumentCanvas(QtWidgets.QWidget):
 		
 		self.setLayout(self.layout)
 	
-	def gdocument(self):
+	def getWidget(self):
 		return self.document
 	
-	def setGDocument(self, document):
+	def setWidget(self, document):
 		self.document = document
 		
 	def setCaptureMode(self, capture):
@@ -66,7 +64,7 @@ class GLayeredDocumentCanvas(QtWidgets.QWidget):
 			self.drag = not self.area.mouseClicked(event)
 		
 	def mouseMoveEvent(self, event):
-		bounds = self.geometry()
+		bounds = self.document.geometry()
 		
 		if self.drag:
 			movement = event.pos()
@@ -117,43 +115,3 @@ class GLayeredDocumentCanvas(QtWidgets.QWidget):
 			self.area.hide()
 		QtWidgets.QWidget.keyReleaseEvent(self, event)
 
-class Main(QtWidgets.QMainWindow):
-	def __init__(self, parent = None):
-		QtWidgets.QMainWindow.__init__(self, parent)
-		self.splitter = QtWidgets.QSplitter(self)
-
-		self.document = GDocument(self)
-		self.widg = GLayeredDocumentCanvas(self.document)
-
-		self.widg.show()
-		
-		self.lbl = QtWidgets.QLabel()
-		
-		import os
-		cwd = os.getcwd()
-		self.document.load(cwd + "/docs/fisica.pdf")
-		
-		self.splitter.addWidget(self.widg)
-		self.splitter.addWidget(self.lbl)
-		self.setCentralWidget(self.splitter)
-		
-		self.widg.screenShot.connect(self.setLabel)
-		
-		teste = GCustomImageDialog().question()
-		print(teste)
-		
-	def setLabel(self, px):
-		self.lbl.setPixmap(px)
-		self.lbl.hide()
-		self.lbl.show()
-		
-	
-def main():
-	import sys
-	global app
-	app = QtWidgets.QApplication(sys.argv)
-	main = Main()
-	main.show()
-	sys.exit(app.exec_())
-if __name__ == "__main__":
-	main()
