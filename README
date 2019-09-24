@@ -38,6 +38,9 @@
 #	tentar threadificar é um pouco mais difícil porque é um
 #	método sobrecarregado que precisa do super()
 #
+#
+# -> Criar modo para screenshots
+#
 # -> Imagens
 #	-> Pausa ao mostrar imagens
 #	-> Colocar carregamento da imagem por URL (thread)
@@ -59,8 +62,6 @@
 #	-> Substituição errada (consigo - com tu)
 #	-> Espaço depois da vírgula
 #	...
-#
-# -> Mudar dialog_box para Sim/Não
 #
 #-> Página "Sobre o projeto"
 #

@@ -298,7 +298,18 @@ class Main(QtWidgets.QMainWindow):
 			return 1
 		
 		if not self.text.document().isEmpty():
-			reply = QtWidgets.QMessageBox.question(self, "Abrir documento", "Apagar texto do editor?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+			box = QtWidgets.QMessageBox()
+			box.setIcon(QtWidgets.QMessageBox.Question)
+			box.setWindowTitle('Abrir documento')
+			box.setText("Apagar texto do editor?")
+			box.setStandardButtons(QtWidgets.QMessageBox.Yes|QtWidgets.QMessageBox.No)
+			buttonY = box.button(QtWidgets.QMessageBox.Yes)
+			buttonY.setText('Sim')
+			buttonN = box.button(QtWidgets.QMessageBox.No)
+			buttonN.setText('Não')
+			reply = box.exec_()
+
+#			reply = QtWidgets.QMessageBox.question(self, "Abrir documento", "Apagar texto do editor?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
 			if reply == QtWidgets.QMessageBox.Yes:
 				self.text.clear()
 
@@ -315,8 +326,17 @@ class Main(QtWidgets.QMainWindow):
 	
 	def onPDFTextReady(self):
 		self.images_widget.loadImages()
-		
-		reply = QtWidgets.QMessageBox.question(self, "Abrir documento", "Traduzir documento?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+		box = QtWidgets.QMessageBox()
+		box.setIcon(QtWidgets.QMessageBox.Question)
+		box.setWindowTitle('Abrir documento')
+		box.setText("Traduzir documento?")
+		box.setStandardButtons(QtWidgets.QMessageBox.Yes|QtWidgets.QMessageBox.No)
+		buttonY = box.button(QtWidgets.QMessageBox.Yes)
+		buttonY.setText('Sim')
+		buttonN = box.button(QtWidgets.QMessageBox.No)
+		buttonN.setText('Não')
+		reply = box.exec_()
+#		reply = QtWidgets.QMessageBox.question(self, "Abrir documento", "Traduzir documento?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
 		if reply == QtWidgets.QMessageBox.Yes:
 			self.getTranslationFromFile()
 
@@ -326,7 +346,20 @@ class Main(QtWidgets.QMainWindow):
 	#
 	#################################
 	def newTextFile(self):
-		reply = QtWidgets.QMessageBox.question(self, "Novo arquivo de glosa", "Salvar alterações", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel)
+	
+		box = QtWidgets.QMessageBox()
+		box.setIcon(QtWidgets.QMessageBox.Question)
+		box.setWindowTitle('Novo arquivo de glosa')
+		box.setText("Salvar alterações?")
+		box.setStandardButtons(QtWidgets.QMessageBox.Yes|QtWidgets.QMessageBox.No|QtWidgets.QMessageBox.Cancel)
+		buttonY = box.button(QtWidgets.QMessageBox.Yes)
+		buttonY.setText('Sim')
+		buttonN = box.button(QtWidgets.QMessageBox.No)
+		buttonN.setText('Não')
+		buttonC = box.button(QtWidgets.QMessageBox.Cancel)
+		buttonC.setText('Cancelar')
+		reply = box.exec_()
+#		reply = QtWidgets.QMessageBox.question(self, "Novo arquivo de glosa", "Salvar alterações", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel)
 		if reply == QtWidgets.QMessageBox.Yes:
 			self.saveTextFile()
 		elif reply == QtWidgets.QMessageBox.Cancel:
@@ -342,7 +375,17 @@ class Main(QtWidgets.QMainWindow):
 			return
 			
 		if self.hasOpenTranslation:
-			reply = QtWidgets.QMessageBox.question(self, "Gerar tradução", "Já existe uma tradução aberta. Substituir?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+			box = QtWidgets.QMessageBox()
+			box.setIcon(QtWidgets.QMessageBox.Question)
+			box.setWindowTitle('Gerar tradução')
+			box.setText("Já existe uma tradução aberta. Substituir?")
+			box.setStandardButtons(QtWidgets.QMessageBox.Yes|QtWidgets.QMessageBox.No)
+			buttonY = box.button(QtWidgets.QMessageBox.Yes)
+			buttonY.setText('Sim')
+			buttonN = box.button(QtWidgets.QMessageBox.No)
+			buttonN.setText('Não')
+			reply = box.exec_()
+#			reply = QtWidgets.QMessageBox.question(self, "Gerar tradução", "Já existe uma tradução aberta. Substituir?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
 			if reply == QtWidgets.QMessageBox.No:
 				return 
 		
@@ -462,6 +505,16 @@ class Main(QtWidgets.QMainWindow):
 			self.setClickableImagesState()
 	
 	def removeSelected(self):
+		box = QtWidgets.QMessageBox()
+		box.setIcon(QtWidgets.QMessageBox.Question)
+		box.setWindowTitle('Remover imagens')
+		box.setText("Remover todas as imagens selecionadas?")
+		box.setStandardButtons(QtWidgets.QMessageBox.Yes|QtWidgets.QMessageBox.No)
+		buttonY = box.button(QtWidgets.QMessageBox.Yes)
+		buttonY.setText('Confirmar')
+		buttonN = box.button(QtWidgets.QMessageBox.No)
+		buttonN.setText('Cancelar')
+		reply = box.exec_()
 		reply = QtWidgets.QMessageBox.question(self, "Remover imagens", "Remover todas as imagens selecionadas?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
 		if reply == QtWidgets.QMessageBox.Yes:
 			self.images_widget.removeSelected()

@@ -1,5 +1,7 @@
 import os
 
+from PyQt5 import QtWidgets
+
 class GDefaultValues():
 	cwd		= os.getcwd()
 	home		= os.path.expanduser("~")
