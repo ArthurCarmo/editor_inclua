@@ -518,7 +518,7 @@ class Main(QtWidgets.QMainWindow):
 		buttonN = box.button(QtWidgets.QMessageBox.No)
 		buttonN.setText('Cancelar')
 		reply = box.exec_()
-		reply = QtWidgets.QMessageBox.question(self, "Remover imagens", "Remover todas as imagens selecionadas?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+#		reply = QtWidgets.QMessageBox.question(self, "Remover imagens", "Remover todas as imagens selecionadas?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
 		if reply == QtWidgets.QMessageBox.Yes:
 			self.images_widget.removeSelected()
 			self.setClickableImagesState()
@@ -527,7 +527,8 @@ class Main(QtWidgets.QMainWindow):
 		lc = self.text.textCursor()
 		range_content = lc.selectedText()
 		pos = GCustomImageDialog().question()
-		lc.insertText("<img%d=%s%s> %s <\\img%d>" % (pos, str(index), self.images_widget.getImageButtonFromIndex(index).getExtension(), range_content, pos))
+		img = self.images_widget.getImageButtonFromIndex(index)
+		lc.insertText("<img%d=%s%s> %s <\\img%d>" % (pos, img.getIndex(), img.getExtension(), range_content, pos))
 	
 	##################################
 	#

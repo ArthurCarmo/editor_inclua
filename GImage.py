@@ -1,5 +1,6 @@
 import os
 from natsort import natsorted
+import re
 import threading
 import subprocess
 
@@ -85,7 +86,8 @@ class GImageButton(QtWidgets.QPushButton):
         return os.path.splitext(self.image)[1]
     
     def getIndex(self):
-        return self.index
+        index = re.search(r'\d+$', os.path.splitext(self.image)[0])
+        return int(index.group())
 
     def remove(self):
         os.remove(self.image)
@@ -216,10 +218,7 @@ class GImageGrid(QtWidgets.QScrollArea):
 			img.setSelection(True)
 			
 	def getImageButtonFromIndex(self, index):
-		for img in self.findChildren(GImageButton):
-			if img.getIndex() == index:
-				return img
-		return None
+		return self.imgGrid.itemAtPosition(index // self.imagesPerRow, index % self.imagesPerRow).widget()
 		
 	def getSelected(self):
 		l = []
