@@ -112,6 +112,7 @@ class GImageButton(QtWidgets.QPushButton):
 class GImageGrid(QtWidgets.QScrollArea):
 	onClick = QtCore.pyqtSignal(int)
 	onDownloadFinished = QtCore.pyqtSignal()
+	imagesDeleted = QtCore.pyqtSignal(list)
 	
 	clickable  = 0
 	selectable = 1
@@ -182,9 +183,10 @@ class GImageGrid(QtWidgets.QScrollArea):
 		threading.Thread(target=self.handle_web_image, args=([src])).start()
 	
 	def addImageFromPixmap(self, px, file_extension = "JPG"):
-		filename = "%s/IMG%d%s" % (self.imagesDir, self.next_id, file_extension.upper())
-		px.save(filename)
-		self.loadImages()
+		filename = "%s/IMG%d.%s" % (self.imagesDir, self.next_id, file_extension.upper())
+		if px.save(filename):
+			self.next_id += 1
+			self.loadImages()
 	
 	def onImageDownloaded(self):
 		self.loadImages()

@@ -477,7 +477,8 @@ class Main(QtWidgets.QMainWindow):
 	#
 	##################################
 	def onScreenShot(self, pixmap):
-		print("HA!")
+		self.targetPixmap = pixmap
+		self.images_widget.addImageFromPixmap(self.targetPixmap)
 	
 	##################################
 	#
