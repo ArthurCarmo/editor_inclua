@@ -33,7 +33,7 @@ class GCompleter(QtWidgets.QCompleter):
 #######################################
 class GTextEdit(QtWidgets.QTextEdit):
 
-	controlPressed = QtCore.pyqtSignal()
+	screenShotModeKeyPressed = QtCore.pyqtSignal()
 
 	def __init__(self, parent = None):
 		QtWidgets.QTextEdit.__init__(self, parent)
@@ -133,7 +133,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 		self.onDeadKey = False
 		
 		if ek == QtCore.Qt.Key_Control:
-			self.controlPressed.emit()
+			self.screenShotModeKeyPressed.emit()
 		
 		if (ek == QtCore.Qt.Key_Tab or ek == QtCore.Qt.Key_Return) and self.completer.popup().isVisible():
 			self.completer.insertText.emit(self.completer.getSelected())

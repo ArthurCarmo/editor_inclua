@@ -197,7 +197,7 @@ class Main(QtWidgets.QMainWindow):
 		self.splitter	= QtWidgets.QSplitter(self)
 		self.text	= GTextEdit()
 		
-		self.text.controlPressed.connect(self.onControlPressed)
+		self.text.screenShotModeKeyPressed.connect(self.onScreenShotModeKeyPressed)
 		
 		# Inicia o SyntaxHighlighter
 		self.highlighter = GSyntaxHighlighter(self.text.document())
@@ -210,7 +210,7 @@ class Main(QtWidgets.QMainWindow):
 		
 		self.screenshotLayer = GLayeredDocumentCanvas(self.pdf_widget)
 		self.screenshotLayer.screenShot.connect(self.onScreenShot)
-		self.screenshotLayer.controlPressed.connect(self.onControlPressed)
+		self.screenshotLayer.screenShotModeKeyPressed.connect(self.onScreenShotModeKeyPressed)
 		self.screenshotLayer.hide()
 		
 		# Widget que contém a janela do avatar e o grid com as imagens
@@ -540,7 +540,7 @@ class Main(QtWidgets.QMainWindow):
 		print(state)
 		self.screenshotLayer.setCaptureMode(state)
 	
-	def onControlPressed(self):
+	def onScreenShotModeKeyPressed(self):
 		self.setScreenCaptureState(not self.screenshotLayer.getCaptureMode())
 	
 	def onScreenShot(self, pixmap):
