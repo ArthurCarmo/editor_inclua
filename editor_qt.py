@@ -528,7 +528,7 @@ class Main(QtWidgets.QMainWindow):
 		range_content = lc.selectedText()
 		pos = GCustomImageDialog().question()
 		img = self.images_widget.getImageButtonFromIndex(index)
-		lc.insertText("<img%d=%s%s> %s <\\img%d>" % (pos, img.getIndex(), img.getExtension(), range_content, pos))
+		lc.insertText("<img%d=%d> %s <\\img%d>" % (pos, index, range_content, pos))
 	
 	##################################
 	#
@@ -557,6 +557,16 @@ class Main(QtWidgets.QMainWindow):
 		cursor = self.text.textCursor()
 		if cursor.hasSelection():
 			text = cursor.selection().toPlainText()
+
+			matches = re.findall(r"(<img[0-9]=)([0-9]+)>", text)			
+			mentions = {"<img0=" : [], "<img1=" : [], "<img2=" : [], "<img3=" : [], }
+			for match in matches:
+				mentions[match[0]].append(match[1])
+			
+			for key in mentions:
+				for index in mentions[key]:
+					text = text.replace(key + index, key + "file://" + self.images_widget.getImageButtonFromIndex(int(index)).getImagePath())
+				
 			self.server.send(text)
 		else:
 			text = self.text.toPlainText()

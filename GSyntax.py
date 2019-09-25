@@ -70,7 +70,6 @@ class GParser():
 
 	def cleanText(self, text):
 		text = re.sub(r'[\n,\'; ]+', ' ', text)
-		text = re.sub(r"(<img[0-9]=)([0-9]+.[A-Za-z]+>)", r"\1file://%s/%s\2" % (GDefaultValues.imgDir, GDefaultValues.imgPrefix), text)
 		return text
 	
 	def getCommandBlocks(self, text):
