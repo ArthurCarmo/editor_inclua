@@ -14,7 +14,7 @@ from PyQt5.QtGui import QDesktopServices
 from GText import GTextEdit
 from GSyntax import GSyntaxHighlighter
 from GFile import GDocument, GTranslation, GVideo
-from GImage import GImageGrid, GCustomImageDialog
+from GImage import GImageGrid, GCustomImageDialog, GCustomScreenShotDialog
 
 from GScreenUtils import GLayeredDocumentCanvas
 
@@ -545,6 +545,10 @@ class Main(QtWidgets.QMainWindow):
 	
 	def onScreenShot(self, pixmap):
 		self.targetPixmap = pixmap
+		
+		reply = GCustomScreenShotDialog(self.targetPixmap).question()
+		if reply == GCustomScreenShotDialog.No:
+			return
 		self.images_widget.addImageFromPixmap(self.targetPixmap)
 	
 	##################################

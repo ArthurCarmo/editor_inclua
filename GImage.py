@@ -263,3 +263,39 @@ class GCustomImageDialog(QtWidgets.QDialog):
 	
 	def question(self):
 		return self.exec()
+		
+class GCustomScreenShotDialog(QtWidgets.QDialog):
+	Yes = 1
+	No  = 0 
+	def __init__(self, pixmap, parent = None):
+		QtWidgets.QDialog.__init__(self, parent)
+		
+		self.hide()
+		
+		self.setWindowTitle("Imagem capturada")
+		
+		self.b0 = QtWidgets.QPushButton("Salvar", self)
+		self.b1 = QtWidgets.QPushButton("Cancelar", self)
+		
+		self.b0.clicked.connect(lambda : self.done(self.Yes))
+		self.b1.clicked.connect(lambda : self.done(self.No))
+		
+		self.screenshotLabel = QtWidgets.QLabel(self)
+		self.screenshotLabel.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding);
+		self.screenshotLabel.setAlignment(QtCore.Qt.AlignCenter);
+
+		self.screenshotLabel.setPixmap(pixmap)
+	
+		self.layout = QtWidgets.QVBoxLayout()
+		self.layout.addWidget(self.screenshotLabel)
+		
+		self.buttonsLayout = QtWidgets.QHBoxLayout()
+		self.buttonsLayout.addWidget(self.b0)
+		self.buttonsLayout.addWidget(self.b1)
+		
+		self.layout.addLayout(self.buttonsLayout)
+		
+		self.setLayout(self.layout)
+	
+	def question(self):
+		return self.exec()
