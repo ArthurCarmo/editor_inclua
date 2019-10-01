@@ -11,12 +11,11 @@ class GParser():
 
 	class __parser():
 		def __init__(self):
-			self.known_words= ahocorasick.Automaton()
-			f = open("palavras")
-			for w in f.read().splitlines():
-				self.known_words.add_word(w, len(w))
-			f.close()
-			self.known_words.make_automaton()
+			
+			self.known_words = None
+			
+			self.retrieveKnownWords()
+			self.retrieveAliases()
 
 			self.tags = ["<", ">", "[", "]"]
 			self.incomplete_keywords = ["<i", "<im", "<img", "<\\i", "<\\im", "<\\img"]
@@ -28,6 +27,17 @@ class GParser():
 						   'Ó', 'Ò', 'Ô', 'Õ',\
 						   'Ú', 'Ù', 'Û', 'Ũ',\
 						   'Ń', 'Ǹ', 'Ñ', 'Ṕ']
+						   
+		def retrieveKnownWords(self):
+			self.known_words = ahocorasick.Automaton()
+			f = open("palavras")
+			for w in f.read().splitlines():
+				self.known_words.add_word(w, len(w))
+			f.close()
+			self.known_words.make_automaton()
+			
+		def retrieveAliases(self):
+			return
 
 	def __init__(self):
 		if GParser.instance is None:
@@ -112,9 +122,10 @@ class GSyntaxHighlighter(QtGui.QSyntaxHighlighter):
 		
 		cmd.setFontWeight(QtGui.QFont.Bold)
 
-		word  = QtCore.QRegularExpression("[^<>\\[\\]=\\(\\).,;\\s\\n]+")
-		tags  = QtCore.QRegularExpression("[<>\\[\\]]")
-		links = QtCore.QRegularExpression("=.+?>")
+		word  = QtCore.QRegularExpression(r"[^<>\[\]=\(\).,;\s\n]+")
+		tags  = QtCore.QRegularExpression(r"[<>\[\]]")
+		links = QtCore.QRegularExpression(r"=.+?>")
+		keywords = QtCore.QRegularExpression(r"(<[a-z0-9]+(=)?)|(<\\([a-z0-9]+)?)")
 
 		i = word.globalMatch(text)
 		while i.hasNext():
@@ -135,6 +146,12 @@ class GSyntaxHighlighter(QtGui.QSyntaxHighlighter):
 				self.setFormat(match.capturedStart(), match.capturedLength(), unknown)
 		
 		i = tags.globalMatch(text)
+		while i.hasNext():
+			match = i.next()
+			self.setFormat(match.capturedStart(), match.capturedLength(), tag)
+		
+		
+		i = keywords.globalMatch(text)
 		while i.hasNext():
 			match = i.next()
 			self.setFormat(match.capturedStart(), match.capturedLength(), tag)

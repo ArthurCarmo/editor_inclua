@@ -9,7 +9,7 @@ import ahocorasick
 
 from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtCore import Qt, QProcess
-from PyQt5.QtGui import QDesktopServices
+from PyQt5.QtGui import QDesktopServices, QFont
 
 from GText import GTextEdit
 from GSyntax import GSyntaxHighlighter
@@ -169,11 +169,17 @@ class Main(QtWidgets.QMainWindow):
 		bar = QtWidgets.QMenuBar(menubar)
 		menubar.setCornerWidget(bar, QtCore.Qt.TopRightCorner)
 
+		self.voltar = QtWidgets.QAction(self.style().standardIcon(QtWidgets.QStyle.SP_ArrowBack), "", self)
+		self.voltar.setStatusTip("Voltar para a página inicial")
+		self.voltar.triggered.connect(lambda: self.homePage())
+		bar.addAction(self.voltar)
+		self.voltar.setVisible(False)
+
 		help = bar.addMenu("Ajuda")
 		
 		sobre = QtWidgets.QAction("Sobre o projeto", self)
 		sobre.setStatusTip("Conheça mais sobre o projeto")
-		sobre.triggered.connect(lambda: self.showOne(self.sobre_view))
+		sobre.triggered.connect(lambda: self.openSobre())
 		bar.addAction(sobre)
 
 		#btn_nxt.setText("Próxima linha")
@@ -626,16 +632,36 @@ class Main(QtWidgets.QMainWindow):
 			self.splitter.widget(i).hide()
 		widget.show()
 
+	def openSobre(self):
+		self.showOne(self.sobre_view)
+		self.voltar.setVisible(True)
+
+
 	def initSobre(self):
 		self.textGrid = QtWidgets.QGridLayout()
+		
 		cursor = self.sobre_view.textCursor()
-		cursor.insertText("\n")
+
+		f = cursor.charFormat()
+		prop_id = 0x100000 + 1
+		f.setProperty(prop_id, 100)
+		f.setFont(QFont("arial", 15, weight=QtGui.QFont.Bold ))
+
+		cursor.insertText("\n", f)
 		cursor.insertText("Equipe\n\n")
-		cursor.insertText("Marcus\n")
+		f.setFont(QFont("arial",12))
+		cursor.insertText("Marcus\n", f)
 		cursor.insertText("Arthur\n")
 		cursor.insertText("Gustavo\n")
 		cursor.insertText("Maria Eduarda\n")
 		cursor.insertText("Róger\n")
+		
+	
+	def homePage(self):
+		for i in range(self.splitter.count()):
+			self.splitter.widget(i).show()
+		self.sobre_view.hide()
+		self.voltar.setVisible(False)
 
 
 	##################################

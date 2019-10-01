@@ -71,24 +71,38 @@ class GTextEdit(QtWidgets.QTextEdit):
 	
 	# QChar::QParagraphSeparator 	= chr(0x2029)
 	# QChar::LineSeparator 		= chr(0x2028)
-	def selectToken(self, stopChars = (' ','\t', '\n', '\r', '\n\r', chr(0x2029), chr(0x2028))):
+	def selectToken(self, stopChars = (' ','\t', '\n', '\r', '\n\r', chr(0x2029), chr(0x2028)), leftSeparators = ('<', '['), rightSeparators = ('=', '>', ']') ):
 		cursor = self.textCursor()
 		start = cursor.position()
 		
+		discardStopChars  = stopChars + leftSeparators
+		maintainStopChars = rightSeparators
 		while cursor.movePosition(cursor.Right, cursor.KeepAnchor):
-			if cursor.selectedText().endswith(stopChars):
+			if cursor.selectedText().endswith(discardStopChars):
 				cursor.movePosition(cursor.Left, cursor.KeepAnchor)
+				break
+			if cursor.selectedText().endswith(maintainStopChars):
 				break
 		print("Peguei 1: " + cursor.selectedText() + "|")		
 		
 		cursor.setPosition(cursor.position(), cursor.MoveAnchor)
 		cursor.setPosition(start, cursor.KeepAnchor)
-		if cursor.selectedText() != "" and cursor.selectedText().startswith(stopChars):
+		
+		
+		discardStopChars  = stopChars + rightSeparators
+		maintainStopChars = leftSeparators
+		if cursor.selectedText() != "" and cursor.selectedText().startswith(discardStopChars):
 			cursor.movePosition(cursor.Right, cursor.KeepAnchor)
+		
+		if cursor.selectedText() != "" and cursor.selectedText().startswith(maintainStopChars):
+			return cursor
+		
 		while cursor.movePosition(cursor.Left, cursor.KeepAnchor):
 			print("char:", ord(cursor.selectedText()[0]), "oi")
-			if cursor.selectedText().startswith(stopChars):
+			if cursor.selectedText().startswith(discardStopChars):
 				cursor.movePosition(cursor.Right, cursor.KeepAnchor)
+				break
+			if cursor.selectedText().startswith(maintainStopChars):
 				break
 				
 		print("Peguei 2: " + cursor.selectedText() + "|")
@@ -141,10 +155,10 @@ class GTextEdit(QtWidgets.QTextEdit):
 			return
 		
 		moveWordFlag = False
+		srcCursor = self.selectToken()
 		if self.isPressed(QtCore.Qt.Key_Control) and ek in (QtCore.Qt.Key_Left, QtCore.Qt.Key_Right):
 			moveWordFlag = True
 		
-			srcCursor = self.selectToken()
 			dstCursor = self.selectToken()
 			
 			if ek == QtCore.Qt.Key_Left:
@@ -172,7 +186,10 @@ class GTextEdit(QtWidgets.QTextEdit):
 				self.textCursor().endEditBlock()
 		
 		# Cópia do evento, mas com o texto em maiúsculo
-		newEvent = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, event.key(), event.modifiers(), event.nativeScanCode(), event.nativeVirtualKey(), event.nativeModifiers(), event.text().upper(), event.isAutoRepeat(), event.count())
+		newEventText = event.text()
+		if not srcCursor.selectedText().startswith('<'):
+			newEventText = newEventText.upper()
+		newEvent = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, event.key(), event.modifiers(), event.nativeScanCode(), event.nativeVirtualKey(), event.nativeModifiers(), newEventText, event.isAutoRepeat(), event.count())
 		
 		if not moveWordFlag:
 			QtWidgets.QTextEdit.keyPressEvent(self, newEvent)
@@ -180,7 +197,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 		txt = newEvent.text()
 		
 		# Aparece o completer ao digitar uma letra, símbolo de tag ou comando, ou Ctrl+Espaço
-		if txt.isalpha() or txt in ('_', '<') or (self.isPressed(QtCore.Qt.Key_Control) and ek == QtCore.Qt.Key_Space):
+		if txt.isalpha() or txt.isdigit() or txt in ('_', '<') or (self.isPressed(QtCore.Qt.Key_Control) and ek == QtCore.Qt.Key_Space):
 			self.completerHandler()
 		else:
 			self.completer.popup().hide()	
@@ -221,8 +238,11 @@ class GTextEdit(QtWidgets.QTextEdit):
 		lc = lc.selectedText()
 		if lc == '<':
 			tc.movePosition(QtGui.QTextCursor.Left, tc.KeepAnchor)
-			
-		tc.insertText(completion + self.completionEnd)
+		
+		if completion in GParser().keywords():
+			tc.insertText(completion)
+		else:
+			tc.insertText(completion + self.completionEnd)
 		self.setTextCursor(tc)
 		self.completer.popup().hide()
 	
