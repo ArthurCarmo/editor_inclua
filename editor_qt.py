@@ -175,7 +175,10 @@ class Main(QtWidgets.QMainWindow):
 		bar.addAction(self.voltar)
 		self.voltar.setVisible(False)
 
-		help = bar.addMenu("Ajuda")
+		help = QtWidgets.QAction("Ajuda", self)
+		help.setStatusTip("Manual do sistema")
+		help.triggered.connect(lambda: self.showOne(self.help_view))
+		bar.addAction(help)
 		
 		sobre = QtWidgets.QAction("Sobre o projeto", self)
 		sobre.setStatusTip("Conheça mais sobre o projeto")
@@ -236,6 +239,12 @@ class Main(QtWidgets.QMainWindow):
 		self.sobre_view.setReadOnly(True)
 		self.sobre_view.hide()
 		self.initSobre()
+		
+		#Ajuda
+		self.help_view = QtWidgets.QTextEdit()
+		self.help_view.setReadOnly(True)
+		self.help_view.hide()
+		self.initHelp()
 
 		#####################################
 		#
@@ -656,6 +665,16 @@ class Main(QtWidgets.QMainWindow):
 		cursor.insertText("Maria Eduarda\n")
 		cursor.insertText("Róger\n")
 		
+	def initHelp(self):
+		self.textGrid = QtWidgets.QGridLayout()
+		cursor = self.sobre_view.textCursor()
+		cursor.insertText("\n")
+		cursor.insertText("Equipe\n\n")
+		cursor.insertText("Marcus\n")
+		cursor.insertText("Arthur\n")
+		cursor.insertText("Gustavo\n")
+		cursor.insertText("Maria Eduarda\n")
+		cursor.insertText("Róger\n")
 	
 	def homePage(self):
 		for i in range(self.splitter.count()):
