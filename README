@@ -34,19 +34,11 @@
 #########################################################################
 # TO DO
 #
-# -> A função load da classe GDocument ainda segura o fluxo do programa, 
-#	tentar threadificar é um pouco mais difícil porque é um
-#	método sobrecarregado que precisa do super()
-#
-#
 # -> Criar modo para screenshots
 #
 # -> Imagens
 #	-> Pausa ao mostrar imagens
 #	-> Colocar carregamento da imagem por URL (thread)
-#	-> Arrumar indexação de imagens
-#   -> Aparecer imagens no vídeo
-#
 # 
 # -> Programa para o pessoal da letras
 #
