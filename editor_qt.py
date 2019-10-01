@@ -534,7 +534,7 @@ class Main(QtWidgets.QMainWindow):
 		range_content = lc.selectedText()
 		pos = GCustomImageDialog().question()
 		img = self.images_widget.getImageButtonFromIndex(index)
-		lc.insertText("<img%d=%d> %s <\\img%d>" % (pos, index, range_content, pos))
+		lc.insertText("<img%d=%d>%s<\\img%d>" % (pos, index, range_content, pos))
 	
 	##################################
 	#
