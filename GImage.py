@@ -274,11 +274,11 @@ class GCustomScreenShotDialog(QtWidgets.QDialog):
 		
 		self.setWindowTitle("Imagem capturada")
 		
-		self.b0 = QtWidgets.QPushButton("Salvar", self)
-		self.b1 = QtWidgets.QPushButton("Cancelar", self)
+		self.b0 = QtWidgets.QPushButton("Cancelar", self)
+		self.b1 = QtWidgets.QPushButton("Salvar", self)
 		
-		self.b0.clicked.connect(lambda : self.done(self.Yes))
-		self.b1.clicked.connect(lambda : self.done(self.No))
+		self.b0.clicked.connect(lambda : self.done(self.No))
+		self.b1.clicked.connect(lambda : self.done(self.Yes))
 		
 		self.screenshotLabel = QtWidgets.QLabel(self)
 		self.screenshotLabel.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding);

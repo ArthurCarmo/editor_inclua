@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
 
 from GFile import GDocument
 from GImage import GCustomImageDialog
@@ -10,9 +10,19 @@ class Main(QtWidgets.QMainWindow):
 		self.splitter = QtWidgets.QSplitter(self)
 
 		self.document = GDocument(self)
+		
+		self.main = QtWidgets.QWidget()
+		
 		self.widg = GLayeredDocumentCanvas(self.document)
+				
+		self.tb = QtWidgets.QToolBar()
+		self.tb.addWidget(QtWidgets.QPushButton("WAT"))
+		self.layout = QtWidgets.QHBoxLayout()
+		self.layout.setContentsMargins(0, 0, 0, 0)
+		self.layout.addWidget(self.tb, alignment = QtCore.Qt.AlignRight)
+		self.layout.addWidget(self.widg)
 
-		self.widg.show()
+		self.main.setLayout(self.layout)
 		
 		self.lbl = QtWidgets.QLabel()
 		
@@ -21,7 +31,7 @@ class Main(QtWidgets.QMainWindow):
 		self.document.load(cwd + "/docs/fisica.pdf")
 		
 		self.splitter.addWidget(self.lbl)
-		self.splitter.addWidget(self.widg)
+		self.splitter.addWidget(self.main)
 		self.setCentralWidget(self.splitter)
 		
 		self.widg.screenShot.connect(self.setLabel)

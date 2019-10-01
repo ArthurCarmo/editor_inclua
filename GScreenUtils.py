@@ -28,6 +28,7 @@ class GLayeredDocumentCanvas(QtWidgets.QWidget):
 		self.setCaptureMode(False)
 		
 		self.layout = QtWidgets.QVBoxLayout()
+		self.layout.setContentsMargins(0, 0, 0, 0)
 		self.layout.addWidget(self.document)
 		
 		self.drag = False
