@@ -175,14 +175,11 @@ class Main(QtWidgets.QMainWindow):
 		bar.addAction(self.voltar)
 		self.voltar.setVisible(False)
 
-		help = QtWidgets.QAction("Ajuda", self)
-		help.setStatusTip("Manual do sistema")
-		help.triggered.connect(lambda: self.openPage("textos_padrao/ajuda"))
-		bar.addAction(help)
+		help = bar.addMenu("Ajuda")
 		
 		sobre = QtWidgets.QAction("Sobre o projeto", self)
 		sobre.setStatusTip("Conheça mais sobre o projeto")
-		sobre.triggered.connect(lambda: self.openPage("textos_padrao/sobre"))
+		sobre.triggered.connect(lambda: self.openSobre())
 		bar.addAction(sobre)
 
 		#btn_nxt.setText("Próxima linha")
@@ -234,10 +231,11 @@ class Main(QtWidgets.QMainWindow):
 		self.images_widget = GImageGrid(self.default_imgDir)
 		self.images_widget.onClick.connect(self.onImageClick)
 
-		#Sobre e Ajuda
-		self.view_padrao = QtWidgets.QTextEdit()
-		self.view_padrao.setReadOnly(True)
-		self.view_padrao.hide()
+		#Sobre o projeto
+		self.sobre_view = QtWidgets.QTextEdit()
+		self.sobre_view.setReadOnly(True)
+		self.sobre_view.hide()
+		self.initSobre()
 
 		#####################################
 		#
@@ -277,7 +275,7 @@ class Main(QtWidgets.QMainWindow):
 		self.splitter.addWidget(self.text)
 		self.splitter.addWidget(self.filler)
 		self.splitter.addWidget(self.screenshotLayer)
-		self.splitter.addWidget(self.view_padrao)
+		self.splitter.addWidget(self.sobre_view)
 		
 		# Init
 		self.initMenubar()
@@ -634,31 +632,35 @@ class Main(QtWidgets.QMainWindow):
 			self.splitter.widget(i).hide()
 		widget.show()
 
-	def openPage(self, page):
-		self.showOne(self.view_padrao)
-		self.initPage(page)
+	def openSobre(self):
+		self.showOne(self.sobre_view)
 		self.voltar.setVisible(True)
 
-	def initPage(self, page):
+
+	def initSobre(self):
 		self.textGrid = QtWidgets.QGridLayout()
-		self.view_padrao.clear()
+		
+		cursor = self.sobre_view.textCursor()
 
-		cursor = self.view_padrao.textCursor()
-
-		fs = cursor.charFormat()
+		f = cursor.charFormat()
 		prop_id = 0x100000 + 1
-		fs.setProperty(prop_id, 100)
-		fs.setFont(QFont("arial", 12, weight=QtGui.QFont.Bold ))
+		f.setProperty(prop_id, 100)
+		f.setFont(QFont("arial", 15, weight=QtGui.QFont.Bold ))
 
-		with open(page,'r',encoding = 'utf-8') as f:
-			for line in f:
-				cursor.insertText(line + "\n", fs)
+		cursor.insertText("\n", f)
+		cursor.insertText("Equipe\n\n")
+		f.setFont(QFont("arial",12))
+		cursor.insertText("Marcus\n", f)
+		cursor.insertText("Arthur\n")
+		cursor.insertText("Gustavo\n")
+		cursor.insertText("Maria Eduarda\n")
+		cursor.insertText("Róger\n")
 		
 	
 	def homePage(self):
 		for i in range(self.splitter.count()):
 			self.splitter.widget(i).show()
-		self.view_padrao.hide()
+		self.sobre_view.hide()
 		self.voltar.setVisible(False)
 
 
