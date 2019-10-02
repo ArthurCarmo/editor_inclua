@@ -40,6 +40,7 @@ class Main(QtWidgets.QMainWindow):
 		self.server = GServer()
 		self.server.sender.finishedRecording.connect(self.createVideo)
 		self.initUI()
+		self.initCustomizationMenu()
 
 	#####################################
 	#
@@ -52,8 +53,6 @@ class Main(QtWidgets.QMainWindow):
 		avatar = menubar.addMenu("Avatar")
 		traducao = menubar.addMenu("Tradução")
 		imagens = menubar.addMenu("Imagens")
-		edit = menubar.addMenu("Preferências")
-		
 
 		fileNovo = QtWidgets.QAction("Novo", self)
 		fileNovo.setShortcut("Ctrl+N")
@@ -165,6 +164,12 @@ class Main(QtWidgets.QMainWindow):
 		imagens.addAction(imagensNewFromUrl)
 		imagens.addSeparator()
 		imagens.addAction(self.imagensDelete)
+		
+		# Preferências
+		edit = QtWidgets.QAction("Preferências", self)
+		edit.setStatusTip("Opções de customização")
+		edit.triggered.connect(self.openCustomizationMenu)
+		menubar.addAction(edit)
 		
 		bar = QtWidgets.QMenuBar(menubar)
 		menubar.setCornerWidget(bar, QtCore.Qt.TopRightCorner)
@@ -622,6 +627,40 @@ class Main(QtWidgets.QMainWindow):
 	
 	def onVideoReady(self, title):
 		QtWidgets.QMessageBox.question(self, "Gerar vídeo", "Vídeo %s criado com sucesso!" % title, (QtWidgets.QMessageBox.Ok))
+
+	####################################
+	#
+	# PREFERÊNCIAS
+	#
+	####################################
+	def initCustomizationMenu(self):
+		self.customizationMenu = QtWidgets.QTabWidget()
+		colorsTab = QtWidgets.QWidget()
+
+		colorDisplay	= QtWidgets.QWidget()
+		colorDisplay.setGeometry(0, 0, 20, 20)
+#		palette = QtGui.QPalette()
+#		palette.setColor(palette.Background, color)
+#		colorDisplay.setAutoFillBackground(True)
+#		colorDisplay.setPalette(palette)
+		
+#		layout = QtWidgets.QHBoxLayout()
+#		layout.addWidget(colorDialog)
+#		layout.addWidget(colorDisplay)
+#		colorsTab.setLayout(layout)
+
+		self.customizationMenu.addTab(colorsTab, "Cores")
+
+		self.menuWindow = QtWidgets.QWidget()
+		self.menuWindow.setWindowTitle("Preferências")
+		layout = QtWidgets.QVBoxLayout()
+		layout.setContentsMargins(0, 0, 0, 0)
+		layout.addWidget(self.customizationMenu)
+		self.menuWindow.setLayout(layout)
+
+	def openCustomizationMenu(self):
+		self.menuWindow.show()
+
 
 	####################################
 	#
