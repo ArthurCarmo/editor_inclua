@@ -19,3 +19,32 @@ class GDefaultValues():
 	cl_tag		= QtGui.QColor(0x000088)
 	cl_cmd	  	= QtGui.QColor(0x2200FF)
 	cl_wkblue   	= QtGui.QColor(0x000077)
+	
+class GCustomizationMenu(QtWidgets.QWidget):
+	def __init__(self, parent = None):
+		QtWidgets.QWidget.__init__(self, parent)
+
+		self.setWindowTitle("Preferências")
+
+		self.tabsMenu = QtWidgets.QTabWidget()
+		
+		colorsTab = QtWidgets.QWidget()
+
+		colorDisplay	= QtWidgets.QWidget()
+		colorDisplay.setGeometry(0, 0, 20, 20)
+#		palette = QtGui.QPalette()
+#		palette.setColor(palette.Background, color)
+#		colorDisplay.setAutoFillBackground(True)
+#		colorDisplay.setPalette(palette)
+		
+#		layout = QtWidgets.QHBoxLayout()
+#		layout.addWidget(colorDialog)
+#		layout.addWidget(colorDisplay)
+#		colorsTab.setLayout(layout)
+
+		self.tabsMenu.addTab(colorsTab, "Cores")
+
+		layout = QtWidgets.QVBoxLayout()
+		layout.setContentsMargins(0, 0, 0, 0)
+		layout.addWidget(self.tabsMenu)
+		self.setLayout(layout)

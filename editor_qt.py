@@ -21,7 +21,7 @@ from GScreenUtils import GLayeredDocumentCanvas
 from time import sleep
 from GServer import GServer
 
-from GSettings import GDefaultValues
+from GSettings import GDefaultValues, GCustomizationMenu
 
 class Main(QtWidgets.QMainWindow):
 	cwd		= GDefaultValues.cwd
@@ -40,7 +40,6 @@ class Main(QtWidgets.QMainWindow):
 		self.server = GServer()
 		self.server.sender.finishedRecording.connect(self.createVideo)
 		self.initUI()
-		self.initCustomizationMenu()
 
 	#####################################
 	#
@@ -238,6 +237,9 @@ class Main(QtWidgets.QMainWindow):
 		# Widget das imagens
 		self.images_widget = GImageGrid(self.default_imgDir)
 		self.images_widget.onClick.connect(self.onImageClick)
+
+		# Preferências
+		self.customizationMenu = GCustomizationMenu()
 
 		#Sobre e Ajuda
 		self.view_padrao = QtWidgets.QTextEdit()
@@ -633,33 +635,8 @@ class Main(QtWidgets.QMainWindow):
 	# PREFERÊNCIAS
 	#
 	####################################
-	def initCustomizationMenu(self):
-		self.customizationMenu = QtWidgets.QTabWidget()
-		colorsTab = QtWidgets.QWidget()
-
-		colorDisplay	= QtWidgets.QWidget()
-		colorDisplay.setGeometry(0, 0, 20, 20)
-#		palette = QtGui.QPalette()
-#		palette.setColor(palette.Background, color)
-#		colorDisplay.setAutoFillBackground(True)
-#		colorDisplay.setPalette(palette)
-		
-#		layout = QtWidgets.QHBoxLayout()
-#		layout.addWidget(colorDialog)
-#		layout.addWidget(colorDisplay)
-#		colorsTab.setLayout(layout)
-
-		self.customizationMenu.addTab(colorsTab, "Cores")
-
-		self.menuWindow = QtWidgets.QWidget()
-		self.menuWindow.setWindowTitle("Preferências")
-		layout = QtWidgets.QVBoxLayout()
-		layout.setContentsMargins(0, 0, 0, 0)
-		layout.addWidget(self.customizationMenu)
-		self.menuWindow.setLayout(layout)
-
 	def openCustomizationMenu(self):
-		self.menuWindow.show()
+		self.customizationMenu.show()
 
 
 	####################################
