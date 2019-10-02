@@ -28,7 +28,7 @@ class GCustomizationMenu(QtWidgets.QWidget):
 	CommandsColor	= 3
 
 	# Signals
-	newColorsSet = QtCore.pyqtSignal(dict)
+	newColorsSet = QtCore.pyqtSignal()
 
 	def __init__(self, parent = None):
 		QtWidgets.QWidget.__init__(self, parent)
@@ -124,6 +124,7 @@ class GCustomizationMenu(QtWidgets.QWidget):
 				self.dialog.setCurrentColor(self.cl_tag)
 			elif target == self.CommandsColor:
 				self.dialog.setCurrentColor(self.cl_cmd)
+
 			self.dialog.open()
 
 	def onColorSelected(self, target, color):
@@ -148,10 +149,13 @@ class GCustomizationMenu(QtWidgets.QWidget):
 		self.newColorsSet.emit()
 
 	def cancelColorChanges(self):
-		self.cl_known	= self.subcl_known
-		self.cl_unknown	= self.subcl_unknown
-		self.cl_tag		= self.subcl_tag
-		self.cl_cmd		= self.subcl_cmd
+		print("UAAAI")
+		self.cl_known	= QtGui.QColor(self.subcl_known)
+		self.cl_unknown	= QtGui.QColor(self.subcl_unknown)
+		self.cl_tag		= QtGui.QColor(self.subcl_tag)
+		self.cl_cmd		= QtGui.QColor(self.subcl_cmd)
+
+		self.updateButtons()
 
 	def resetDefaultValues(self):
 		self.cl_known	= GDefaultValues.cl_known
