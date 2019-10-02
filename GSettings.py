@@ -58,8 +58,8 @@ class GCustomizationMenu(QtWidgets.QWidget):
 		self.cancelar	= QtWidgets.QPushButton("Cancelar")
 		self.resetar	= QtWidgets.QPushButton("Resetar")
 
-		self.salvar.clicked.connect(self.commitColorChanges)
-		self.cancelar.clicked.connect(self.cancelColorChanges)
+		self.salvar.clicked.connect(self.onSaveButtonPressed)
+		self.cancelar.clicked.connect(self.onCancelButtonPressed)
 		self.resetar.clicked.connect(self.resetDefaultValues)
 
 		colorsExitLayout = QtWidgets.QHBoxLayout()
@@ -160,3 +160,11 @@ class GCustomizationMenu(QtWidgets.QWidget):
 		self.cl_cmd		= GDefaultValues.cl_cmd
 		
 		self.updateButtons()
+
+	def onSaveButtonPressed(self):
+			self.commitColorChanges()
+			self.hide()
+
+	def onCancelButtonPressed(self):
+			self.cancelColorChanges()
+			self.hide()
