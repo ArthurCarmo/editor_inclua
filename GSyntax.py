@@ -18,7 +18,6 @@ class GParser():
 			self.retrieveAliases()
 
 			self.tags = ["<", ">", "[", "]"]
-			self.incomplete_keywords = ["<i", "<im", "<img", "<\\i", "<\\im", "<\\img"]
 			self.keywords = ["<img0=", "<img1=", "<img2=", "<img3=", "<\\img0>", "<\\img1>", "<\\img2>", "<\\img3>"]
 			self.commands = ["__save", "__stop", "__rec", "__last"]
 			self.accentedCharacters = ['Á', 'À', 'Â', 'Ã',\
@@ -48,9 +47,6 @@ class GParser():
 
 	def tags(self):
 		return GParser.instance.tags
-
-	def incomplete_keywords(self):
-		return GParser.instance.incomplete_keywords
 
 	def known_words(self):
 		return GParser.instance.known_words
@@ -106,19 +102,16 @@ class GSyntaxHighlighter(QtGui.QSyntaxHighlighter):
 		cl_unknown	= QtGui.QColor(0xFF0000)
 		cl_tag		= QtGui.QColor(0x000088)
 		cl_cmd	  	= QtGui.QColor(0x2200FF)
-		cl_wkblue   	= QtGui.QColor(0x000077)
 
 		known		= QtGui.QTextCharFormat()
 		unknown	 	= QtGui.QTextCharFormat()
 		tag		= QtGui.QTextCharFormat()
 		cmd		= QtGui.QTextCharFormat()
-		hitting		= QtGui.QTextCharFormat()
 
 		known.setForeground(cl_known)
 		unknown.setForeground(cl_unknown)
 		tag.setForeground(cl_tag)
 		cmd.setForeground(cl_cmd)
-		hitting.setForeground(cl_wkblue)
 		
 		cmd.setFontWeight(QtGui.QFont.Bold)
 
@@ -140,8 +133,6 @@ class GSyntaxHighlighter(QtGui.QSyntaxHighlighter):
 				self.setFormat(match.capturedStart(), match.capturedLength(), cmd)
 			elif w in GParser().keywords():
 				self.setFormat(match.capturedStart(), match.capturedLength(), tag)
-			elif w in GParser().incomplete_keywords():
-				self.setFormat(match.capturedStart(), match.capturedLength(), hitting)
 			else:
 				self.setFormat(match.capturedStart(), match.capturedLength(), unknown)
 		
