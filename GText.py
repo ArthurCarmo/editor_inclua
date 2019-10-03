@@ -294,7 +294,73 @@ class GTextEdit(QtWidgets.QTextEdit):
 			if self.completer.completionCount() == 0:
 				self.completer.popup().hide()
 			
-			
+	def wordSwap(self, event, swapword1, swapword2):
+		# Limpa o fundo da palavra 1
+		self.setTextCursor(swapword1)
+		highlight = self.textCursor().charFormat()
+		highlight.clearBackground()
+		self.textCursor().setCharFormat(highlight)
+
+		# Limpa o fundo da palavra 2
+		self.setTextCursor(swapword2)
+		highlight = self.textCursor().charFormat()
+		highlight.clearBackground()
+		self.textCursor().setCharFormat(highlight)
+
+		self.setTextCursor(self.cursorForPosition(event.pos()))
+
+		if (swapword1 == swapword2):
+			return
+
+		w1 = swapword1.selectedText()
+		w2 = swapword2.selectedText()
+		self.textCursor().beginEditBlock()
+		swapword1.insertText(w2)
+		swapword2.insertText(w1)
+		self.textCursor().endEditBlock()
+
+	def contextMenuEvent(self, event):
+		# Pega a palavra 1
+		swapword1 = self.selectToken()
+		# Colore o fundo da palavra 1
+		self.setTextCursor(swapword1)
+		highlight = self.textCursor().charFormat()
+		highlight.setBackground(QtGui.QBrush(QtGui.QColor(0xFFFFFF)))
+		self.textCursor().setCharFormat(highlight)
+
+		# Pega a palavra 2
+		self.setTextCursor( self.cursorForPosition(event.pos()) )
+		swapword2 = self.selectToken()
+		# Colore o fundo da palavra 2
+		self.setTextCursor(swapword2)
+		highlight = self.textCursor().charFormat()
+		highlight.setBackground(QtGui.QBrush(QtGui.QColor(0xFFFFFF)))
+		self.textCursor().setCharFormat(highlight)
+
+		# Remove a seleção da palavra 2
+		self.setTextCursor(self.cursorForPosition(event.pos()))
+
+		menu = self.createStandardContextMenu()
+		menu.addAction(QtGui.QIcon.fromTheme("view-refresh"), "Trocar Palavras", lambda:self.wordSwap(event, swapword1, swapword2))
+		menu.exec(event.globalPos())
+		
+		# Limpa o fundo da palavra 1
+		self.setTextCursor(swapword1)
+		highlight = self.textCursor().charFormat()
+		highlight.clearBackground()
+		self.textCursor().setCharFormat(highlight)
+
+		# Limpa o fundo da palavra 2
+		self.setTextCursor(swapword2)
+		highlight = self.textCursor().charFormat()
+		highlight.clearBackground()
+		self.textCursor().setCharFormat(highlight)
+
+		swapword1 = None
+		swapword2 = None
+		self.setTextCursor(self.cursorForPosition(event.pos()))
+
+
 		"""menu = QtWidgets.QMenu()
 		word, cursor = self.getClickedWord()
 		if word != "":
