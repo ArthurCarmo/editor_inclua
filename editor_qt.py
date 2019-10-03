@@ -21,7 +21,7 @@ from GScreenUtils import GLayeredDocumentCanvas
 from time import sleep
 from GServer import GServer
 
-from GSettings import GDefaultValues, GCustomizationMenu
+from GSettings import GDefaultValues, GSettingsMenu
 
 class Main(QtWidgets.QMainWindow):
 	cwd		= GDefaultValues.cwd
@@ -167,7 +167,7 @@ class Main(QtWidgets.QMainWindow):
 		# Preferências
 		edit = QtWidgets.QAction("Preferências", self)
 		edit.setStatusTip("Opções de customização")
-		edit.triggered.connect(self.openCustomizationMenu)
+		edit.triggered.connect(self.openSettingsMenu)
 		menubar.addAction(edit)
 		
 		bar = QtWidgets.QMenuBar(menubar)
@@ -212,8 +212,14 @@ class Main(QtWidgets.QMainWindow):
 		
 		self.text.screenShotModeKeyPressed.connect(self.onScreenShotModeKeyPressed)
 		
+		
+		# Preferências
+		self.settingsMenu = GSettingsMenu()
+		self.settingsMenu.newColorScheme.connect(self.onNewColorScheme)
+		
 		# Inicia o SyntaxHighlighter
-		self.highlighter = GSyntaxHighlighter(self.text.document())
+		self.highlighter = GSyntaxHighlighter(self.settingsMenu.getColorScheme(), self.text.document())
+		
 		self.translation = GTranslation()
 		self.translation.sender.translationReady.connect(self.onTranslationReady)
 		
@@ -237,9 +243,6 @@ class Main(QtWidgets.QMainWindow):
 		# Widget das imagens
 		self.images_widget = GImageGrid(self.default_imgDir)
 		self.images_widget.onClick.connect(self.onImageClick)
-
-		# Preferências
-		self.customizationMenu = GCustomizationMenu()
 
 		#Sobre e Ajuda
 		self.view_padrao = QtWidgets.QTextEdit()
@@ -635,10 +638,12 @@ class Main(QtWidgets.QMainWindow):
 	# PREFERÊNCIAS
 	#
 	####################################
-	def openCustomizationMenu(self):
-		self.customizationMenu.show()
+	def openSettingsMenu(self):
+		self.settingsMenu.show()
 
-
+	def onNewColorScheme(self, colorScheme):
+		self.highlighter = GSyntaxHighlighter(colorScheme, self.text.document())
+		
 	####################################
 	#
 	# TELAS ESTÁTICAS

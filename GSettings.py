@@ -19,16 +19,35 @@ class GDefaultValues():
 	cl_tag		= QtGui.QColor(0x000088)
 	cl_cmd	  	= QtGui.QColor(0x2200FF)
 	
-class GCustomizationMenu(QtWidgets.QWidget):
+class GColorScheme():
+	Known		= 0
+	Unknown		= 1
+	Tags		= 2
+	Commands 	= 3
+	
+	def __init__(self, known = GDefaultValues.cl_known, unknown = GDefaultValues.cl_unknown, tags = GDefaultValues.cl_tag, commands = GDefaultValues.cl_cmd):
+		self.cl_known 	= known
+		self.cl_unknown = unknown
+		self.cl_tag	= tags
+		self.cl_cmd	= commands
+		
+	def knownColor(self):
+		return self.cl_known
+		
+	def unknownColor(self):
+		return self.cl_unknown
+		
+	def tagsColor(self):
+		return self.cl_tag
+		
+	def commandsColor(self):
+		return self.cl_cmd
 
-	# Macros
-	KnownColor		= 0
-	UnknownColor	= 1
-	TagsColor		= 2
-	CommandsColor	= 3
+class GSettingsMenu(QtWidgets.QWidget):
+
 
 	# Signals
-	newColorsSet = QtCore.pyqtSignal()
+	newColorScheme = QtCore.pyqtSignal(GColorScheme)
 
 	def __init__(self, parent = None):
 		QtWidgets.QWidget.__init__(self, parent)
@@ -37,24 +56,24 @@ class GCustomizationMenu(QtWidgets.QWidget):
 		self.tabsMenu = QtWidgets.QTabWidget()
 		self.colorsTab = QtWidgets.QWidget()
 
-		self.getCurrentColorScheme()
+		self.colorScheme = self.retrieveCurrentColorScheme()
 
 		self.changeKnownColor		= QtWidgets.QPushButton("Palavras conhecidas")
 		self.changeUnknownColor		= QtWidgets.QPushButton("Palavras desconhecidas")
 		self.changeTagsColor		= QtWidgets.QPushButton("Tags/Marcações")
 		self.changeCommandsColor	= QtWidgets.QPushButton("Comandos")
 
-		self.changeKnownColor.clicked.connect(lambda : self.newColorSelectionMenu(self.KnownColor))
-		self.changeUnknownColor.clicked.connect(lambda : self.newColorSelectionMenu(self.UnknownColor))
-		self.changeTagsColor.clicked.connect(lambda : self.newColorSelectionMenu(self.TagsColor))
-		self.changeCommandsColor.clicked.connect(lambda : self.newColorSelectionMenu(self.CommandsColor))
+		self.changeKnownColor.clicked.connect(lambda : self.newColorSelectionMenu(GColorScheme.Known))
+		self.changeUnknownColor.clicked.connect(lambda : self.newColorSelectionMenu(GColorScheme.Unknown))
+		self.changeTagsColor.clicked.connect(lambda : self.newColorSelectionMenu(GColorScheme.Tags))
+		self.changeCommandsColor.clicked.connect(lambda : self.newColorSelectionMenu(GColorScheme.Commands))
 
 		self.changeKnownColor.setStyleSheet("text-align:left; padding:3px")
 		self.changeUnknownColor.setStyleSheet("text-align:left; padding:3px")
 		self.changeTagsColor.setStyleSheet("text-align:left; padding:3px")
 		self.changeCommandsColor.setStyleSheet("text-align:left; padding:3px")
 
-		self.salvar		= QtWidgets.QPushButton("Salvar")
+		self.salvar	= QtWidgets.QPushButton("Salvar")
 		self.cancelar	= QtWidgets.QPushButton("Cancelar")
 		self.resetar	= QtWidgets.QPushButton("Resetar")
 
@@ -85,16 +104,16 @@ class GCustomizationMenu(QtWidgets.QWidget):
 		layout.addWidget(self.tabsMenu)
 		self.setLayout(layout)
 
-	def getCurrentColorScheme(self):
-		self.cl_known	= QtGui.QColor(0x000000)
-		self.cl_unknown	= QtGui.QColor(0xFF0000)
+	def retrieveCurrentColorScheme(self):
+		self.cl_known		= QtGui.QColor(0x000000)
+		self.cl_unknown		= QtGui.QColor(0xFF0000)
 		self.cl_tag		= QtGui.QColor(0x000088)
 		self.cl_cmd	  	= QtGui.QColor(0x2200FF)
+		
+		return GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd)
 
-		self.subcl_known	= QtGui.QColor(0x000000)
-		self.subcl_unknown	= QtGui.QColor(0xFF0000)
-		self.subcl_tag		= QtGui.QColor(0x000088)
-		self.subcl_cmd	  	= QtGui.QColor(0x2200FF)
+	def getColorScheme(self):
+		return self.colorScheme
 
 	def updateButtons(self):
 		knownPixmap = QtGui.QPixmap(16, 9)
@@ -116,52 +135,48 @@ class GCustomizationMenu(QtWidgets.QWidget):
 	def newColorSelectionMenu(self, target):
 			self.dialog = QtWidgets.QColorDialog()
 			self.dialog.colorSelected.connect(lambda color: self.onColorSelected(target, color))
-			if target == self.KnownColor:
+			if target == GColorScheme.Known:
 				self.dialog.setCurrentColor(self.cl_known)
-			elif target == self.UnknownColor:
+			elif target == GColorScheme.Unknown:
 				self.dialog.setCurrentColor(self.cl_unknown)
-			elif target == self.TagsColor:
+			elif target == GColorScheme.Tags:
 				self.dialog.setCurrentColor(self.cl_tag)
-			elif target == self.CommandsColor:
+			elif target == GColorScheme.Commands:
 				self.dialog.setCurrentColor(self.cl_cmd)
 
 			self.dialog.open()
 
 	def onColorSelected(self, target, color):
-		if target == self.KnownColor:
+		if target == GColorScheme.Known:
 			self.cl_known = color
-		elif target == self.UnknownColor:
+		elif target == GColorScheme.Unknown:
 			self.cl_unknown = color
-		elif target == self.TagsColor:
+		elif target == GColorScheme.Tags:
 			self.cl_tag = color
-		elif target == self.CommandsColor:
+		elif target == GColorScheme.Commands:
 			self.cl_cmd = color
 		
 		self.updateButtons()
 
 		
 	def commitColorChanges(self):
-		self.subcl_known	= self.cl_known
-		self.subcl_unknown	= self.cl_unknown
-		self.subcl_tag		= self.cl_tag
-		self.subcl_cmd		= self.cl_cmd
-
-		self.newColorsSet.emit()
+		self.colorScheme = GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd)
+		self.newColorScheme.emit(self.colorScheme)
 
 	def cancelColorChanges(self):
 		print("UAAAI")
-		self.cl_known	= QtGui.QColor(self.subcl_known)
-		self.cl_unknown	= QtGui.QColor(self.subcl_unknown)
-		self.cl_tag		= QtGui.QColor(self.subcl_tag)
-		self.cl_cmd		= QtGui.QColor(self.subcl_cmd)
+		self.cl_known	= self.colorScheme.knownColor()
+		self.cl_unknown	= self.colorScheme.unknownColor()
+		self.cl_tag	= self.colorScheme.tagsColor()
+		self.cl_cmd	= self.colorScheme.commandsColor()
 
 		self.updateButtons()
 
 	def resetDefaultValues(self):
 		self.cl_known	= GDefaultValues.cl_known
 		self.cl_unknown	= GDefaultValues.cl_unknown
-		self.cl_tag		= GDefaultValues.cl_tag
-		self.cl_cmd		= GDefaultValues.cl_cmd
+		self.cl_tag	= GDefaultValues.cl_tag
+		self.cl_cmd	= GDefaultValues.cl_cmd
 		
 		self.updateButtons()
 

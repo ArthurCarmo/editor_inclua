@@ -93,15 +93,16 @@ class GParser():
 		return list(filter(lambda a: a != "" and a != " ", blocks))
 
 class GSyntaxHighlighter(QtGui.QSyntaxHighlighter):
-	def __init__(self, parent):
+	def __init__(self, colorScheme, parent):
 		self.parent = parent
+		self.colorScheme = colorScheme
 		QtGui.QSyntaxHighlighter.__init__(self, parent)
 
 	def highlightBlock(self, text):
-		cl_known	= QtGui.QColor(0x000000)
-		cl_unknown	= QtGui.QColor(0xFF0000)
-		cl_tag		= QtGui.QColor(0x000088)
-		cl_cmd	  	= QtGui.QColor(0x2200FF)
+		cl_known	= self.colorScheme.knownColor()
+		cl_unknown	= self.colorScheme.unknownColor()
+		cl_tag		= self.colorScheme.tagsColor()
+		cl_cmd	  	= self.colorScheme.commandsColor()
 
 		known		= QtGui.QTextCharFormat()
 		unknown	 	= QtGui.QTextCharFormat()
