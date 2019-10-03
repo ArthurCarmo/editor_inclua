@@ -13,23 +13,37 @@ class GDefaultValues():
 	
 	pdfJs		= 'file://' + cwd + '/pdfjs/web/viewer.html'
 	
+	#######################
+	#
 	# Colors
+	#
+	#######################
+	
+	# tokens
 	cl_known	= QtGui.QColor(0x000000)
 	cl_unknown	= QtGui.QColor(0xFF0000)
 	cl_tag		= QtGui.QColor(0x000088)
 	cl_cmd	  	= QtGui.QColor(0x2200FF)
+
+	# markers
+	cl_tgtSubWord = QtGui.QColor(0xFFFF00)
+	cl_dstSubWord = QtGui.QColor(0x00FFFF)
 	
 class GColorScheme():
 	Known		= 0
 	Unknown		= 1
 	Tags		= 2
 	Commands 	= 3
+	TargetSub	= 4
 	
-	def __init__(self, known = GDefaultValues.cl_known, unknown = GDefaultValues.cl_unknown, tags = GDefaultValues.cl_tag, commands = GDefaultValues.cl_cmd):
+	def __init__(self, known = GDefaultValues.cl_known, unknown = GDefaultValues.cl_unknown, tags = GDefaultValues.cl_tag, commands = GDefaultValues.cl_cmd, targetSub = GDefaultValues.cl_tgtSubWord, destSub = GDefaultValues.cl_dstSubWord):
 		self.cl_known 	= known
 		self.cl_unknown = unknown
 		self.cl_tag	= tags
 		self.cl_cmd	= commands
+		
+		self.cl_tgtSubWord = targetSub
+		self.cl_dstSubWord = destSub
 		
 	def knownColor(self):
 		return self.cl_known
@@ -43,9 +57,13 @@ class GColorScheme():
 	def commandsColor(self):
 		return self.cl_cmd
 
+	def targetSubColor(self):
+		return self.cl_tgtSubWord
+		
+	def targetDestColor(self):
+		return self.cl_dstSubWord
+		
 class GSettingsMenu(QtWidgets.QWidget):
-
-
 	# Signals
 	newColorScheme = QtCore.pyqtSignal(GColorScheme)
 
@@ -54,10 +72,18 @@ class GSettingsMenu(QtWidgets.QWidget):
 
 		self.setWindowTitle("Preferências")
 		self.tabsMenu = QtWidgets.QTabWidget()
-		self.colorsTab = QtWidgets.QWidget()
 
 		self.colorScheme = self.retrieveCurrentColorScheme()
-
+		
+		##########################
+		#
+		# CORES
+		#
+		##########################
+		
+		self.colorsTab = QtWidgets.QWidget()
+		
+		## TOKENS
 		self.changeKnownColor		= QtWidgets.QPushButton("Palavras conhecidas")
 		self.changeUnknownColor		= QtWidgets.QPushButton("Palavras desconhecidas")
 		self.changeTagsColor		= QtWidgets.QPushButton("Tags/Marcações")
@@ -73,6 +99,27 @@ class GSettingsMenu(QtWidgets.QWidget):
 		self.changeTagsColor.setStyleSheet("text-align:left; padding:3px")
 		self.changeCommandsColor.setStyleSheet("text-align:left; padding:3px")
 
+		colorsTokensLayout = QtWidgets.QVBoxLayout()
+		colorsTokensLayout.addWidget(self.changeKnownColor)
+		colorsTokensLayout.addWidget(self.changeUnknownColor)
+		colorsTokensLayout.addWidget(self.changeTagsColor)
+		colorsTokensLayout.addWidget(self.changeCommandsColor)
+
+		colorsTokensGroup = QtWidgets.QGroupBox("Tokens")
+		colorsTokensGroup.setLayout(colorsTokensLayout)
+		
+		## MARCADORES
+		self.changeTargetSubColor = QtWidgets.QPushButton("Palavras para trocar")
+
+		self.changeTargetSubColor.clicked.connect(lambda : self.newColorSelectionMenu(GColorScheme.targetSub))
+		
+		colorsMarkersLayout = QtWidgets.QVBoxLayout()
+		colorsMarkersLayout.addWidget(self.changeTargetSubColor)
+		
+		colorsMarkersGroup = QtWidgets.QGroupBox("Marcadores")
+		colorsMarkersGroup.setLayout(colorsMarkersLayout)
+		
+		## FINALIZAR
 		self.salvar	= QtWidgets.QPushButton("Salvar")
 		self.cancelar	= QtWidgets.QPushButton("Cancelar")
 		self.resetar	= QtWidgets.QPushButton("Resetar")
@@ -86,17 +133,30 @@ class GSettingsMenu(QtWidgets.QWidget):
 		colorsExitLayout.addWidget(self.cancelar)
 		colorsExitLayout.addWidget(self.resetar)
 
+		colorsExitGroup = QtWidgets.QGroupBox()
+		colorsExitGroup.setLayout(colorsExitLayout)
+
+		## LAYOUT PRINCIPAL MENU DE CORES
+		colorsMainLayout = QtWidgets.QVBoxLayout()
+		colorsUpperLayout = QtWidgets.QHBoxLayout()
+		
+		colorsUpperLayout.addWidget(colorsTokensGroup)
+		colorsUpperLayout.addWidget(colorsMarkersGroup)
+		
+		colorsMainLayout.addLayout(colorsUpperLayout)
+		colorsMainLayout.addWidget(colorsExitGroup)
+
 		self.updateButtons()
+		colorsMainLayout.addWidget(colorsExitGroup)
+		
+		self.colorsTab.setLayout(colorsMainLayout)
 
-		colorsLayout = QtWidgets.QVBoxLayout()
-		colorsLayout.addWidget(self.changeKnownColor)
-		colorsLayout.addWidget(self.changeUnknownColor)
-		colorsLayout.addWidget(self.changeTagsColor)
-		colorsLayout.addWidget(self.changeCommandsColor)
 
-		colorsLayout.addLayout(colorsExitLayout)
-		self.colorsTab.setLayout(colorsLayout)
-
+		###############################
+		#
+		# LAYOUT DAS TABS
+		#
+		###############################
 		self.tabsMenu.addTab(self.colorsTab, "Cores")
 
 		layout = QtWidgets.QVBoxLayout()
@@ -109,8 +169,9 @@ class GSettingsMenu(QtWidgets.QWidget):
 		self.cl_unknown		= QtGui.QColor(0xFF0000)
 		self.cl_tag		= QtGui.QColor(0x000088)
 		self.cl_cmd	  	= QtGui.QColor(0x2200FF)
+		self.cl_tgtSub		= QtGui.QColor(0xFFFF00)
 		
-		return GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd)
+		return GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd, targetSub = self.cl_tgtSub)
 
 	def getColorScheme(self):
 		return self.colorScheme
@@ -131,6 +192,10 @@ class GSettingsMenu(QtWidgets.QWidget):
 		commandsPixmap = QtGui.QPixmap(16, 9)
 		commandsPixmap.fill(self.cl_cmd)
 		self.changeCommandsColor.setIcon(QtGui.QIcon(commandsPixmap))
+		
+		tgtSubPixmap = QtGui.QPixmap(16, 9)
+		tgtSubPixmap.fill(self.cl_tgtSub)
+		self.changeTargetSubColor.setIcon(QtGui.QIcon(tgtSubPixmap))
 	
 	def newColorSelectionMenu(self, target):
 			self.dialog = QtWidgets.QColorDialog()
@@ -143,6 +208,8 @@ class GSettingsMenu(QtWidgets.QWidget):
 				self.dialog.setCurrentColor(self.cl_tag)
 			elif target == GColorScheme.Commands:
 				self.dialog.setCurrentColor(self.cl_cmd)
+			elif target == GColorScheme.TargetSub:
+				self.dialog.setCurrentColor(self.cl_tgtSub)
 
 			self.dialog.open()
 
@@ -155,12 +222,14 @@ class GSettingsMenu(QtWidgets.QWidget):
 			self.cl_tag = color
 		elif target == GColorScheme.Commands:
 			self.cl_cmd = color
-		
+		elif target == GColorScheme.TargetSub:
+			self.cl_tgtSub = color
+				
 		self.updateButtons()
 
 		
 	def commitColorChanges(self):
-		self.colorScheme = GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd)
+		self.colorScheme = GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd, targetSub = self.cl_tgtSub)
 		self.newColorScheme.emit(self.colorScheme)
 
 	def cancelColorChanges(self):
