@@ -201,6 +201,11 @@ class Main(QtWidgets.QMainWindow):
 	#
 	###########################################
 	def initUI(self):
+		
+		# Preferências
+		self.settingsMenu = GSettingsMenu()
+		self.settingsMenu.newColorScheme.connect(self.onNewColorScheme)
+	
 		# Dimensões iniciais da janela
 		self.screen_rect = QtWidgets.QDesktopWidget().screenGeometry()
 		self.setGeometry(self.screen_rect)
@@ -208,17 +213,14 @@ class Main(QtWidgets.QMainWindow):
 		
 		# Componentes principais do editor
 		self.splitter	= QtWidgets.QSplitter(self)
-		self.text	= GTextEdit()
+		self.text	= GTextEdit(self.settingsMenu.getColorScheme())
 		
 		self.text.screenShotModeKeyPressed.connect(self.onScreenShotModeKeyPressed)
 		
 		
-		# Preferências
-		self.settingsMenu = GSettingsMenu()
-		self.settingsMenu.newColorScheme.connect(self.onNewColorScheme)
-		
 		# Inicia o SyntaxHighlighter
-		self.highlighter = GSyntaxHighlighter(self.settingsMenu.getColorScheme(), self.text.document())
+		# Truque para editar as cores, passa o text como pai, e muda para o document() no construtor
+		self.highlighter = GSyntaxHighlighter(self.text)
 		
 		self.translation = GTranslation()
 		self.translation.sender.translationReady.connect(self.onTranslationReady)
@@ -642,7 +644,8 @@ class Main(QtWidgets.QMainWindow):
 		self.settingsMenu.show()
 
 	def onNewColorScheme(self, colorScheme):
-		self.highlighter = GSyntaxHighlighter(colorScheme, self.text.document())
+		self.text.setColorScheme(colorScheme)
+		self.highlighter.rehighlight()
 		
 	####################################
 	#

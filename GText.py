@@ -35,7 +35,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 
 	screenShotModeKeyPressed = QtCore.pyqtSignal()
 
-	def __init__(self, parent = None):
+	def __init__(self, clScheme, parent = None):
 		QtWidgets.QTextEdit.__init__(self, parent)
 		self.completer = GCompleter(GParser().getAlphabet())
 		self.completer.setWidget(self)
@@ -43,10 +43,18 @@ class GTextEdit(QtWidgets.QTextEdit):
 		self.pressed = {}
 		self.onDeadKey = False
 		
+		self.clScheme = clScheme
+		
 		self.completionEnd = " "
 		
 		self.setAttribute(QtCore.Qt.WA_InputMethodEnabled)
 	
+	def colorScheme(self):
+		return self.clScheme
+		
+	def setColorScheme(self, colorScheme):
+		self.clScheme = colorScheme
+		
 	#####################################
 	#
 	# Eventos do teclado
@@ -320,12 +328,15 @@ class GTextEdit(QtWidgets.QTextEdit):
 		self.textCursor().endEditBlock()
 
 	def contextMenuEvent(self, event):
+	
+		targetColor = self.clScheme.targetSubColor()
+	
 		# Pega a palavra 1
 		swapword1 = self.selectToken()
 		# Colore o fundo da palavra 1
 		self.setTextCursor(swapword1)
 		highlight = self.textCursor().charFormat()
-		highlight.setBackground(QtGui.QBrush(QtGui.QColor(0xFFFFFF)))
+		highlight.setBackground(QtGui.QBrush(targetColor))
 		self.textCursor().setCharFormat(highlight)
 
 		# Pega a palavra 2
@@ -334,7 +345,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 		# Colore o fundo da palavra 2
 		self.setTextCursor(swapword2)
 		highlight = self.textCursor().charFormat()
-		highlight.setBackground(QtGui.QBrush(QtGui.QColor(0xFFFFFF)))
+		highlight.setBackground(QtGui.QBrush(targetColor))
 		self.textCursor().setCharFormat(highlight)
 
 		# Remove a seleção da palavra 2

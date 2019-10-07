@@ -111,7 +111,7 @@ class GSettingsMenu(QtWidgets.QWidget):
 		## MARCADORES
 		self.changeTargetSubColor = QtWidgets.QPushButton("Palavras para trocar")
 
-		self.changeTargetSubColor.clicked.connect(lambda : self.newColorSelectionMenu(GColorScheme.targetSub))
+		self.changeTargetSubColor.clicked.connect(lambda : self.newColorSelectionMenu(GColorScheme.TargetSub))
 		
 		colorsMarkersLayout = QtWidgets.QVBoxLayout()
 		colorsMarkersLayout.addWidget(self.changeTargetSubColor)
