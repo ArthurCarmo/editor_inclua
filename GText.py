@@ -1,4 +1,4 @@
-from GSyntax import GParser
+from GSyntax import GParser, GSyntaxHighlighter
 
 from copy import deepcopy
 from PyQt5 import QtGui, QtCore, QtWidgets
@@ -329,14 +329,14 @@ class GTextEdit(QtWidgets.QTextEdit):
 
 	def contextMenuEvent(self, event):
 	
-		targetColor = self.clScheme.targetSubColor()
-	
+		targetBackGroundColor = self.clScheme.targetSubColor()
+
 		# Pega a palavra 1
 		swapword1 = self.selectToken()
 		# Colore o fundo da palavra 1
 		self.setTextCursor(swapword1)
 		highlight = self.textCursor().charFormat()
-		highlight.setBackground(QtGui.QBrush(targetColor))
+		highlight.setBackground(QtGui.QBrush(targetBackGroundColor))
 		self.textCursor().setCharFormat(highlight)
 
 		# Pega a palavra 2
@@ -345,7 +345,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 		# Colore o fundo da palavra 2
 		self.setTextCursor(swapword2)
 		highlight = self.textCursor().charFormat()
-		highlight.setBackground(QtGui.QBrush(targetColor))
+		highlight.setBackground(QtGui.QBrush(targetBackGroundColor))
 		self.textCursor().setCharFormat(highlight)
 
 		# Remove a seleção da palavra 2
@@ -370,7 +370,6 @@ class GTextEdit(QtWidgets.QTextEdit):
 		swapword1 = None
 		swapword2 = None
 		self.setTextCursor(self.cursorForPosition(event.pos()))
-
 
 		"""menu = QtWidgets.QMenu()
 		word, cursor = self.getClickedWord()
