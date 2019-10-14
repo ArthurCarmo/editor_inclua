@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtGui
 
 from GFile import GDocument
 from GImage import GCustomImageDialog
@@ -38,6 +38,10 @@ class Main(QtWidgets.QMainWindow):
 		
 		teste = GCustomImageDialog().question()
 		print(teste)
+		
+		self.tEdit = QtWidgets.QTextEdit()
+		
+		print(self.tEdit.palette().color(QtGui.QPalette.Window).getRgb())
 		
 	def setLabel(self, px):
 		self.lbl.setPixmap(px)

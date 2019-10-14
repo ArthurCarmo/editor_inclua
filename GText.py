@@ -43,6 +43,8 @@ class GTextEdit(QtWidgets.QTextEdit):
 		self.pressed = {}
 		self.onDeadKey = False
 		
+		self.highlighter = GSyntaxHighlighter(self)
+		
 		self.clScheme = clScheme
 		
 		self.completionEnd = " "
@@ -54,7 +56,10 @@ class GTextEdit(QtWidgets.QTextEdit):
 		
 	def setColorScheme(self, colorScheme):
 		self.clScheme = colorScheme
+		self.highlighter.rehighlight()
 		
+	def getSyntaxHighlighter(self):
+		return self.highlighter
 	#####################################
 	#
 	# Eventos do teclado
@@ -329,14 +334,19 @@ class GTextEdit(QtWidgets.QTextEdit):
 
 	def contextMenuEvent(self, event):
 	
-		targetBackGroundColor = self.clScheme.targetSubColor()
+		targetFontColor		= self.clScheme.subWordFontColor()
+		targetBackgroundColor	= self.clScheme.subWordBackgroundColor()
+
+		# Desativa o syntax highlighter
+#		self.highlighter.setDocument(None)
 
 		# Pega a palavra 1
 		swapword1 = self.selectToken()
 		# Colore o fundo da palavra 1
 		self.setTextCursor(swapword1)
 		highlight = self.textCursor().charFormat()
-		highlight.setBackground(QtGui.QBrush(targetBackGroundColor))
+		highlight.setForeground(QtGui.QBrush(targetFontColor))
+		highlight.setBackground(QtGui.QBrush(targetBackgroundColor))
 		self.textCursor().setCharFormat(highlight)
 
 		# Pega a palavra 2
@@ -345,7 +355,8 @@ class GTextEdit(QtWidgets.QTextEdit):
 		# Colore o fundo da palavra 2
 		self.setTextCursor(swapword2)
 		highlight = self.textCursor().charFormat()
-		highlight.setBackground(QtGui.QBrush(targetBackGroundColor))
+		highlight.setForeground(QtGui.QBrush(targetFontColor))
+		highlight.setBackground(QtGui.QBrush(targetBackgroundColor))
 		self.textCursor().setCharFormat(highlight)
 
 		# Remove a seleção da palavra 2
@@ -354,6 +365,9 @@ class GTextEdit(QtWidgets.QTextEdit):
 		menu = self.createStandardContextMenu()
 		menu.addAction(QtGui.QIcon.fromTheme("view-refresh"), "Trocar Palavras", lambda:self.wordSwap(event, swapword1, swapword2))
 		menu.exec(event.globalPos())
+		
+		# Reativa o highlighter
+#		self.highlighter.setDocument(self.document())
 		
 		# Limpa o fundo da palavra 1
 		self.setTextCursor(swapword1)

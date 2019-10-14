@@ -26,24 +26,31 @@ class GDefaultValues():
 	cl_cmd	  	= QtGui.QColor(0x2200FF)
 
 	# markers
-	cl_tgtSubWord = QtGui.QColor(0xFFFF00)
-	cl_dstSubWord = QtGui.QColor(0x00FFFF)
+	cl_textEditBackground = None
+	cl_subWordFont = None
+	cl_subWordBackground = None
+	
+	def __init__(self):
+		self.__class__.cl_textEditBackground = QtWidgets.QTextEdit().palette().color(QtGui.QPalette.Window)
+		self.__class__.cl_subWordFont = self.cl_textEditBackground
+		rgba = [abs(x - y) for x in (255, 255, 255, 0) for y in self.cl_subWordFont.getRgb()]
+		self.__class__.cl_subWordBackground = QtGui.QColor(rgba[0], rgba[1], rgba[2], 255)
 	
 class GColorScheme():
 	Known		= 0
 	Unknown		= 1
 	Tags		= 2
 	Commands 	= 3
-	TargetSub	= 4
+	SubWordBackground	= 4
 	
-	def __init__(self, known = GDefaultValues.cl_known, unknown = GDefaultValues.cl_unknown, tags = GDefaultValues.cl_tag, commands = GDefaultValues.cl_cmd, targetSub = GDefaultValues.cl_tgtSubWord, destSub = GDefaultValues.cl_dstSubWord):
+	def __init__(self, known = GDefaultValues.cl_known, unknown = GDefaultValues.cl_unknown, tags = GDefaultValues.cl_tag, commands = GDefaultValues.cl_cmd, subWordBackground = GDefaultValues.cl_subWordBackground, subWordFont = GDefaultValues.cl_subWordFont):
 		self.cl_known 	= known
 		self.cl_unknown = unknown
 		self.cl_tag	= tags
 		self.cl_cmd	= commands
 		
-		self.cl_tgtSubWord = targetSub
-		self.cl_dstSubWord = destSub
+		self.cl_subWordBackground = subWordBackground
+		self.cl_subWordFont = subWordFont
 		
 	def knownColor(self):
 		return self.cl_known
@@ -57,11 +64,11 @@ class GColorScheme():
 	def commandsColor(self):
 		return self.cl_cmd
 
-	def targetSubColor(self):
-		return self.cl_tgtSubWord
+	def subWordBackgroundColor(self):
+		return self.cl_subWordBackground
 		
-	def targetDestColor(self):
-		return self.cl_dstSubWord
+	def subWordFontColor(self):
+		return self.cl_subWordFont
 		
 class GSettingsMenu(QtWidgets.QWidget):
 	# Signals
@@ -109,12 +116,12 @@ class GSettingsMenu(QtWidgets.QWidget):
 		colorsTokensGroup.setLayout(colorsTokensLayout)
 		
 		## MARCADORES
-		self.changeTargetSubColor = QtWidgets.QPushButton("Palavras para trocar")
+		self.changeSubWordBackgroundColor = QtWidgets.QPushButton("Palavras para trocar")
 
-		self.changeTargetSubColor.clicked.connect(lambda : self.newColorSelectionMenu(GColorScheme.TargetSub))
+		self.changeSubWordBackgroundColor.clicked.connect(lambda : self.newColorSelectionMenu(GColorScheme.SubWordBackground))
 		
 		colorsMarkersLayout = QtWidgets.QVBoxLayout()
-		colorsMarkersLayout.addWidget(self.changeTargetSubColor)
+		colorsMarkersLayout.addWidget(self.changeSubWordBackgroundColor)
 		
 		colorsMarkersGroup = QtWidgets.QGroupBox("Marcadores")
 		colorsMarkersGroup.setLayout(colorsMarkersLayout)
@@ -169,9 +176,13 @@ class GSettingsMenu(QtWidgets.QWidget):
 		self.cl_unknown		= QtGui.QColor(0xFF0000)
 		self.cl_tag		= QtGui.QColor(0x000088)
 		self.cl_cmd	  	= QtGui.QColor(0x2200FF)
-		self.cl_tgtSub		= QtGui.QColor(0xFFFF00)
+		self.cl_subWordFont	= GDefaultValues.cl_subWordFont
+		self.cl_subWordBackground = GDefaultValues.cl_subWordBackground
 		
-		return GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd, targetSub = self.cl_tgtSub)
+		print(self.cl_subWordFont.getRgb())
+		print(self.cl_subWordBackground.getRgb())
+		
+		return GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd, subWordBackground = self.cl_subWordBackground, subWordFont = self.cl_subWordFont)
 
 	def getColorScheme(self):
 		return self.colorScheme
@@ -193,9 +204,9 @@ class GSettingsMenu(QtWidgets.QWidget):
 		commandsPixmap.fill(self.cl_cmd)
 		self.changeCommandsColor.setIcon(QtGui.QIcon(commandsPixmap))
 		
-		tgtSubPixmap = QtGui.QPixmap(16, 9)
-		tgtSubPixmap.fill(self.cl_tgtSub)
-		self.changeTargetSubColor.setIcon(QtGui.QIcon(tgtSubPixmap))
+		subWordBackgroundPixmap = QtGui.QPixmap(16, 9)
+		subWordBackgroundPixmap.fill(self.cl_subWordBackground)
+		self.changeSubWordBackgroundColor.setIcon(QtGui.QIcon(subWordBackgroundPixmap))
 	
 	def newColorSelectionMenu(self, target):
 			self.dialog = QtWidgets.QColorDialog()
@@ -208,8 +219,8 @@ class GSettingsMenu(QtWidgets.QWidget):
 				self.dialog.setCurrentColor(self.cl_tag)
 			elif target == GColorScheme.Commands:
 				self.dialog.setCurrentColor(self.cl_cmd)
-			elif target == GColorScheme.TargetSub:
-				self.dialog.setCurrentColor(self.cl_tgtSub)
+			elif target == GColorScheme.SubWordBackground:
+				self.dialog.setCurrentColor(self.cl_subWordBackground)
 
 			self.dialog.open()
 
@@ -222,14 +233,14 @@ class GSettingsMenu(QtWidgets.QWidget):
 			self.cl_tag = color
 		elif target == GColorScheme.Commands:
 			self.cl_cmd = color
-		elif target == GColorScheme.TargetSub:
-			self.cl_tgtSub = color
+		elif target == GColorScheme.SubWordBackground:
+			self.cl_subWordBackground = color
 				
 		self.updateButtons()
 
 		
 	def commitColorChanges(self):
-		self.colorScheme = GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd, targetSub = self.cl_tgtSub)
+		self.colorScheme = GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd, subWordBackground = self.cl_subWordBackground, subWordFont = self.cl_subWordFont)
 		self.newColorScheme.emit(self.colorScheme)
 
 	def cancelColorChanges(self):

@@ -217,11 +217,6 @@ class Main(QtWidgets.QMainWindow):
 		
 		self.text.screenShotModeKeyPressed.connect(self.onScreenShotModeKeyPressed)
 		
-		
-		# Inicia o SyntaxHighlighter
-		# Truque para editar as cores, passa o text como pai, e muda para o document() no construtor
-		self.highlighter = GSyntaxHighlighter(self.text)
-		
 		self.translation = GTranslation()
 		self.translation.sender.translationReady.connect(self.onTranslationReady)
 		
@@ -645,7 +640,6 @@ class Main(QtWidgets.QMainWindow):
 
 	def onNewColorScheme(self, colorScheme):
 		self.text.setColorScheme(colorScheme)
-		self.highlighter.rehighlight()
 		
 	####################################
 	#
@@ -706,6 +700,9 @@ class Main(QtWidgets.QMainWindow):
 def main():
 	global app
 	app = QtWidgets.QApplication(sys.argv)
+	
+	GDefaultValues()
+	
 	main = Main()
 	main.show()
 	sys.exit(app.exec_())
