@@ -332,6 +332,11 @@ class GTextEdit(QtWidgets.QTextEdit):
 		swapword2.insertText(w1)
 		self.textCursor().endEditBlock()
 
+	##########################
+	#
+	# Context Menu
+	#
+	##########################
 	def contextMenuEvent(self, event):
 	
 		targetFontColor		= self.clScheme.subWordFontColor()
@@ -359,9 +364,17 @@ class GTextEdit(QtWidgets.QTextEdit):
 		# Remove a seleção da palavra 2
 		self.setTextCursor(self.cursorForPosition(event.pos()))
 
+		# Marca flag para o highlighter mudar a cor da fonte
+		self.highlighter.setMarkedForSub(swapword1, swapword2)
+		self.highlighter.rehighlight()
+
 		menu = self.createStandardContextMenu()
 		menu.addAction(QtGui.QIcon.fromTheme("view-refresh"), "Trocar Palavras", lambda:self.wordSwap(event, swapword1, swapword2))
 		menu.exec(event.globalPos())
+		
+		# Limpa flag do highlighter
+		self.highlighter.unsetMarkedForSub()
+		self.highlighter.rehighlight()
 		
 		# Limpa o fundo da palavra 1
 		self.setTextCursor(swapword1)
