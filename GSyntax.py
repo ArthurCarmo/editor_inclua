@@ -96,6 +96,9 @@ class GSyntaxHighlighter(QtGui.QSyntaxHighlighter):
 	def __init__(self, txtEdit):
 		self.txtEdit = txtEdit
 		self.parent = self.txtEdit.document()
+		self.markedForSub = False
+		self.cursor1 = None
+		self.cursor2 = None
 		QtGui.QSyntaxHighlighter.__init__(self, self.parent)
 
 	def highlightBlock(self, text):

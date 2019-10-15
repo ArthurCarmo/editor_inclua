@@ -337,9 +337,6 @@ class GTextEdit(QtWidgets.QTextEdit):
 		targetFontColor		= self.clScheme.subWordFontColor()
 		targetBackgroundColor	= self.clScheme.subWordBackgroundColor()
 
-		# Desativa o syntax highlighter
-#		self.highlighter.setDocument(None)
-
 		# Pega a palavra 1
 		swapword1 = self.selectToken()
 		# Colore o fundo da palavra 1
@@ -365,9 +362,6 @@ class GTextEdit(QtWidgets.QTextEdit):
 		menu = self.createStandardContextMenu()
 		menu.addAction(QtGui.QIcon.fromTheme("view-refresh"), "Trocar Palavras", lambda:self.wordSwap(event, swapword1, swapword2))
 		menu.exec(event.globalPos())
-		
-		# Reativa o highlighter
-#		self.highlighter.setDocument(self.document())
 		
 		# Limpa o fundo da palavra 1
 		self.setTextCursor(swapword1)
