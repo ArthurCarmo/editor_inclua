@@ -37,11 +37,12 @@ class GDefaultValues():
 		self.__class__.cl_subWordBackground = QtGui.QColor(rgba[0], rgba[1], rgba[2], 255)
 	
 class GColorScheme():
-	Known		= 0
-	Unknown		= 1
-	Tags		= 2
-	Commands 	= 3
+	Known			= 0
+	Unknown			= 1
+	Tags			= 2
+	Commands 		= 3
 	SubWordBackground	= 4
+	SubWordFont		= 5
 	
 	def __init__(self, known = GDefaultValues.cl_known, unknown = GDefaultValues.cl_unknown, tags = GDefaultValues.cl_tag, commands = GDefaultValues.cl_cmd, subWordBackground = GDefaultValues.cl_subWordBackground, subWordFont = GDefaultValues.cl_subWordFont):
 		self.cl_known 	= known
@@ -70,6 +71,10 @@ class GColorScheme():
 	def subWordFontColor(self):
 		return self.cl_subWordFont
 		
+	def getInverseColor(self, color):
+		rgba = [abs(x - y) for x in (255, 255, 255, 0) for y in color.getRgb()]
+		return QtGui.QColor(rgba[0], rgba[1], rgba[2], 255)
+		
 class GSettingsMenu(QtWidgets.QWidget):
 	# Signals
 	newColorScheme = QtCore.pyqtSignal(GColorScheme)
@@ -79,8 +84,6 @@ class GSettingsMenu(QtWidgets.QWidget):
 
 		self.setWindowTitle("Preferências")
 		self.tabsMenu = QtWidgets.QTabWidget()
-
-		self.colorScheme = self.retrieveCurrentColorScheme()
 		
 		##########################
 		#
@@ -88,6 +91,8 @@ class GSettingsMenu(QtWidgets.QWidget):
 		#
 		##########################
 		
+		self.utilizarCorInversa = True
+		self.colorScheme = self.retrieveCurrentColorScheme()
 		self.colorsTab = QtWidgets.QWidget()
 		
 		## TOKENS
@@ -116,12 +121,26 @@ class GSettingsMenu(QtWidgets.QWidget):
 		colorsTokensGroup.setLayout(colorsTokensLayout)
 		
 		## MARCADORES
-		self.changeSubWordBackgroundColor = QtWidgets.QPushButton("Palavras para trocar")
-
+		
+		self.utilizarCorInversaCheck = QtWidgets.QCheckBox("Utilizar fonte na cor inversa do fundo")
+		self.utilizarCorInversaCheck.setChecked(self.utilizarCorInversa)
+		self.utilizarCorInversaCheck.stateChanged.connect(self.colorMarkerCheckBoxChanged)
+		
+		self.changeSubWordFontColor = QtWidgets.QPushButton("Fonte das palavras para trocar")
+		self.changeSubWordBackgroundColor = QtWidgets.QPushButton("Fundo  das palavras para trocar")
+		
+		self.changeSubWordFontColor.setEnabled(not self.utilizarCorInversa)
+		
+		self.changeSubWordFontColor.setStyleSheet("text-align:left; padding:3px")
+		self.changeSubWordBackgroundColor.setStyleSheet("text-align:left; padding:3px")
+		
+		self.changeSubWordFontColor.clicked.connect(lambda : self.newColorSelectionMenu(GColorScheme.SubWordFont))
 		self.changeSubWordBackgroundColor.clicked.connect(lambda : self.newColorSelectionMenu(GColorScheme.SubWordBackground))
 		
 		colorsMarkersLayout = QtWidgets.QVBoxLayout()
 		colorsMarkersLayout.addWidget(self.changeSubWordBackgroundColor)
+		colorsMarkersLayout.addWidget(self.utilizarCorInversaCheck)
+		colorsMarkersLayout.addWidget(self.changeSubWordFontColor)
 		
 		colorsMarkersGroup = QtWidgets.QGroupBox("Marcadores")
 		colorsMarkersGroup.setLayout(colorsMarkersLayout)
@@ -182,10 +201,15 @@ class GSettingsMenu(QtWidgets.QWidget):
 		print(self.cl_subWordFont.getRgb())
 		print(self.cl_subWordBackground.getRgb())
 		
-		return GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd, subWordBackground = self.cl_subWordBackground, subWordFont = self.cl_subWordFont)
+		return GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd, subWordBackground = self.cl_subWordBackground, subWordFont = (GColorScheme().getInverseColor(self.cl_subWordBackground) if self.utilizarCorInversa else self.cl_subWordFont))
 
 	def getColorScheme(self):
 		return self.colorScheme
+		
+		
+	def colorMarkerCheckBoxChanged(self, state):
+		self.utilizarCorInversa = state
+		self.changeSubWordFontColor.setEnabled(not state)
 
 	def updateButtons(self):
 		knownPixmap = QtGui.QPixmap(16, 9)
@@ -207,6 +231,10 @@ class GSettingsMenu(QtWidgets.QWidget):
 		subWordBackgroundPixmap = QtGui.QPixmap(16, 9)
 		subWordBackgroundPixmap.fill(self.cl_subWordBackground)
 		self.changeSubWordBackgroundColor.setIcon(QtGui.QIcon(subWordBackgroundPixmap))
+		
+		subWordFontPixmap = QtGui.QPixmap(16, 9)
+		subWordFontPixmap.fill(self.cl_subWordFont)
+		self.changeSubWordFontColor.setIcon(QtGui.QIcon(subWordFontPixmap))
 	
 	def newColorSelectionMenu(self, target):
 			self.dialog = QtWidgets.QColorDialog()
@@ -221,6 +249,8 @@ class GSettingsMenu(QtWidgets.QWidget):
 				self.dialog.setCurrentColor(self.cl_cmd)
 			elif target == GColorScheme.SubWordBackground:
 				self.dialog.setCurrentColor(self.cl_subWordBackground)
+			elif target == GColorScheme.SubWordFont:
+				self.dialog.setCurrentColor(self.cl_subWordFont)
 
 			self.dialog.open()
 
@@ -235,12 +265,14 @@ class GSettingsMenu(QtWidgets.QWidget):
 			self.cl_cmd = color
 		elif target == GColorScheme.SubWordBackground:
 			self.cl_subWordBackground = color
+		elif target == GColorScheme.SubWordFont:
+			self.cl_subWordFont = color
 				
 		self.updateButtons()
 
 		
 	def commitColorChanges(self):
-		self.colorScheme = GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd, subWordBackground = self.cl_subWordBackground, subWordFont = self.cl_subWordFont)
+		self.colorScheme = GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd, subWordBackground = self.cl_subWordBackground, subWordFont = (GColorScheme().getInverseColor(self.cl_subWordBackground) if self.utilizarCorInversa else self.cl_subWordFont))
 		self.newColorScheme.emit(self.colorScheme)
 
 	def cancelColorChanges(self):
@@ -249,7 +281,9 @@ class GSettingsMenu(QtWidgets.QWidget):
 		self.cl_unknown	= self.colorScheme.unknownColor()
 		self.cl_tag	= self.colorScheme.tagsColor()
 		self.cl_cmd	= self.colorScheme.commandsColor()
-
+		self.cl_subWordBackground = self.colorScheme.subWordBackgroundColor()
+		self.cl_subWordFont	  = self.colorScheme.subWordFontColor()
+		
 		self.updateButtons()
 
 	def resetDefaultValues(self):
@@ -257,6 +291,8 @@ class GSettingsMenu(QtWidgets.QWidget):
 		self.cl_unknown	= GDefaultValues.cl_unknown
 		self.cl_tag	= GDefaultValues.cl_tag
 		self.cl_cmd	= GDefaultValues.cl_cmd
+		self.cl_subWordBackground = GDefaultValues.cl_subWordBackground
+		self.cl_subWordFont	  = GDefaultValues.cl_subWordFont
 		
 		self.updateButtons()
 
