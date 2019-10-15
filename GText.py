@@ -342,6 +342,8 @@ class GTextEdit(QtWidgets.QTextEdit):
 		targetFontColor		= self.clScheme.subWordFontColor()
 		targetBackgroundColor	= self.clScheme.subWordBackgroundColor()
 
+		old_cursor = self.textCursor()
+
 		# Pega a palavra 1
 		swapword1 = self.selectToken()
 		# Colore o fundo da palavra 1
@@ -349,7 +351,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 		highlight = self.textCursor().charFormat()
 		highlight.setForeground(QtGui.QBrush(targetFontColor))
 		highlight.setBackground(QtGui.QBrush(targetBackgroundColor))
-		self.textCursor().setCharFormat(highlight)
+		swapword1.setCharFormat(highlight)
 
 		# Pega a palavra 2
 		self.setTextCursor( self.cursorForPosition(event.pos()) )
@@ -359,7 +361,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 		highlight = self.textCursor().charFormat()
 		highlight.setForeground(QtGui.QBrush(targetFontColor))
 		highlight.setBackground(QtGui.QBrush(targetBackgroundColor))
-		self.textCursor().setCharFormat(highlight)
+		swapword2.setCharFormat(highlight)
 
 		# Remove a seleção da palavra 2
 		self.setTextCursor(self.cursorForPosition(event.pos()))
@@ -390,7 +392,8 @@ class GTextEdit(QtWidgets.QTextEdit):
 
 		swapword1 = None
 		swapword2 = None
-		self.setTextCursor(self.cursorForPosition(event.pos()))
+#		self.setTextCursor(self.cursorForPosition(event.pos()))
+		self.setTextCursor(old_cursor)
 
 		"""menu = QtWidgets.QMenu()
 		word, cursor = self.getClickedWord()
