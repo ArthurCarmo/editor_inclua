@@ -30,6 +30,8 @@ class GDefaultValues():
 	cl_subWordFont = None
 	cl_subWordBackground = None
 	
+	utilizarCorInversa = True
+	
 	def __init__(self):
 		self.__class__.cl_textEditBackground = QtWidgets.QTextEdit().palette().color(QtGui.QPalette.Window)
 		self.__class__.cl_subWordFont = self.cl_textEditBackground
@@ -91,7 +93,7 @@ class GSettingsMenu(QtWidgets.QWidget):
 		#
 		##########################
 		
-		self.utilizarCorInversa = True
+		self.utilizarCorInversa = GDefaultValues.utilizarCorInversa
 		self.colorScheme = self.retrieveCurrentColorScheme()
 		self.colorsTab = QtWidgets.QWidget()
 		
@@ -208,7 +210,6 @@ class GSettingsMenu(QtWidgets.QWidget):
 		
 		
 	def colorMarkerCheckBoxChanged(self, state):
-		self.utilizarCorInversa = state
 		self.changeSubWordFontColor.setEnabled(not state)
 
 	def updateButtons(self):
@@ -273,16 +274,18 @@ class GSettingsMenu(QtWidgets.QWidget):
 		
 	def commitColorChanges(self):
 		self.colorScheme = GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd, subWordBackground = self.cl_subWordBackground, subWordFont = (GColorScheme().getInverseColor(self.cl_subWordBackground) if self.utilizarCorInversa else self.cl_subWordFont))
+		self.utilizarCorInversa = self.utilizarCorInversaCheck.isChecked()
 		self.newColorScheme.emit(self.colorScheme)
 
 	def cancelColorChanges(self):
-		print("UAAAI")
 		self.cl_known	= self.colorScheme.knownColor()
 		self.cl_unknown	= self.colorScheme.unknownColor()
 		self.cl_tag	= self.colorScheme.tagsColor()
 		self.cl_cmd	= self.colorScheme.commandsColor()
 		self.cl_subWordBackground = self.colorScheme.subWordBackgroundColor()
 		self.cl_subWordFont	  = self.colorScheme.subWordFontColor()
+		
+		self.utilizarCorInversaCheck.setChecked(self.utilizarCorInversa)
 		
 		self.updateButtons()
 
@@ -293,6 +296,8 @@ class GSettingsMenu(QtWidgets.QWidget):
 		self.cl_cmd	= GDefaultValues.cl_cmd
 		self.cl_subWordBackground = GDefaultValues.cl_subWordBackground
 		self.cl_subWordFont	  = GDefaultValues.cl_subWordFont
+		
+		self.utilizarCorInversaCheck.setChecked(GDefaultValues.utilizarCorInversa)
 		
 		self.updateButtons()
 
