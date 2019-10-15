@@ -238,6 +238,9 @@ class GImageGrid(QtWidgets.QScrollArea):
 		self.raise_id = 1
 
 class GCustomImageDialog(QtWidgets.QDialog):
+
+	NoImage = 5
+
 	def __init__(self, parent = None):
 		QtWidgets.QDialog.__init__(self, parent)
 		
@@ -263,6 +266,9 @@ class GCustomImageDialog(QtWidgets.QDialog):
 	
 	def question(self):
 		return self.exec()
+		
+	def reject(self):
+		self.done(self.NoImage)
 		
 class GCustomScreenShotDialog(QtWidgets.QDialog):
 	Yes = 1
