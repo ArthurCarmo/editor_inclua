@@ -33,8 +33,6 @@ class GCompleter(QtWidgets.QCompleter):
 #######################################
 class GTextEdit(QtWidgets.QTextEdit):
 
-	screenShotModeKeyPressed = QtCore.pyqtSignal()
-
 	def __init__(self, clScheme, parent = None):
 		QtWidgets.QTextEdit.__init__(self, parent)
 		self.completer = GCompleter(GParser().getAlphabet())
@@ -158,9 +156,6 @@ class GTextEdit(QtWidgets.QTextEdit):
 		# Provavelmente só tem o efeito desejado em sistemas
 		# cujas teclas mortas não invocam esse evento
 		self.onDeadKey = False
-		
-		if ek == QtCore.Qt.Key_Control:
-			self.screenShotModeKeyPressed.emit()
 		
 		if (ek == QtCore.Qt.Key_Tab or ek == QtCore.Qt.Key_Return) and self.completer.popup().isVisible():
 			self.completer.insertText.emit(self.completer.getSelected())

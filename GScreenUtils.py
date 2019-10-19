@@ -18,7 +18,6 @@ class GRubberBand(QtWidgets.QRubberBand):
 class GLayeredDocumentCanvas(QtWidgets.QWidget):
 
 	screenShot = QtCore.pyqtSignal(QtGui.QPixmap)
-	screenShotModeKeyPressed = QtCore.pyqtSignal()
 
 	def __init__(self, target, parent = None):
 		QtWidgets.QWidget.__init__(self, parent)
@@ -103,10 +102,4 @@ class GLayeredDocumentCanvas(QtWidgets.QWidget):
 		px = QtGui.QPixmap(region.size())			
 		self.document.render(px, QtCore.QPoint(), QtGui.QRegion(region))
 		self.screenShot.emit(px)
-		
-	def keyPressEvent(self, event):
-		ek = event.key()
-		if ek == QtCore.Qt.Key_Control:
-			self.screenShotModeKeyPressed.emit()
-		QtWidgets.QWidget.keyPressEvent(self, event)
 

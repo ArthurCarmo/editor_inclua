@@ -215,8 +215,6 @@ class Main(QtWidgets.QMainWindow):
 		self.splitter	= QtWidgets.QSplitter(self)
 		self.text	= GTextEdit(self.settingsMenu.getColorScheme())
 		
-		self.text.screenShotModeKeyPressed.connect(self.onScreenShotModeKeyPressed)
-		
 		self.translation = GTranslation()
 		self.translation.sender.translationReady.connect(self.onTranslationReady)
 		
@@ -226,7 +224,6 @@ class Main(QtWidgets.QMainWindow):
 		
 		self.screenshotLayer = GLayeredDocumentCanvas(self.pdf_widget)
 		self.screenshotLayer.screenShot.connect(self.onScreenShot)
-		self.screenshotLayer.screenShotModeKeyPressed.connect(self.onScreenShotModeKeyPressed)
 		self.screenshotLayer.hide()
 		
 		# Widget que contém a janela do avatar e o grid com as imagens
@@ -268,9 +265,22 @@ class Main(QtWidgets.QMainWindow):
 		self.deletar_imagens.setStatusTip("Remover imagens da lista")
 		self.deletar_imagens.setCheckable(True)
 		self.deletar_imagens.toggled.connect(self.changeImageViewerState)
-		
+
+		self.printar_imagens = QtWidgets.QPushButton(self.style().standardIcon(QtWidgets.QStyle.SP_FileDialogContentsView), "", self)
+		self.printar_imagens.setStatusTip("Capturar parte do documento")
+		self.printar_imagens.setCheckable(True)
+		self.printar_imagens.toggled.connect(self.takeScreenShot)
+
+		self.it2_layout = QtWidgets.QHBoxLayout()
+		self.it2_layout.setContentsMargins(5, 0, 5, 0)
+		self.it2_layout.addWidget(self.printar_imagens, alignment = Qt.AlignRight | Qt.AlignBottom)
+		self.it2_layout.addWidget(self.deletar_imagens, alignment = Qt.AlignRight | Qt.AlignBottom)
+
+		self.botoes_imagens_direita = QtWidgets.QWidget()
+		self.botoes_imagens_direita.setLayout(self.it2_layout)
+
 		self.it_layout.addWidget(self.confirmar_selecao, alignment = Qt.AlignLeft | Qt.AlignBottom)
-		self.it_layout.addWidget(self.deletar_imagens, alignment = Qt.AlignRight | Qt.AlignBottom)
+		self.it_layout.addWidget(self.botoes_imagens_direita, alignment = Qt.AlignRight | Qt.AlignBottom)		
 		
 		self.images_toolbar.setLayout(self.it_layout)
 
@@ -557,7 +567,7 @@ class Main(QtWidgets.QMainWindow):
 		print(state)
 		self.screenshotLayer.setCaptureMode(state)
 	
-	def onScreenShotModeKeyPressed(self):
+	def takeScreenShot(self):
 		self.setScreenCaptureState(not self.screenshotLayer.getCaptureMode())
 	
 	def onScreenShot(self, pixmap):
