@@ -118,6 +118,11 @@ class GSettingsMenu(QtWidgets.QWidget):
 		self.changeTagsColor		= QtWidgets.QPushButton("Tags/Marcações")
 		self.changeCommandsColor	= QtWidgets.QPushButton("Comandos")
 
+		self.changeKnownColor.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+		self.changeUnknownColor.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+		self.changeTagsColor.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+		self.changeCommandsColor.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+
 		self.changeKnownColor.clicked.connect(lambda : self.newColorSelectionMenu(GColorScheme.Known))
 		self.changeUnknownColor.clicked.connect(lambda : self.newColorSelectionMenu(GColorScheme.Unknown))
 		self.changeTagsColor.clicked.connect(lambda : self.newColorSelectionMenu(GColorScheme.Tags))
@@ -258,48 +263,128 @@ class GSettingsMenu(QtWidgets.QWidget):
 		self.changeSubWordFontColor.setEnabled(not state)
 
 	def updateButtons(self):
-		knownPixmap = QtGui.QPixmap(16, 9)
+		# Bordas
+		painter = QtGui.QPainter()
+	
+		color_w = 150
+		color_h = 140
+		
+		border1_w = 10
+		border1_h = 10
+		
+		border2_w = 14
+		border2_h = 14
+		
+		border3_w = 10
+		border3_h = 10
+		
+		icon_w = 100
+		icon_h = 100
+		
+		border1 = QtGui.QPixmap(color_w + border1_w, color_h + border1_h)
+		border2 = QtGui.QPixmap(color_w + border1_w + border2_w, color_h + border1_h + border2_h)
+		
+		borderPixmapTemplate = QtGui.QPixmap(color_w + border1_w + border2_w + border3_w, color_h + border1_h + border2_h + border3_h)
+	
+		border1.fill(QtCore.Qt.black)
+		border2.fill(QtCore.Qt.white)
+		borderPixmapTemplate.fill(QtCore.Qt.black)
+		
+		painter.begin(borderPixmapTemplate)
+		painter.drawPixmap(border3_w/2, border3_h/2, border2)
+		painter.drawPixmap((border2_w + border3_w)/2, (border2_h + border3_h)/2, border1)
+		painter.end()
+		
+		# Ícones
+		border_w = border1_w + border2_w + border3_w
+		border_h = border1_h + border2_h + border3_h
+		iconPixmap = QtGui.QPixmap(borderPixmapTemplate)
+		
+		# Palavras conhecidas
+		knownPixmap = QtGui.QPixmap(color_w, color_h)
 		knownPixmap.fill(self.cl_known)
-		self.changeKnownColor.setIcon(QtGui.QIcon(knownPixmap))
+		
+		painter.begin(iconPixmap)
+		painter.drawPixmap(border_w / 2, border_h / 2, knownPixmap)
+		painter.end()
+		
+		self.changeKnownColor.setIcon(QtGui.QIcon(iconPixmap))
+		self.changeKnownColor.setIconSize(QtCore.QSize(100, 100))
 
-		unknownPixmap = QtGui.QPixmap(16, 9)
+		# Palavras desconhecidas
+		unknownPixmap = QtGui.QPixmap(color_w, color_h)
 		unknownPixmap.fill(self.cl_unknown)
-		self.changeUnknownColor.setIcon(QtGui.QIcon(unknownPixmap))
+		
+		painter.begin(iconPixmap)
+		painter.drawPixmap(border_w / 2, border_h / 2, unknownPixmap)
+		painter.end()
+		
+		self.changeUnknownColor.setIcon(QtGui.QIcon(iconPixmap))
+		self.changeUnknownColor.setIconSize(QtCore.QSize(icon_w, icon_h))
 
-		tagsPixmap = QtGui.QPixmap(16, 9)
+		# Tags
+		tagsPixmap = QtGui.QPixmap(color_w, color_h)
 		tagsPixmap.fill(self.cl_tag)
-		self.changeTagsColor.setIcon(QtGui.QIcon(tagsPixmap))
 
-		commandsPixmap = QtGui.QPixmap(16, 9)
+		painter.begin(iconPixmap)
+		painter.drawPixmap(border_w / 2, border_h / 2, tagsPixmap)
+		painter.end()
+		
+		self.changeTagsColor.setIcon(QtGui.QIcon(iconPixmap))
+		self.changeTagsColor.setIconSize(QtCore.QSize(icon_w, icon_h))
+
+		# Comandos
+		commandsPixmap = QtGui.QPixmap(color_w, color_h)
 		commandsPixmap.fill(self.cl_cmd)
-		self.changeCommandsColor.setIcon(QtGui.QIcon(commandsPixmap))
 		
-		subWordBackgroundPixmap = QtGui.QPixmap(16, 9)
+		painter.begin(iconPixmap)
+		painter.drawPixmap(border_w / 2, border_h / 2, commandsPixmap)
+		painter.end()
+		
+		self.changeCommandsColor.setIcon(QtGui.QIcon(iconPixmap))
+		self.changeCommandsColor.setIconSize(QtCore.QSize(icon_w, icon_h))
+		
+		# Background das palavras a substituir
+		subWordBackgroundPixmap = QtGui.QPixmap(color_w, color_h)
 		subWordBackgroundPixmap.fill(self.cl_subWordBackground)
-		self.changeSubWordBackgroundColor.setIcon(QtGui.QIcon(subWordBackgroundPixmap))
 		
-		subWordFontPixmap = QtGui.QPixmap(16, 9)
+		painter.begin(iconPixmap)
+		painter.drawPixmap(border_w / 2, border_h / 2, subWordBackgroundPixmap)
+		painter.end()
+		
+		self.changeSubWordBackgroundColor.setIcon(QtGui.QIcon(iconPixmap))
+		self.changeSubWordBackgroundColor.setIconSize(QtCore.QSize(icon_w, icon_h))
+		
+		# Fonte das palavras a substituir
+		subWordFontPixmap = QtGui.QPixmap(color_w, color_h)
 		subWordFontPixmap.fill(self.cl_subWordFont)
-		self.changeSubWordFontColor.setIcon(QtGui.QIcon(subWordFontPixmap))
+		
+		painter.begin(iconPixmap)
+		painter.drawPixmap(border_w / 2, border_h / 2, subWordFontPixmap)
+		painter.end()
+		
+		self.changeSubWordFontColor.setIcon(QtGui.QIcon(iconPixmap))
+		self.changeSubWordFontColor.setIconSize(QtCore.QSize(icon_w, icon_h))
 	
 	def newColorSelectionMenu(self, target):
-			self.dialog = QtWidgets.QColorDialog()
-			self.dialog.setOption(self.dialog.DontUseNativeDialog)
-			self.dialog.colorSelected.connect(lambda color: self.onColorSelected(target, color))
-			if target == GColorScheme.Known:
-				self.dialog.setCurrentColor(self.cl_known)
-			elif target == GColorScheme.Unknown:
-				self.dialog.setCurrentColor(self.cl_unknown)
-			elif target == GColorScheme.Tags:
-				self.dialog.setCurrentColor(self.cl_tag)
-			elif target == GColorScheme.Commands:
-				self.dialog.setCurrentColor(self.cl_cmd)
-			elif target == GColorScheme.SubWordBackground:
-				self.dialog.setCurrentColor(self.cl_subWordBackground)
-			elif target == GColorScheme.SubWordFont:
-				self.dialog.setCurrentColor(self.cl_subWordFont)
+		self.dialog = QtWidgets.QColorDialog()
+		
+		self.dialog.setOption(self.dialog.DontUseNativeDialog)
+		self.dialog.colorSelected.connect(lambda color: self.onColorSelected(target, color))
+		if target == GColorScheme.Known:
+			self.dialog.setCurrentColor(self.cl_known)
+		elif target == GColorScheme.Unknown:
+			self.dialog.setCurrentColor(self.cl_unknown)
+		elif target == GColorScheme.Tags:
+			self.dialog.setCurrentColor(self.cl_tag)
+		elif target == GColorScheme.Commands:
+			self.dialog.setCurrentColor(self.cl_cmd)
+		elif target == GColorScheme.SubWordBackground:
+			self.dialog.setCurrentColor(self.cl_subWordBackground)
+		elif target == GColorScheme.SubWordFont:
+			self.dialog.setCurrentColor(self.cl_subWordFont)
 
-			self.dialog.open()
+		self.dialog.open()
 
 	def onColorSelected(self, target, color):
 		if target == GColorScheme.Known:
