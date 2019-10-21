@@ -205,6 +205,7 @@ class Main(QtWidgets.QMainWindow):
 		# Preferências
 		self.settingsMenu = GSettingsMenu()
 		self.settingsMenu.newColorScheme.connect(self.onNewColorScheme)
+		self.settingsMenu.newFont.connect(self.onNewFont)
 	
 		# Dimensões iniciais da janela
 		self.screen_rect = QtWidgets.QDesktopWidget().screenGeometry()
@@ -652,6 +653,9 @@ class Main(QtWidgets.QMainWindow):
 
 	def onNewColorScheme(self, colorScheme):
 		self.text.setColorScheme(colorScheme)
+		
+	def onNewFont(self, font):
+		self.text.setFont(font)
 		
 	####################################
 	#

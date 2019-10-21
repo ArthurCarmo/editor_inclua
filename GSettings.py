@@ -40,12 +40,15 @@ class GDefaultValues():
 	font = None
 	
 	def __init__(self):
-		self.__class__.cl_textEditBackground = QtWidgets.QTextEdit().palette().color(QtGui.QPalette.Window)
+		self.txtEditor = QtWidgets.QTextEdit()
+		self.__class__.cl_textEditBackground = self.txtEditor.palette().color(QtGui.QPalette.Window)
 		self.__class__.cl_subWordFont = self.cl_textEditBackground
 		rgba = [abs(x - y) for x in (255, 255, 255, 0) for y in self.cl_subWordFont.getRgb()]
 		self.__class__.cl_subWordBackground = QtGui.QColor(rgba[0], rgba[1], rgba[2], 255)
 		
-		self.__class__.font = QtWidgets.QTextEdit().font()
+		self.__class__.font = self.txtEditor.font()
+		self.__class__.font.setStyleName("Regular")
+		print(self.__class__.font.key())
 	
 class GColorScheme():
 	Known			= 0
@@ -231,7 +234,7 @@ class GSettingsMenu(QtWidgets.QWidget):
 		layout = QtWidgets.QVBoxLayout()
 		layout.setContentsMargins(0, 0, 0, 0)
 		layout.addWidget(self.tabsMenu)
-		layout.addLayout(exitGroup)
+		layout.addWidget(exitGroup)
 		self.setLayout(layout)
 
 	def retrieveCurrentColorScheme(self):
@@ -352,6 +355,7 @@ class GSettingsMenu(QtWidgets.QWidget):
 		
 	def commitFontChanges(self):
 		self.currentFont = self.fontDialog.currentFont()
+		#print(self.currentFont.key())
 		self.newFont.emit(self.currentFont)
 		
 	def cancelFontChanges(self):
