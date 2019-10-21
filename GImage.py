@@ -16,6 +16,7 @@ from GSettings import GDefaultValues
 #################################
 class GImageButton(QtWidgets.QPushButton):
     onClick = QtCore.pyqtSignal(int)
+    deleted = QtCore.pyqtSignal()
 
     default_width  = 120
     default_height = 120
@@ -106,10 +107,14 @@ class GImageButton(QtWidgets.QPushButton):
         menu = QtWidgets.QMenu()
         delete = QtWidgets.QAction(self.style().standardIcon(QtWidgets.QStyle.SP_BrowserStop), "Remover", self)
         delete.setStatusTip("Remover essa imagem da lista")
-	#delete.triggered.connect()
+        delete.triggered.connect(self.removeEmit)
 	
         menu.addAction(delete)
         menu.exec(ev.globalPos())
+        
+    def removeEmit(self):
+        self.remove()
+        self.deleted.emit()
        
 #################################
 #
@@ -161,7 +166,8 @@ class GImageGrid(QtWidgets.QScrollArea):
 		self.imgGrid = QtWidgets.QGridLayout()
 		for filename in names:
 			label = GImageButton("%s/%s" % (self.imagesDir, filename), self.n_images, self)
-			label.onClick.connect(self.imageClicked)				
+			label.onClick.connect(self.imageClicked)
+			label.deleted.connect(lambda : self.loadImages())
 			self.imgGrid.addWidget(label, self.n_images // self.imagesPerRow, self.n_images % self.imagesPerRow)
 			self.next_id  += self.raise_id
 			self.n_images += 1
@@ -226,6 +232,9 @@ class GImageGrid(QtWidgets.QScrollArea):
 			if img.isSelected():
 				l.append(img.index)
 	
+	def onDeleteImage(self, img):
+		img.remove()
+		self.loadImages()
 	def removeSelected(self):
 		for img in self.findChildren(GImageButton):
 			if img.isSelected():

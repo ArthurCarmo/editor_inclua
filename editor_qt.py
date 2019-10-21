@@ -225,7 +225,7 @@ class Main(QtWidgets.QMainWindow):
 		
 		self.screenshotLayer = GLayeredDocumentCanvas(self.pdf_widget)
 		self.screenshotLayer.screenShot.connect(self.onScreenShot)
-		self.screenshotLayer.hide()
+		#self.screenshotLayer.hide()
 		
 		# Widget que contém a janela do avatar e o grid com as imagens
 		self.filler	= QtWidgets.QSplitter(Qt.Vertical)
@@ -294,13 +294,35 @@ class Main(QtWidgets.QMainWindow):
 		# Toolbar para as screenshots
 		#
 		#####################################
+		self.screenshotsToolbar = QtWidgets.QWidget()
+		self.screenshotsToolbar.setMaximumHeight(40)
+		
+		self.captureButton = QtWidgets.QPushButton(self.style().standardIcon(QtWidgets.QStyle.SP_FileDialogContentsView), "", self)
+		self.exitCaptureModeButton = QtWidgets.QPushButton(self.style().standardIcon(QtWidgets.QStyle.SP_BrowserStop), "", self)
+		
+		self.screenshotsToolbarLayout = QtWidgets.QHBoxLayout()
+		self.screenshotsToolbarLayout.addWidget(self.captureButton)
+		self.screenshotsToolbarLayout.addWidget(self.exitCaptureModeButton)
+		
+		self.screenshotsToolbar.setLayout(self.screenshotsToolbarLayout)
+		
+		self.screenshotMenuWidget = QtWidgets.QWidget()
+		self.screenshotMenuWidgetLayout = QtWidgets.QVBoxLayout()
+		self.screenshotMenuWidgetLayout.setContentsMargins(0, 0, 0, 0)
+		self.screenshotMenuWidgetLayout.addWidget(self.screenshotsToolbar)
+		self.screenshotMenuWidgetLayout.addWidget(self.screenshotLayer)
+		
+		self.screenshotMenuWidget.setLayout(self.screenshotMenuWidgetLayout)
+		
+		self.screenshotsToolbar.hide()
+		self.screenshotMenuWidget.hide()
 		
 		# Widget que aparece na janela é um splitter
 		# os outros são adicionados a ele
 		self.setCentralWidget(self.splitter)
 		self.splitter.addWidget(self.text)
 		self.splitter.addWidget(self.filler)
-		self.splitter.addWidget(self.screenshotLayer)
+		self.splitter.addWidget(self.screenshotMenuWidget)
 		self.splitter.addWidget(self.view_padrao)
 		
 		# Init
@@ -350,10 +372,13 @@ class Main(QtWidgets.QMainWindow):
 
 		self.pdf_widget.load(filename[0])
 		
+		
 		# Força o widget a atualizar
-		self.screenshotLayer.hide()
-		self.screenshotLayer.show()
-		self.screenshotLayer.setGeometry(0, 0, self.screen_rect.width() / 10, self.screen_rect.height())
+#		self.screenshotLayer.setGeometry(0, 0, self.screen_rect.width() / 10, self.screen_rect.height())
+		self.screenshotMenuWidget.setGeometry(0, 0, self.screen_rect.width() / 15, self.screen_rect.height())
+		
+		self.screenshotMenuWidget.hide()
+		self.screenshotMenuWidget.show()
 		
 		self.hasOpenDocument = True
 		
@@ -572,7 +597,11 @@ class Main(QtWidgets.QMainWindow):
 	def setScreenCaptureState(self, state):
 		print("YE")
 		print(state)
-		self.screenshotLayer.setCaptureMode(state)
+		
+		if self.screenshotMenuWidget.isVisible():
+			self.screenshotLayer.setCaptureMode(state)
+			self.screenshotsToolbar.setVisible(state)
+					
 	
 	def takeScreenShot(self):
 		self.setScreenCaptureState(not self.screenshotLayer.getCaptureMode())
