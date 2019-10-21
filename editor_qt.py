@@ -289,6 +289,12 @@ class Main(QtWidgets.QMainWindow):
 		self.filler.addWidget(self.images_toolbar)
 		self.filler.addWidget(self.images_widget)
 		
+		#####################################
+		#
+		# Toolbar para as screenshots
+		#
+		#####################################
+		
 		# Widget que aparece na janela é um splitter
 		# os outros são adicionados a ele
 		self.setCentralWidget(self.splitter)
@@ -686,7 +692,7 @@ class Main(QtWidgets.QMainWindow):
 
 		with open(page,'r',encoding = 'utf-8') as f:
 			for line in f:
-				cursor.insertText(line + "\n", fs)
+				cursor.insertHtml(line + "\n")
 		
 	
 	def homePage(self):
