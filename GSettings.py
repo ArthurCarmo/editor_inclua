@@ -284,6 +284,7 @@ class GSettingsMenu(QtWidgets.QWidget):
 	
 	def newColorSelectionMenu(self, target):
 			self.dialog = QtWidgets.QColorDialog()
+			self.dialog.setOption(self.dialog.DontUseNativeDialog)
 			self.dialog.colorSelected.connect(lambda color: self.onColorSelected(target, color))
 			if target == GColorScheme.Known:
 				self.dialog.setCurrentColor(self.cl_known)
