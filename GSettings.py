@@ -32,11 +32,20 @@ class GDefaultValues():
 	
 	utilizarCorInversa = True
 	
+	#######################
+	#
+	# Fonts
+	#
+	#######################
+	font = None
+	
 	def __init__(self):
 		self.__class__.cl_textEditBackground = QtWidgets.QTextEdit().palette().color(QtGui.QPalette.Window)
 		self.__class__.cl_subWordFont = self.cl_textEditBackground
 		rgba = [abs(x - y) for x in (255, 255, 255, 0) for y in self.cl_subWordFont.getRgb()]
 		self.__class__.cl_subWordBackground = QtGui.QColor(rgba[0], rgba[1], rgba[2], 255)
+		
+		self.__class__.font = QtWidgets.QTextEdit().font()
 	
 class GColorScheme():
 	Known			= 0
@@ -80,6 +89,9 @@ class GColorScheme():
 class GSettingsMenu(QtWidgets.QWidget):
 	# Signals
 	newColorScheme = QtCore.pyqtSignal(GColorScheme)
+	currentColorSchemeChanged = QtCore.pyqtSignal(GColorScheme)
+	newFont	= QtCore.pyqtSignal(QtGui.QFont)
+	currentFontChanged = QtCore.pyqtSignal(QtGui.QFont)
 
 	def __init__(self, parent = None):
 		QtWidgets.QWidget.__init__(self, parent)
@@ -146,23 +158,6 @@ class GSettingsMenu(QtWidgets.QWidget):
 		
 		colorsMarkersGroup = QtWidgets.QGroupBox("Marcadores")
 		colorsMarkersGroup.setLayout(colorsMarkersLayout)
-		
-		## FINALIZAR
-		self.salvar	= QtWidgets.QPushButton("Salvar")
-		self.cancelar	= QtWidgets.QPushButton("Cancelar")
-		self.resetar	= QtWidgets.QPushButton("Resetar")
-
-		self.salvar.clicked.connect(self.onSaveButtonPressed)
-		self.cancelar.clicked.connect(self.onCancelButtonPressed)
-		self.resetar.clicked.connect(self.resetDefaultValues)
-
-		colorsExitLayout = QtWidgets.QHBoxLayout()
-		colorsExitLayout.addWidget(self.salvar)
-		colorsExitLayout.addWidget(self.cancelar)
-		colorsExitLayout.addWidget(self.resetar)
-
-		colorsExitGroup = QtWidgets.QGroupBox()
-		colorsExitGroup.setLayout(colorsExitLayout)
 
 		## LAYOUT PRINCIPAL MENU DE CORES
 		colorsMainLayout = QtWidgets.QVBoxLayout()
@@ -172,13 +167,58 @@ class GSettingsMenu(QtWidgets.QWidget):
 		colorsUpperLayout.addWidget(colorsMarkersGroup)
 		
 		colorsMainLayout.addLayout(colorsUpperLayout)
-		colorsMainLayout.addWidget(colorsExitGroup)
 
 		self.updateButtons()
-		colorsMainLayout.addWidget(colorsExitGroup)
 		
 		self.colorsTab.setLayout(colorsMainLayout)
 
+
+		###############################
+		#
+		# FONTES
+		#
+		###############################
+		
+		self.fontsTab = QtWidgets.QWidget()
+		
+		self.fontDialog = QtWidgets.QFontDialog()
+		self.fontDialog.setModal(False)
+		self.fontDialog.setOption(self.fontDialog.DontUseNativeDialog)
+		self.fontDialog.setOption(self.fontDialog.NoButtons)
+
+		self.currentFont = GDefaultValues.font
+		
+		self.fontDialog.setCurrentFont(self.currentFont)
+		self.fontDialog.currentFontChanged.connect(lambda font : self.currentFontChanged.emit(font))
+		
+		fontsTabLayout = QtWidgets.QVBoxLayout()
+		fontsTabLayout.addWidget(self.fontDialog)
+		
+		self.fontsTab.setLayout(fontsTabLayout)
+
+		###############################
+		#
+		# FINALIZAR
+		#
+		###############################
+		self.aplicar	= QtWidgets.QPushButton("Aplicar")
+		self.salvar	= QtWidgets.QPushButton("Ok")
+		self.cancelar	= QtWidgets.QPushButton("Cancelar")
+		self.resetar	= QtWidgets.QPushButton("Resetar")
+
+		self.aplicar.clicked.connect(self.onApplyButtonPressed)
+		self.salvar.clicked.connect(self.onSaveButtonPressed)
+		self.cancelar.clicked.connect(self.onCancelButtonPressed)
+		self.resetar.clicked.connect(self.resetDefaultValues)
+
+		exitLayout = QtWidgets.QHBoxLayout()
+		exitLayout.addWidget(self.aplicar)
+		exitLayout.addWidget(self.salvar)
+		exitLayout.addWidget(self.cancelar)
+		exitLayout.addWidget(self.resetar)
+
+		exitGroup = QtWidgets.QGroupBox()
+		exitGroup.setLayout(exitLayout)
 
 		###############################
 		#
@@ -186,10 +226,12 @@ class GSettingsMenu(QtWidgets.QWidget):
 		#
 		###############################
 		self.tabsMenu.addTab(self.colorsTab, "Cores")
+		self.tabsMenu.addTab(self.fontsTab, "Fontes")
 
 		layout = QtWidgets.QVBoxLayout()
 		layout.setContentsMargins(0, 0, 0, 0)
 		layout.addWidget(self.tabsMenu)
+		layout.addLayout(exitGroup)
 		self.setLayout(layout)
 
 	def retrieveCurrentColorScheme(self):
@@ -268,12 +310,14 @@ class GSettingsMenu(QtWidgets.QWidget):
 			self.cl_subWordBackground = color
 		elif target == GColorScheme.SubWordFont:
 			self.cl_subWordFont = color
-				
+		
+		self.currentColorSchemeChanged.emit(GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd, subWordBackground = self.cl_subWordBackground, subWordFont = (GColorScheme().getInverseColor(self.cl_subWordBackground) if self.utilizarCorInversa else self.cl_subWordFont)))
+		
 		self.updateButtons()
 
-		
 	def commitColorChanges(self):
 		self.colorScheme = GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd, subWordBackground = self.cl_subWordBackground, subWordFont = (GColorScheme().getInverseColor(self.cl_subWordBackground) if self.utilizarCorInversa else self.cl_subWordFont))
+		
 		self.utilizarCorInversa = self.utilizarCorInversaCheck.isChecked()
 		self.newColorScheme.emit(self.colorScheme)
 
@@ -287,6 +331,8 @@ class GSettingsMenu(QtWidgets.QWidget):
 		
 		self.utilizarCorInversaCheck.setChecked(self.utilizarCorInversa)
 		
+		self.currentColorSchemeChanged.emit(GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd, subWordBackground = self.cl_subWordBackground, subWordFont = (GColorScheme().getInverseColor(self.cl_subWordBackground) if self.utilizarCorInversa else self.cl_subWordFont)))
+		
 		self.updateButtons()
 
 	def resetDefaultValues(self):
@@ -299,12 +345,34 @@ class GSettingsMenu(QtWidgets.QWidget):
 		
 		self.utilizarCorInversaCheck.setChecked(GDefaultValues.utilizarCorInversa)
 		
+		self.resetFont()
+		self.currentColorSchemeChanged.emit(GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd, subWordBackground = self.cl_subWordBackground, subWordFont = (GColorScheme().getInverseColor(self.cl_subWordBackground) if self.utilizarCorInversa else self.cl_subWordFont)))
+		
 		self.updateButtons()
+		
+	def commitFontChanges(self):
+		self.currentFont = self.fontDialog.currentFont()
+		self.newFont.emit(self.currentFont)
+		
+	def cancelFontChanges(self):
+		self.fontDialog.setCurrentFont(self.currentFont)
+		self.currentFontChanged.emit(self.currentFont)
+		
+	def resetFont(self):
+		self.currentFont = GDefaultValues.font
+		self.fontDialog.setCurrentFont(self.currentFont)
+		self.currentFontChanged.emit(self.currentFont)
+		
+	def onApplyButtonPressed(self):
+		self.commitColorChanges()
+		self.commitFontChanges()
 
 	def onSaveButtonPressed(self):
-			self.commitColorChanges()
-			self.hide()
+		self.commitColorChanges()
+		self.commitFontChanges()
+		self.hide()
 
 	def onCancelButtonPressed(self):
-			self.cancelColorChanges()
-			self.hide()
+		self.cancelColorChanges()
+		self.cancelFontChanges()
+		self.hide()
