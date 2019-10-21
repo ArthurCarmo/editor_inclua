@@ -160,9 +160,13 @@ class GSettingsMenu(QtWidgets.QWidget):
 		self.changeSubWordBackgroundColor.clicked.connect(lambda : self.newColorSelectionMenu(GColorScheme.SubWordBackground))
 		
 		colorsMarkersLayout = QtWidgets.QVBoxLayout()
+		colorsMarkersLowerLayout = QtWidgets.QVBoxLayout()
+		colorsMarkersLowerLayout.setContentsMargins(0, 0, 0, 0)
+		colorsMarkersLowerLayout.addWidget(self.utilizarCorInversaCheck)
+		colorsMarkersLowerLayout.addWidget(self.changeSubWordFontColor)
+		
 		colorsMarkersLayout.addWidget(self.changeSubWordBackgroundColor)
-		colorsMarkersLayout.addWidget(self.utilizarCorInversaCheck)
-		colorsMarkersLayout.addWidget(self.changeSubWordFontColor)
+		colorsMarkersLayout.addLayout(colorsMarkersLowerLayout)
 		
 		colorsMarkersGroup = QtWidgets.QGroupBox("Marcadores")
 		colorsMarkersGroup.setLayout(colorsMarkersLayout)
