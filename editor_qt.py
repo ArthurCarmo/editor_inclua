@@ -300,6 +300,9 @@ class Main(QtWidgets.QMainWindow):
 		self.captureButton = QtWidgets.QPushButton(self.style().standardIcon(QtWidgets.QStyle.SP_FileDialogContentsView), "", self)
 		self.exitCaptureModeButton = QtWidgets.QPushButton(self.style().standardIcon(QtWidgets.QStyle.SP_BrowserStop), "", self)
 		
+		self.captureButton.clicked.connect(self.screenshotLayer.takeScreenShot)
+		self.exitCaptureModeButton.clicked.connect(self.printar_imagens.toggle)
+		
 		self.screenshotsToolbarLayout = QtWidgets.QHBoxLayout()
 		self.screenshotsToolbarLayout.addWidget(self.captureButton)
 		self.screenshotsToolbarLayout.addWidget(self.exitCaptureModeButton)
