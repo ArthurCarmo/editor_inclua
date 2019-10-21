@@ -71,6 +71,11 @@ class GTextEdit(QtWidgets.QTextEdit):
 	def keyReleaseEvent(self, event):
 		ek = event.key()
 		self.pressed[ek] = False
+		
+		if ek == QtCore.Qt.Key_Control:
+			self.highlighter.unsetMarkedForSub()
+			self.highlighter.rehighlight()
+		
 		QtWidgets.QTextEdit.keyReleaseEvent(self, event)
 	
 	####################################
@@ -193,9 +198,18 @@ class GTextEdit(QtWidgets.QTextEdit):
 				dstCursor.insertText(w1)
 				self.textCursor().endEditBlock()
 		
+		# Marca a palavra debaixo do cursor se Ctrl estiver pressionado
+		if self.isPressed(QtCore.Qt.Key_Control):
+			print("Aqui")
+			newCursor = self.selectToken()
+			self.highlighter.unsetMarkedForSub()
+			self.highlighter.setMarkedForSub(newCursor, newCursor)
+			self.highlighter.rehighlight()
+			print(srcCursor.selectedText())
+		
 		# Cópia do evento, mas com o texto em maiúsculo
 		newEventText = event.text()
-		if not srcCursor.selectedText().startswith('<'):
+		if not srcCursor.selectedText().startswith(('<', '__')):
 			newEventText = newEventText.upper()
 		newEvent = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, event.key(), event.modifiers(), event.nativeScanCode(), event.nativeVirtualKey(), event.nativeModifiers(), newEventText, event.isAutoRepeat(), event.count())
 		
@@ -333,30 +347,16 @@ class GTextEdit(QtWidgets.QTextEdit):
 	#
 	##########################
 	def contextMenuEvent(self, event):
-	
-		targetFontColor		= self.clScheme.subWordFontColor()
-		targetBackgroundColor	= self.clScheme.subWordBackgroundColor()
 
 		old_cursor = self.textCursor()
 
 		# Pega a palavra 1
 		swapword1 = self.selectToken()
-		# Colore o fundo da palavra 1
 		self.setTextCursor(swapword1)
-		highlight = self.textCursor().charFormat()
-		highlight.setForeground(QtGui.QBrush(targetFontColor))
-		highlight.setBackground(QtGui.QBrush(targetBackgroundColor))
-		swapword1.setCharFormat(highlight)
 
 		# Pega a palavra 2
 		self.setTextCursor( self.cursorForPosition(event.pos()) )
 		swapword2 = self.selectToken()
-		# Colore o fundo da palavra 2
-		self.setTextCursor(swapword2)
-		highlight = self.textCursor().charFormat()
-		highlight.setForeground(QtGui.QBrush(targetFontColor))
-		highlight.setBackground(QtGui.QBrush(targetBackgroundColor))
-		swapword2.setCharFormat(highlight)
 
 		# Remove a seleção da palavra 2
 		self.setTextCursor(self.cursorForPosition(event.pos()))

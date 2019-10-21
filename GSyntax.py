@@ -157,9 +157,11 @@ class GSyntaxHighlighter(QtGui.QSyntaxHighlighter):
 			self.setFormat(match.capturedStart()+1, match.capturedLength()-2, cmd)
 			
 		if self.markedForSub:
-			subWord = self.txtEdit.colorScheme().subWordFontColor()
+			subWordFont = self.txtEdit.colorScheme().subWordFontColor()
+			subWordBackground = self.txtEdit.colorScheme().subWordBackgroundColor()
 			subFormat = QtGui.QTextCharFormat()
-			subFormat.setForeground(subWord)
+			subFormat.setForeground(subWordFont)
+			subFormat.setBackground(subWordBackground)
 			
 			if self.currentBlock().blockNumber() == self.block1:
 				self.cursor1.setPosition(self.cursor1.selectionStart(), self.cursor1.KeepAnchor)
