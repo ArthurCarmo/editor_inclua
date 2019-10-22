@@ -116,6 +116,9 @@ class GSettingsMenu(QtWidgets.QWidget):
 		self.setWindowTitle("Preferências")
 		self.tabsMenu = QtWidgets.QTabWidget()
 		
+		self.currentColorSchemeChanged.connect(self.onCurrentColorSchemeChanged)
+		self.currentFontChanged.connect(self.onCurrentFontChanged)
+		
 		##########################
 		#
 		# CORES
@@ -228,6 +231,8 @@ class GSettingsMenu(QtWidgets.QWidget):
 		self.cancelar	= QtWidgets.QPushButton("Cancelar")
 		self.resetar	= QtWidgets.QPushButton("Resetar")
 
+		self.aplicar.setEnabled(False)
+
 		self.aplicar.clicked.connect(self.onApplyButtonPressed)
 		self.salvar.clicked.connect(self.onSaveButtonPressed)
 		self.cancelar.clicked.connect(self.onCancelButtonPressed)
@@ -235,7 +240,7 @@ class GSettingsMenu(QtWidgets.QWidget):
 
 		exitLayout = QtWidgets.QHBoxLayout()
 		exitLayout.addWidget(self.aplicar)
-		exitLayout.addWidget(self.salvar)
+#		exitLayout.addWidget(self.salvar)
 		exitLayout.addWidget(self.cancelar)
 		exitLayout.addWidget(self.resetar)
 
@@ -302,9 +307,9 @@ class GSettingsMenu(QtWidgets.QWidget):
 	def getColorScheme(self):
 		return self.colorScheme
 		
-		
 	def colorMarkerCheckBoxChanged(self, state):
 		self.changeSubWordFontColor.setEnabled(not state)
+		self.aplicar.setEnabled(True)
 
 	def updateButtons(self):
 		# Bordas
@@ -516,6 +521,7 @@ class GSettingsMenu(QtWidgets.QWidget):
 	def onApplyButtonPressed(self):
 		self.commitColorChanges()
 		self.commitFontChanges()
+		self.aplicar.setEnabled(False)
 
 	def onSaveButtonPressed(self):
 		self.commitColorChanges()
@@ -526,3 +532,9 @@ class GSettingsMenu(QtWidgets.QWidget):
 		self.cancelColorChanges()
 		self.cancelFontChanges()
 		self.hide()
+		
+	def onCurrentColorSchemeChanged(self, colorScheme):
+		self.aplicar.setEnabled(True)
+	
+	def onCurrentFontChanged(self, font):
+		self.aplicar.setEnabled(True)
