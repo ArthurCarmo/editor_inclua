@@ -14,6 +14,7 @@ class GDefaultValues():
 	
 	pdfJs		= 'file://' + cwd + '/pdfjs/web/viewer.html'
 	
+	ini_filename	= "inclua.ini"
 	#######################
 	#
 	# Colors
@@ -50,8 +51,8 @@ class GDefaultValues():
 		self.__class__.font = self.txtEditor.font()
 		self.__class__.font.setStyleName("Regular")
 		
-		if not os.path.exists("inclua.ini"):
-			with open("inclua.ini", "w") as f:
+		if not os.path.exists(self.ini_filename):
+			with open(self.ini_filename, "w") as f:
 				f.write("[CORES]\n")
 				f.write("palavras_conhecidas=" + str(self.cl_known.getRgb()) + '\n')
 				f.write("palavras_desconhecidas=" + str(self.cl_unknown.getRgb()) + '\n')
@@ -256,11 +257,10 @@ class GSettingsMenu(QtWidgets.QWidget):
 		self.setLayout(layout)
 
 	def retrieveSettings(self):
-	
-		if os.path.exists("inclua.ini"):
+		if os.path.exists(GDefaultValues.ini_filename):
 			self.config = configparser.ConfigParser()
 			self.config.sections()
-			self.config.read("inclua.ini")
+			self.config.read(GDefaultValues.ini_filename)
 			
 			tmp = eval(self.config['CORES']['palavras_conhecidas'])
 			self.cl_known			= QtGui.QColor(tmp[0], tmp[1], tmp[2], tmp[3])
@@ -282,7 +282,8 @@ class GSettingsMenu(QtWidgets.QWidget):
 			
 			self.utilizarCorInversa	= eval(self.config['CORES']['utilizar_cor_inversa'])
 
-			self.currentFont		= QtGui.QFont(QtGui.QFont(self.config['FONTES']['fonte']))
+			self.currentFont		= QtGui.QFont(self.config['FONTES']['fonte'])
+			self.currentFont.setStyleName(self.config['FONTES']['fonte'].split(',')[10])
 		else:
 			
 			self.cl_known		= GDefaultValues.cl_known
@@ -451,6 +452,19 @@ class GSettingsMenu(QtWidgets.QWidget):
 		self.colorScheme = GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd, subWordBackground = self.cl_subWordBackground, subWordFont = (GColorScheme().getInverseColor(self.cl_subWordBackground) if self.utilizarCorInversa else self.cl_subWordFont))
 		
 		self.utilizarCorInversa = self.utilizarCorInversaCheck.isChecked()
+		
+		self.config['CORES']["palavras_conhecidas"]	= str(self.cl_known.getRgb())
+		self.config['CORES']["palavras_desconhecidas"]	= str(self.cl_unknown.getRgb())
+		self.config['CORES']["tags"]			= str(self.cl_tag.getRgb())
+		self.config['CORES']["comandos"]		= str(self.cl_cmd.getRgb())
+		self.config['CORES']["fonte_texto_marcado"]	= str(self.cl_subWordFont.getRgb())
+		self.config['CORES']["fundo_texto_marcado"]	= str(self.cl_subWordBackground.getRgb())
+		self.config['CORES']["utilizar_cor_inversa"]	= str(self.utilizarCorInversa)
+		
+		
+		with open(GDefaultValues.ini_filename, "w") as configfile:
+			self.config.write(configfile)
+		
 		self.newColorScheme.emit(self.colorScheme)
 
 	def cancelColorChanges(self):
@@ -484,7 +498,10 @@ class GSettingsMenu(QtWidgets.QWidget):
 		
 	def commitFontChanges(self):
 		self.currentFont = self.fontDialog.currentFont()
+		self.config['FONTES']['fonte'] = self.currentFont.key()
 		#print(self.currentFont.key())
+		with open(GDefaultValues.ini_filename, "w") as configfile:
+			self.config.write(configfile)
 		self.newFont.emit(self.currentFont)
 		
 	def cancelFontChanges(self):
