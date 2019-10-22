@@ -1,4 +1,5 @@
 import os
+import configparser
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
@@ -48,27 +49,19 @@ class GDefaultValues():
 		
 		self.__class__.font = self.txtEditor.font()
 		self.__class__.font.setStyleName("Regular")
-		print(self.__class__.font.key())
 		
-		if os.path.exists(".inclua_config"):
-			with open(".inclua_config", "r") as f:
-				i = 0
-				for line in f:
-					key_value = line.split("=")
-					print(i)
-					print(key_value)
-					i += 1
-		else:
-			with open(".inclua_config", "w") as f:
-				f.write("cl_known=" + str(self.cl_known.getRgb()) + '\n')
-				f.write("cl_unknown=" + str(self.cl_unknown.getRgb()) + '\n')
-				f.write("cl_tag=" + str(self.cl_tag.getRgb()) + '\n')
-				f.write("cl_cmd=" + str(self.cl_cmd.getRgb()) + '\n')
-				f.write("cl_textEditBackground=" + str(self.cl_textEditBackground.getRgb()) + '\n')
-				f.write("cl_subWordFont=" + str(self.cl_subWordFont.getRgb()) + '\n')
-				f.write("cl_subWordBackground=" + str(self.cl_subWordBackground.getRgb()) + '\n')
-				f.write("utilizarCorInversa=" + str(self.utilizarCorInversa) + '\n')
-				f.write("font=" + str(self.font.key()) + '\n')
+		if not os.path.exists("inclua.ini"):
+			with open("inclua.ini", "w") as f:
+				f.write("[CORES]\n")
+				f.write("palavras_conhecidas=" + str(self.cl_known.getRgb()) + '\n')
+				f.write("palavras_desconhecidas=" + str(self.cl_unknown.getRgb()) + '\n')
+				f.write("tags=" + str(self.cl_tag.getRgb()) + '\n')
+				f.write("comandos=" + str(self.cl_cmd.getRgb()) + '\n')
+				f.write("fonte_texto_marcado=" + str(self.cl_subWordFont.getRgb()) + '\n')
+				f.write("fundo_texto_marcado=" + str(self.cl_subWordBackground.getRgb()) + '\n')
+				f.write("utilizar_cor_inversa=" + str(self.utilizarCorInversa) + '\n')
+				f.write('\n[FONTES]\n')
+				f.write("fonte=" + str(self.font.key()) + '\n')
 	
 class GColorScheme():
 	Known			= 0
@@ -127,9 +120,7 @@ class GSettingsMenu(QtWidgets.QWidget):
 		# CORES
 		#
 		##########################
-		
-		self.utilizarCorInversa = GDefaultValues.utilizarCorInversa
-		self.colorScheme = self.retrieveCurrentColorScheme()
+		self.retrieveSettings()
 		self.colorsTab = QtWidgets.QWidget()
 		
 		## TOKENS
@@ -217,8 +208,6 @@ class GSettingsMenu(QtWidgets.QWidget):
 		self.fontDialog.setModal(False)
 		self.fontDialog.setOption(self.fontDialog.DontUseNativeDialog)
 		self.fontDialog.setOption(self.fontDialog.NoButtons)
-
-		self.currentFont = GDefaultValues.font
 		
 		self.fontDialog.setCurrentFont(self.currentFont)
 		self.fontDialog.currentFontChanged.connect(lambda font : self.currentFontChanged.emit(font))
@@ -266,18 +255,48 @@ class GSettingsMenu(QtWidgets.QWidget):
 		layout.addWidget(exitGroup)
 		self.setLayout(layout)
 
-	def retrieveCurrentColorScheme(self):
-		self.cl_known		= QtGui.QColor(0x000000)
-		self.cl_unknown		= QtGui.QColor(0xFF0000)
-		self.cl_tag		= QtGui.QColor(0x000088)
-		self.cl_cmd	  	= QtGui.QColor(0x2200FF)
-		self.cl_subWordFont	= GDefaultValues.cl_subWordFont
-		self.cl_subWordBackground = GDefaultValues.cl_subWordBackground
+	def retrieveSettings(self):
+	
+		if os.path.exists("inclua.ini"):
+			self.config = configparser.ConfigParser()
+			self.config.sections()
+			self.config.read("inclua.ini")
+			
+			tmp = eval(self.config['CORES']['palavras_conhecidas'])
+			self.cl_known			= QtGui.QColor(tmp[0], tmp[1], tmp[2], tmp[3])
+			
+			tmp = eval(self.config['CORES']['palavras_desconhecidas'])
+			self.cl_unknown			= QtGui.QColor(tmp[0], tmp[1], tmp[2], tmp[3])
+			
+			tmp = eval(self.config['CORES']['tags'])
+			self.cl_tag			= QtGui.QColor(tmp[0], tmp[1], tmp[2], tmp[3])
+
+			tmp = eval(self.config['CORES']['comandos'])
+			self.cl_cmd			= QtGui.QColor(tmp[0], tmp[1], tmp[2], tmp[3])
+			
+			tmp = eval(self.config['CORES']['fonte_texto_marcado'])
+			self.cl_subWordFont		= QtGui.QColor(tmp[0], tmp[1], tmp[2], tmp[3])
+			
+			tmp = eval(self.config['CORES']['fundo_texto_marcado'])
+			self.cl_subWordBackground	= QtGui.QColor(tmp[0], tmp[1], tmp[2], tmp[3])
+			
+			self.utilizarCorInversa	= eval(self.config['CORES']['utilizar_cor_inversa'])
+
+			self.currentFont		= QtGui.QFont(QtGui.QFont(self.config['FONTES']['fonte']))
+		else:
+			
+			self.cl_known		= GDefaultValues.cl_known
+			self.cl_unknown		= GDefaultValues.cl_unknown
+			self.cl_tag		= GDefaultValues.cl_tag
+			self.cl_cmd	  	= GDefaultValues.cl_cmd
+			self.cl_subWordFont	= GDefaultValues.cl_subWordFont
+			self.cl_subWordBackground = GDefaultValues.cl_subWordBackground
+
+			self.utilizarCorInversa = GDefaultValues.utilizarCorInversa
+	
+			self.currentFont	= GDefaultValues.font
 		
-		print(self.cl_subWordFont.getRgb())
-		print(self.cl_subWordBackground.getRgb())
-		
-		return GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd, subWordBackground = self.cl_subWordBackground, subWordFont = (GColorScheme().getInverseColor(self.cl_subWordBackground) if self.utilizarCorInversa else self.cl_subWordFont))
+		self.colorScheme = GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd, subWordBackground = self.cl_subWordBackground, subWordFont = (GColorScheme().getInverseColor(self.cl_subWordBackground) if self.utilizarCorInversa else self.cl_subWordFont))
 
 	def getColorScheme(self):
 		return self.colorScheme
