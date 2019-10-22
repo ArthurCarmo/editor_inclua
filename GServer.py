@@ -35,7 +35,8 @@ class GServer():
 		if self.serverWidget is not None:
 			return self.serverWidget
 
-		self.process.start("Xephyr -ac -br -reset -terminate -screen 640x480 :100 -title " + self.title)
+		print("Iniciando Xephyr!")
+		self.process.start("Xephyr -ac -br -resizeable -no-host-grab -reset -terminate -screen 640x480 :100 -title " + self.title)
 		tries = 0
 		stdout = b''
 	
@@ -52,20 +53,22 @@ class GServer():
 		
 		stdout = stdout.splitlines()[0]
 		winId = int(stdout, 16)
-		new_window = QtGui.QWindow.fromWinId(winId)
+		self.new_window = QtGui.QWindow.fromWinId(winId)
+		
+		print("winId = " + str(winId))
 	
 		# FramelessWindow permite "colar" a janela do servidor na janela do editor
-		new_window.setFlags(Qt.FramelessWindowHint)
+		self.new_window.setFlags(Qt.FramelessWindowHint)
 	
-		game_widget = QtWidgets.QWidget.createWindowContainer(new_window)
+		self.game_widget = QtWidgets.QWidget.createWindowContainer(self.new_window)
 	
 		# O widget que recebe o vídeo deve ser algum widget que tenha
 		# informações visuais, como o textEdit ou o graphicsView
 		self.serverWidget = QtWidgets.QGraphicsView()
 	
 		# De fato "cola" a janela do servidor dentro de um widget
-		game_box = QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, self.serverWidget)
-		game_box.addWidget(game_widget)
+		self.game_box = QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight, self.serverWidget)
+		self.game_box.addWidget(self.game_widget)
 	
 		return self.serverWidget
 

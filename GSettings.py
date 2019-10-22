@@ -49,6 +49,26 @@ class GDefaultValues():
 		self.__class__.font = self.txtEditor.font()
 		self.__class__.font.setStyleName("Regular")
 		print(self.__class__.font.key())
+		
+		if os.path.exists(".inclua_config"):
+			with open(".inclua_config", "r") as f:
+				i = 0
+				for line in f:
+					key_value = line.split("=")
+					print(i)
+					print(key_value)
+					i += 1
+		else:
+			with open(".inclua_config", "w") as f:
+				f.write("cl_known=" + str(self.cl_known.getRgb()) + '\n')
+				f.write("cl_unknown=" + str(self.cl_unknown.getRgb()) + '\n')
+				f.write("cl_tag=" + str(self.cl_tag.getRgb()) + '\n')
+				f.write("cl_cmd=" + str(self.cl_cmd.getRgb()) + '\n')
+				f.write("cl_textEditBackground=" + str(self.cl_textEditBackground.getRgb()) + '\n')
+				f.write("cl_subWordFont=" + str(self.cl_subWordFont.getRgb()) + '\n')
+				f.write("cl_subWordBackground=" + str(self.cl_subWordBackground.getRgb()) + '\n')
+				f.write("utilizarCorInversa=" + str(self.utilizarCorInversa) + '\n')
+				f.write("font=" + str(self.font.key()) + '\n')
 	
 class GColorScheme():
 	Known			= 0

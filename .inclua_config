@@ -1,0 +1,9 @@
+cl_known=(0, 0, 0, 255)
+cl_unknown=(255, 0, 0, 255)
+cl_tag=(0, 0, 136, 255)
+cl_cmd=(34, 0, 255, 255)
+cl_textEditBackground=(239, 239, 239, 255)
+cl_subWordFont=(239, 239, 239, 255)
+cl_subWordBackground=(16, 16, 16, 255)
+utilizarCorInversa=True
+font=Ubuntu,11,-1,5,50,0,0,0,0,0,Regular
