@@ -371,10 +371,11 @@ class Main(QtWidgets.QMainWindow):
 
 #			reply = QtWidgets.QMessageBox.question(self, "Abrir documento", "Apagar texto do editor?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
 			if reply == QtWidgets.QMessageBox.Yes:
-				self.text.clear()
+				if not self.closeTextFile():
+					return
 
 		self.pdf_widget.load(filename[0])
-		
+		self.text.setModified(False)
 		
 		# Força o widget a atualizar
 #		self.screenshotLayer.setGeometry(0, 0, self.screen_rect.width() / 10, self.screen_rect.height())
@@ -386,6 +387,7 @@ class Main(QtWidgets.QMainWindow):
 		self.hasOpenDocument = True
 		
 		return 0
+
 	
 	def onPDFTextReady(self):
 		self.images_widget.loadImages()
@@ -409,29 +411,44 @@ class Main(QtWidgets.QMainWindow):
 	#
 	#################################
 	def newTextFile(self):
-	
-		box = QtWidgets.QMessageBox()
-		box.setIcon(QtWidgets.QMessageBox.Question)
-		box.setWindowTitle('Novo arquivo de glosa')
-		box.setText("Salvar alterações?")
-		box.setStandardButtons(QtWidgets.QMessageBox.Yes|QtWidgets.QMessageBox.No|QtWidgets.QMessageBox.Cancel)
-		buttonY = box.button(QtWidgets.QMessageBox.Yes)
-		buttonY.setText('Sim')
-		buttonN = box.button(QtWidgets.QMessageBox.No)
-		buttonN.setText('Não')
-		buttonC = box.button(QtWidgets.QMessageBox.Cancel)
-		buttonC.setText('Cancelar')
-		reply = box.exec_()
-#		reply = QtWidgets.QMessageBox.question(self, "Novo arquivo de glosa", "Salvar alterações", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel)
-		if reply == QtWidgets.QMessageBox.Yes:
-			self.saveTextFile()
-		elif reply == QtWidgets.QMessageBox.Cancel:
+		
+		if not self.closeTextFile():
 			return
-			
-		self.text.clear()
+		
 		self.translationFileName = ""
-		self.hasOpenTranslationFile = False	
+		self.hasOpenTranslationFile = False
+		self.text.setModified(False)	
 	
+	def closeTextFile(self):
+		if self.text.isModified():
+			box = QtWidgets.QMessageBox()
+			box.setIcon(QtWidgets.QMessageBox.Question)
+			box.setWindowTitle('Salvar documento')
+			
+			if self.translationFileName != "":
+				box.setText("Salvar mudanças no arquivo %s?" % (self.translationFileName))
+			else:
+				box.setText("Salvar mudanças no novo arquivo?")
+			box.setStandardButtons(QtWidgets.QMessageBox.Yes|QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel)
+			buttonY = box.button(QtWidgets.QMessageBox.Yes)
+			buttonY.setText('Sim')
+			buttonN = box.button(QtWidgets.QMessageBox.No)
+			buttonN.setText('Não')
+			buttonC = box.button(QtWidgets.QMessageBox.Cancel)
+			buttonC.setText('Cancelar')
+			reply = box.exec_()
+
+
+			if reply == QtWidgets.QMessageBox.Cancel:
+				return False
+				
+			if reply == QtWidgets.QMessageBox.Yes:
+				if not self.saveTextFile():
+					return False
+		
+		self.text.clear()
+		self.text.setModified(False)	
+		return True
 	
 	def getTranslationFromFile(self):
 		if not self.pdf_widget.hasFile() and self.openDocument() == 1:
@@ -459,7 +476,10 @@ class Main(QtWidgets.QMainWindow):
 		filename = QtWidgets.QFileDialog().getOpenFileName(caption="Abrir arquivo de tradução", filter="EGL (*.egl);; TXT (*.txt);; Todos os arquivos (*.*)")
 		if filename[0] == "":
 			return
-		self.text.clear()
+			
+		if not self.closeTextFile():
+			return
+			
 		self.translation.load(filename[0])
 		self.translationFileName = filename[0]
 		for line in self.translation.paragraphsToDisplay():
@@ -532,7 +552,7 @@ class Main(QtWidgets.QMainWindow):
 		self.translation.resetIndex()
 		
 	def onTranslationReady(self):
-			self.hasOpenTranslation = True
+		self.hasOpenTranslation = True
 
 
 	##################################
@@ -758,29 +778,9 @@ class Main(QtWidgets.QMainWindow):
 #		exit()
 	
 	def closeEvent(self, event):
-		if self.text.isModified():
-			box = QtWidgets.QMessageBox()
-			box.setIcon(QtWidgets.QMessageBox.Question)
-			box.setWindowTitle('Salvar documento')
-			box.setText("Salvar as mudanças no arquivo %s antes de fechar?" % (self.translationFileName))
-			box.setStandardButtons(QtWidgets.QMessageBox.Yes|QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel)
-			buttonY = box.button(QtWidgets.QMessageBox.Yes)
-			buttonY.setText('Sim')
-			buttonN = box.button(QtWidgets.QMessageBox.No)
-			buttonN.setText('Não')
-			buttonC = box.button(QtWidgets.QMessageBox.Cancel)
-			buttonC.setText('Cancelar')
-			reply = box.exec_()
-
-
-			if reply == QtWidgets.QMessageBox.Cancel:
-				event.ignore()
-				return
-				
-			if reply == QtWidgets.QMessageBox.Yes:
-				if not self.saveTextFile():
-					event.ignore()
-					return
+		if not self.closeTextFile():
+			event.ignore()
+			return
 
 		super().closeEvent(event)				
 #		self.__del__()
