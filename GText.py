@@ -32,7 +32,6 @@ class GCompleter(QtWidgets.QCompleter):
 #	
 #######################################
 class GTextEdit(QtWidgets.QTextEdit):
-
 	def __init__(self, clScheme, parent = None):
 		QtWidgets.QTextEdit.__init__(self, parent)
 		self.completer = GCompleter(GParser().getAlphabet())
@@ -58,6 +57,13 @@ class GTextEdit(QtWidgets.QTextEdit):
 		
 	def getSyntaxHighlighter(self):
 		return self.highlighter
+	
+	def isModified(self):
+		return self.document().isModified()
+		
+	def setModified(self, m = True):
+		self.document().setModified(m)
+		
 	#####################################
 	#
 	# Eventos do teclado

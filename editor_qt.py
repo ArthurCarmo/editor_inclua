@@ -33,8 +33,8 @@ class Main(QtWidgets.QMainWindow):
 
 	def __init__(self, parent = None):
 		QtWidgets.QMainWindow.__init__(self, parent)
-		self.hasOpenTranslation = False
-		self.hasOpenFile = False
+		self.openTextFileName = ""
+		self.openDocumentFileName = ""
 		self.isRecording = False
 		self.translationFileName = ""
 		self.server = GServer()
@@ -448,7 +448,6 @@ class Main(QtWidgets.QMainWindow):
 			buttonN = box.button(QtWidgets.QMessageBox.No)
 			buttonN.setText('Não')
 			reply = box.exec_()
-#			reply = QtWidgets.QMessageBox.question(self, "Gerar tradução", "Já existe uma tradução aberta. Substituir?", QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
 			if reply == QtWidgets.QMessageBox.No:
 				return 
 		
@@ -469,24 +468,37 @@ class Main(QtWidgets.QMainWindow):
 
 	def saveTextFile(self):
 		if self.translationFileName == "":
-			self.saveTextFileAs()
+			return self.saveTextFileAs()
 		else:
 			self.translation.save(self.translationFileName)
+			self.text.setModified(False)
+			return True
 		
 	def saveTextFileAs(self):
 		filename = QtWidgets.QFileDialog().getSaveFileName(caption="Salvar arquivo de tradução")
-		#self.translation.setText(self.text.toPlainText(), endl = "\n", raw = False)
+		
 		fname = filename[0]
+		if fname == "":
+			return False
+			
 		if not fname.endswith(".egl") and not fname.endswith(".txt"):
 			fname += ".egl"
+			
 		self.translationFileName = fname
 		self.translation.save(self.translationFileName)
+		self.text.setModified(False)
+		return True
 		
 	def exportTextFile(self):
 		filename = QtWidgets.QFileDialog().getSaveFileName(caption="Exportar arquivo de tradução")
 		fname = filename[0]
+		if fname == "":
+			return False
+			
 		with open(fname, "w") as doc:
 			doc.write(self.text.toPlainText)
+		
+		return True
 
 	def addNextTranslationParagraph(self):
 		cursor = self.text.textCursor()
@@ -743,10 +755,35 @@ class Main(QtWidgets.QMainWindow):
 		print("Destrutor")
 		self.server.kill()
 		self.images_widget.clearImages()
-		exit()
+#		exit()
 	
 	def closeEvent(self, event):
-		self.__del__()
+		if self.text.isModified():
+			box = QtWidgets.QMessageBox()
+			box.setIcon(QtWidgets.QMessageBox.Question)
+			box.setWindowTitle('Salvar documento')
+			box.setText("Salvar as mudanças no arquivo %s antes de fechar?" % (self.translationFileName))
+			box.setStandardButtons(QtWidgets.QMessageBox.Yes|QtWidgets.QMessageBox.No | QtWidgets.QMessageBox.Cancel)
+			buttonY = box.button(QtWidgets.QMessageBox.Yes)
+			buttonY.setText('Sim')
+			buttonN = box.button(QtWidgets.QMessageBox.No)
+			buttonN.setText('Não')
+			buttonC = box.button(QtWidgets.QMessageBox.Cancel)
+			buttonC.setText('Cancelar')
+			reply = box.exec_()
+
+
+			if reply == QtWidgets.QMessageBox.Cancel:
+				event.ignore()
+				return
+				
+			if reply == QtWidgets.QMessageBox.Yes:
+				if not self.saveTextFile():
+					event.ignore()
+					return
+
+		super().closeEvent(event)				
+#		self.__del__()
 
 		
 ########################################################
