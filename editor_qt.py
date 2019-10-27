@@ -255,7 +255,7 @@ class Main(QtWidgets.QMainWindow):
 		self.it_layout = QtWidgets.QHBoxLayout()
 		self.it_layout.setContentsMargins(5, 0, 5, 0)
 		
-		self.confirmar_selecao = QtWidgets.QPushButton(self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton), "", self)
+		self.confirmar_selecao = QtWidgets.QPushButton(self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton), "REMOVER", self)
 		self.confirmar_selecao.setStatusTip("Remover as imagens selecionadas")
 		self.confirmar_selecao.clicked.connect(self.removeSelected)
 		
