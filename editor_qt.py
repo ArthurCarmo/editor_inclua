@@ -37,6 +37,7 @@ class Main(QtWidgets.QMainWindow):
 		self.openDocumentFileName = ""
 		self.isRecording = False
 		self.translationFileName = ""
+		self.hasOpenTranslation = False
 		self.server = GServer()
 		self.server.sender.finishedRecording.connect(self.createVideo)
 		self.initUI()
@@ -255,7 +256,7 @@ class Main(QtWidgets.QMainWindow):
 		self.it_layout = QtWidgets.QHBoxLayout()
 		self.it_layout.setContentsMargins(5, 0, 5, 0)
 		
-		self.confirmar_selecao = QtWidgets.QPushButton(self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton), "", self)
+		self.confirmar_selecao = QtWidgets.QPushButton(self.style().standardIcon(QtWidgets.QStyle.SP_DialogApplyButton), "REMOVER", self)
 		self.confirmar_selecao.setStatusTip("Remover as imagens selecionadas")
 		self.confirmar_selecao.clicked.connect(self.removeSelected)
 		
@@ -643,7 +644,6 @@ class Main(QtWidgets.QMainWindow):
 	
 	def onScreenShot(self, pixmap):
 		self.targetPixmap = pixmap
-		
 		reply = GCustomScreenShotDialog(self.targetPixmap).question()
 		if reply == GCustomScreenShotDialog.No:
 			return
@@ -672,6 +672,8 @@ class Main(QtWidgets.QMainWindow):
 			self.server.send(text)
 		else:
 			text = self.text.toPlainText()
+			QtWidgets.QMessageBox.information(self, "Gerar vídeo", "Para gerar o vídeo, selecione o texto desejado", (QtWidgets.QMessageBox.Ok))
+
 		print(text)
 		
 	def toggleAvatarVisible(self):
