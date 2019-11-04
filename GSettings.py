@@ -228,8 +228,8 @@ class GSettingsMenu(QtWidgets.QWidget):
 		###############################
 		self.aplicar	= QtWidgets.QPushButton("Aplicar")
 		self.salvar	= QtWidgets.QPushButton("Ok")
-		self.cancelar	= QtWidgets.QPushButton("Cancelar")
-		self.resetar	= QtWidgets.QPushButton("Resetar")
+		self.cancelar	= QtWidgets.QPushButton("Fechar")
+		self.resetar	= QtWidgets.QPushButton("Valores padrão")
 
 		self.aplicar.setEnabled(False)
 
@@ -261,7 +261,7 @@ class GSettingsMenu(QtWidgets.QWidget):
 		layout.addWidget(exitGroup)
 		self.setLayout(layout)
 
-	def retrieveSettings(self):
+	def retrieveColorScheme(self):
 		if os.path.exists(GDefaultValues.ini_filename):
 			self.config = configparser.ConfigParser()
 			self.config.sections()
@@ -286,11 +286,7 @@ class GSettingsMenu(QtWidgets.QWidget):
 			self.cl_subWordBackground	= QtGui.QColor(tmp[0], tmp[1], tmp[2], tmp[3])
 			
 			self.utilizarCorInversa	= eval(self.config['CORES']['utilizar_cor_inversa'])
-
-			self.currentFont		= QtGui.QFont(self.config['FONTES']['fonte'])
-			self.currentFont.setStyleName(self.config['FONTES']['fonte'].split(',')[10])
 		else:
-			
 			self.cl_known		= GDefaultValues.cl_known
 			self.cl_unknown		= GDefaultValues.cl_unknown
 			self.cl_tag		= GDefaultValues.cl_tag
@@ -299,10 +295,24 @@ class GSettingsMenu(QtWidgets.QWidget):
 			self.cl_subWordBackground = GDefaultValues.cl_subWordBackground
 
 			self.utilizarCorInversa = GDefaultValues.utilizarCorInversa
-	
-			self.currentFont	= GDefaultValues.font
 		
 		self.colorScheme = GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd, subWordBackground = self.cl_subWordBackground, subWordFont = (GColorScheme().getInverseColor(self.cl_subWordBackground) if self.utilizarCorInversa else self.cl_subWordFont))
+		
+	def retrieveFont(self):
+		if os.path.exists(GDefaultValues.ini_filename):
+			self.config = configparser.ConfigParser()
+			self.config.sections()
+			self.config.read(GDefaultValues.ini_filename)
+			
+			self.currentFont = QtGui.QFont(self.config['FONTES']['fonte'])
+			self.currentFont.setStyleName(self.config['FONTES']['fonte'].split(',')[10])
+			
+		else:
+			self.currentFont = GDefaultValues.font
+			
+	def retrieveSettings(self):
+		self.retrieveColorScheme()
+		self.retrieveFont()
 
 	def getColorScheme(self):
 		return self.colorScheme
@@ -486,7 +496,7 @@ class GSettingsMenu(QtWidgets.QWidget):
 		
 		self.updateButtons()
 
-	def resetDefaultValues(self):
+	def resetDefaultColorScheme(self):
 		self.cl_known	= GDefaultValues.cl_known
 		self.cl_unknown	= GDefaultValues.cl_unknown
 		self.cl_tag	= GDefaultValues.cl_tag
@@ -496,10 +506,20 @@ class GSettingsMenu(QtWidgets.QWidget):
 		
 		self.utilizarCorInversaCheck.setChecked(GDefaultValues.utilizarCorInversa)
 		
-		self.resetFont()
 		self.currentColorSchemeChanged.emit(GColorScheme(known = self.cl_known, unknown = self.cl_unknown, tags = self.cl_tag, commands = self.cl_cmd, subWordBackground = self.cl_subWordBackground, subWordFont = (GColorScheme().getInverseColor(self.cl_subWordBackground) if self.utilizarCorInversa else self.cl_subWordFont)))
 		
 		self.updateButtons()
+		
+	def resetDefaultFont(self): 
+		self.currentFont = GDefaultValues.font
+		self.fontDialog.setCurrentFont(self.currentFont)
+		self.currentFontChanged.emit(self.currentFont)
+		
+	def resetDefaultValues(self):
+		if self.tabsMenu.currentIndex() == self.tabsMenu.indexOf(self.colorsTab):
+			self.resetDefaultColorScheme()
+		if self.tabsMenu.currentIndex() == self.tabsMenu.indexOf(self.fontsTab):
+			self.resetDefaultFont()
 		
 	def commitFontChanges(self):
 		self.currentFont = self.fontDialog.currentFont()
@@ -513,11 +533,6 @@ class GSettingsMenu(QtWidgets.QWidget):
 		self.fontDialog.setCurrentFont(self.currentFont)
 		self.currentFontChanged.emit(self.currentFont)
 		
-	def resetFont(self):
-		self.currentFont = GDefaultValues.font
-		self.fontDialog.setCurrentFont(self.currentFont)
-		self.currentFontChanged.emit(self.currentFont)
-		
 	def onApplyButtonPressed(self):
 		self.commitColorChanges()
 		self.commitFontChanges()
@@ -527,11 +542,13 @@ class GSettingsMenu(QtWidgets.QWidget):
 		self.commitColorChanges()
 		self.commitFontChanges()
 		self.hide()
+		self.aplicar.setEnabled(False)
 
 	def onCancelButtonPressed(self):
 		self.cancelColorChanges()
 		self.cancelFontChanges()
 		self.hide()
+		self.aplicar.setEnabled(False)
 		
 	def onCurrentColorSchemeChanged(self, colorScheme):
 		self.aplicar.setEnabled(True)
