@@ -179,10 +179,10 @@ class translationSenderObject(QtCore.QObject):
 	translationReady = QtCore.pyqtSignal()
 
 class GTranslation():
-	def __init__(self, text = None, raw = True):
+	def __init__(self, text = None, raw = True, paragraphs = [], parseIndex = 0):
 		self.text = text
-		self.parseIndex = 0
-		self.paragraphs = []
+		self.parseIndex = parseIndex
+		self.paragraphs = paragraphs
 		self.raw = raw
 		
 		self.sender = translationSenderObject()
@@ -203,22 +203,9 @@ class GTranslation():
 	def isReady(self):
 		return self.text is None or self.raw
 	
-	def load(self, document):
-		with open(document, "r") as doc:
-			self.parseIndex = int(doc.readline())
-			self.text = doc.read()
-			print(self.text)
-			self.paragraphs = [line if line else '\n' for line in self.text.split(GTranslator.endl)]
-		self.raw = False
-		
-	def save(self, document):
-		print(self.paragraphs)
-		with open(document, "w") as doc:
-			doc.write(str(self.parseIndex) + "\n")
-			for line in self.paragraphs:
-				doc.write(line)
-				doc.write(GTranslator.endl)
-				
+	def index(self):
+		return self.parseIndex
+
 	def translate(self):
 		self.progress = QtWidgets.QProgressDialog("Traduzindo...", "Cancelar!", 0, 100)
 		self.progress.setWindowTitle("Tradutor")
@@ -287,6 +274,62 @@ class GTranslation():
 		self.raw = True
 		self.paragraphs = []
 		self.parseIndex = 0
+
+###############################################
+#
+# Classe para ler e escrever arquivos .egl
+#
+###############################################
+class GEGLFile():
+	def __init__(self):
+		self.text = ""
+		self.translationText = ""
+		self.translationParagraphs = []
+		self.parseIndex = 0
+		
+	def load(self, document):
+		with open(document, "r") as doc:
+			self.blockLen = int(doc.readline())
+			self.text = ""
+			for _ in range(self.blockLen):
+				self.text += doc.readline()
+			
+			print(self.text)
+
+			self.parseIndex = int(doc.readline())
+			self.translationText = doc.read()
+			self.translationParagraphs = [line if line else '\n' for line in self.translationText.split(GTranslator.endl)]
+		self.raw = False
+		
+	def save(self, document):
+		print(self.translationParagraphs)
+		with open(document, "w") as doc:
+			# QChar::QParagraphSeparator 	= chr(0x2029)
+			# QChar::LineSeparator 		= chr(0x2028)
+			self.text = self.text.replace(chr(0x2028), '\n')
+			self.text = self.text.replace(chr(0x2029), '\n')
+			doc.write(str(self.text.count("\n")+1))
+			doc.write("\n")
+			doc.write(self.text)
+			doc.write("\n")
+			doc.write(str(self.parseIndex) + "\n")
+			for line in self.translationParagraphs:
+				doc.write(line)
+				doc.write(GTranslator.endl)
+				
+	def translation(self):
+		return GTranslation(self.translationText, False, self.translationParagraphs, self.parseIndex)
+
+	def plainText(self):
+		return self.text
+
+	def setPlainText(self, text):
+		self.text = text
+
+	def setTranslation(self, translation):
+		self.translationText = translation.getRawText()
+		self.translationParagraphs = translation.getParagraphs()
+		self.parseIndex = translation.index()
 
 ###############################################
 #

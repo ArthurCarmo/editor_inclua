@@ -13,7 +13,7 @@ from PyQt5.QtGui import QDesktopServices, QFont
 
 from GText import GTextEdit
 from GSyntax import GSyntaxHighlighter
-from GFile import GDocument, GTranslation, GVideo
+from GFile import GDocument, GTranslation, GVideo, GEGLFile
 from GImage import GImageGrid, GCustomImageDialog, GCustomScreenShotDialog
 
 from GScreenUtils import GLayeredDocumentCanvas
@@ -220,6 +220,9 @@ class Main(QtWidgets.QMainWindow):
 		self.translation = GTranslation()
 		self.translation.sender.translationReady.connect(self.onTranslationReady)
 		
+		# Arquivo egl
+		self.eglFile = GEGLFile()
+
 		# Visualizador de pdf pode ser uma página web dentro de um webView
 		self.pdf_widget = GDocument()
 		self.pdf_widget.sender.formattedReady.connect(self.onPDFTextReady)
@@ -474,24 +477,27 @@ class Main(QtWidgets.QMainWindow):
 
 	
 	def importTextFile(self):
-		filename = QtWidgets.QFileDialog().getOpenFileName(caption="Abrir arquivo de tradução", filter="EGL (*.egl);; TXT (*.txt);; Todos os arquivos (*.*)")
+		filename = QtWidgets.QFileDialog().getOpenFileName(caption="Abrir arquivo de tradução", filter="EGL (*.egl)")
 		if filename[0] == "":
 			return
 			
 		if not self.closeTextFile():
 			return
 			
-		self.translation.load(filename[0])
+		#self.translation.load(filename[0])
+		self.eglFile.load(filename[0])
+		self.text.setText(self.eglFile.plainText())
+		self.translation = self.eglFile.translation()
 		self.translationFileName = filename[0]
-		for line in self.translation.paragraphsToDisplay():
-			print(line)
-			self.text.textCursor().insertText(line + "\n")
 
 	def saveTextFile(self):
 		if self.translationFileName == "":
 			return self.saveTextFileAs()
 		else:
-			self.translation.save(self.translationFileName)
+			#self.translation.save(self.translationFileName)
+			self.eglFile.setPlainText(self.text.toPlainText())
+			self.eglFile.setTranslation(self.translation)
+			self.eglFile.save(self.translationFileName)
 			self.text.setModified(False)
 			return True
 		
@@ -502,11 +508,14 @@ class Main(QtWidgets.QMainWindow):
 		if fname == "":
 			return False
 			
-		if not fname.endswith(".egl") and not fname.endswith(".txt"):
+		if not fname.endswith(".egl"):
 			fname += ".egl"
 			
 		self.translationFileName = fname
-		self.translation.save(self.translationFileName)
+		#self.translation.save(self.translationFileName)
+		self.eglFile.setPlainText(self.text.toPlainText())
+		self.eglFile.setTranslation(self.translation)
+		self.eglFile.save(self.translationFileName)
 		self.text.setModified(False)
 		return True
 		
@@ -517,7 +526,7 @@ class Main(QtWidgets.QMainWindow):
 			return False
 			
 		with open(fname, "w") as doc:
-			doc.write(self.text.toPlainText)
+			doc.write(self.text.toPlainText())
 		
 		return True
 
@@ -544,13 +553,15 @@ class Main(QtWidgets.QMainWindow):
 			self.text.textCursor().insertText(line + "\n")	
 
 	def clearTranslation(self):
-		self.text.clear()
+		#self.text.clear()
 		self.translation = GTranslation()
 		self.hasOpenTranslation = False
+		self.text.setModified(True)
 		
 	def resetTranslation(self):
-		self.text.clear()
+		#self.text.clear()
 		self.translation.resetIndex()
+		self.text.setModified(True)
 		
 	def onTranslationReady(self):
 		self.hasOpenTranslation = True
