@@ -109,10 +109,6 @@ class Main(QtWidgets.QMainWindow):
 		avatarGravar = QtWidgets.QAction("Gravar vídeo", self)
 		avatarGravar.setStatusTip("Grava o vídeo para o texto selecionado")
 		avatarGravar.triggered.connect(self.recordVideo)
-
-		avatarConectar = QtWidgets.QAction("Conectar", self)
-		avatarConectar.setStatusTip("Conecta com o servidor do avatar")
-		avatarConectar.triggered.connect(self.server.startCommunication)
 		
 		avatarMostrar = QtWidgets.QAction("Mostrar avatar", self)
 		avatarMostrar.setShortcut("Ctrl+Shift+T")
@@ -122,7 +118,6 @@ class Main(QtWidgets.QMainWindow):
 		avatar.addAction(avatarEnviar)
 		avatar.addAction(avatarGravar)
 		avatar.addSeparator()
-		avatar.addAction(avatarConectar)
 		avatar.addAction(avatarMostrar)
 
 		traducaoShowAll = QtWidgets.QAction("Mostrar tudo", self)
