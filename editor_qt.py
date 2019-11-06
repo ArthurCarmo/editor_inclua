@@ -357,7 +357,7 @@ class Main(QtWidgets.QMainWindow):
 			return 1
 		
 		if not self.text.document().isEmpty():
-			box = QtWidgets.QMessageBox()
+			box = QtWidgets.QMessageBox()	
 			box.setIcon(QtWidgets.QMessageBox.Question)
 			box.setWindowTitle('Abrir documento')
 			box.setText("Apagar texto do editor?")
@@ -378,7 +378,12 @@ class Main(QtWidgets.QMainWindow):
 		
 		# Força o widget a atualizar
 #		self.screenshotLayer.setGeometry(0, 0, self.screen_rect.width() / 10, self.screen_rect.height())
-		self.screenshotMenuWidget.setGeometry(0, 0, self.screen_rect.width() / 15, self.screen_rect.height())
+
+		
+#		self.screenshotMenuWidget.setSizePolicy(QtWidgets.QSizePolicy.Minimum, self.screenshotMenuWidget.sizePolicy().verticalPolicy())
+#		self.screenshotMenuWidget.setGeometry(0, 0, self.geometry().width() // 10000, self.geometry().height())
+		
+		self.screenshotMenuWidget.setFixedWidth(self.geometry().width() // 3)
 		
 		self.screenshotMenuWidget.hide()
 		self.screenshotMenuWidget.show()
