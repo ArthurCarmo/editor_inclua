@@ -109,11 +109,7 @@ class Main(QtWidgets.QMainWindow):
 		avatarGravar = QtWidgets.QAction("Gravar vídeo", self)
 		avatarGravar.setStatusTip("Grava o vídeo para o texto selecionado")
 		avatarGravar.triggered.connect(self.recordVideo)
-<<<<<<< HEAD
 		
-=======
-
->>>>>>> 217220613cf51c58c9ae8922436846de077a7212
 		avatarMostrar = QtWidgets.QAction("Mostrar avatar", self)
 		avatarMostrar.setShortcut("Ctrl+Shift+T")
 		avatarMostrar.setStatusTip("Habilita/Desabilita tela do avatar")
