@@ -215,7 +215,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 		
 		# Cópia do evento, mas com o texto em maiúsculo
 		newEventText = event.text()
-		if not srcCursor.selectedText().startswith(('<', '_')):
+		if not srcCursor.selectedText().startswith('_'):
 			newEventText = newEventText.upper()
 		newEvent = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, event.key(), event.modifiers(), event.nativeScanCode(), event.nativeVirtualKey(), event.nativeModifiers(), newEventText, event.isAutoRepeat(), event.count())
 		
@@ -225,7 +225,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 		txt = newEvent.text()
 		
 		# Aparece o completer ao digitar uma letra, símbolo de tag ou comando, ou Ctrl+Espaço
-		if txt.isalpha() or txt.isdigit() or txt in ('_', '<') or (self.isPressed(QtCore.Qt.Key_Control) and ek == QtCore.Qt.Key_Space):
+		if txt.isalpha() or txt.isdigit() or txt in ('_') or (self.isPressed(QtCore.Qt.Key_Control) and ek == QtCore.Qt.Key_Space):
 			self.completerHandler()
 		else:
 			self.completer.popup().hide()	

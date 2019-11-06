@@ -18,7 +18,7 @@ class GParser():
 			self.retrieveAliases()
 
 			self.tags = ["<", ">", "[", "]"]
-			self.keywords = ["<img0=", "<img1=", "<img2=", "<img3=", "<\\img0>", "<\\img1>", "<\\img2>", "<\\img3>"]
+			self.keywords = ["__img0_", "__img1_", "__img2_", "__img3_", "_img0__", "_img1__", "_img2__", "_img3__"]
 			self.commands = ["__save", "__stop", "__rec", "__last"]
 			self.accentedCharacters = ['Á', 'À', 'Â', 'Ã',\
 						   'É', 'È', 'Ê', 'Ẽ',\

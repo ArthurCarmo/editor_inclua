@@ -685,8 +685,6 @@ class Main(QtWidgets.QMainWindow):
 			for i in range(0, 4):
 				text = text.replace("_img%d__" % i, "<\\img%d>" % i)
 				
-			print("UEITA !_-------------------______")
-			print(text)
 			self.server.send(text)
 		else:
 			text = self.text.toPlainText()
