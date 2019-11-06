@@ -174,27 +174,22 @@ class GTextEdit(QtWidgets.QTextEdit):
 			return
 		
 		moveWordFlag = False
-		srcCursor = self.selectToken()
+		srcCursor = self.textCursor()
+		srcCursor.select(srcCursor.WordUnderCursor)
 		if self.isPressed(QtCore.Qt.Key_Control) and ek in (QtCore.Qt.Key_Left, QtCore.Qt.Key_Right):
 			moveWordFlag = True
 		
-			dstCursor = self.selectToken()
+			dstCursor = self.textCursor()
 			
 			if ek == QtCore.Qt.Key_Left:
-				direction = dstCursor.Left
-				print("LEFT")
-				dstCursor.setPosition(dstCursor.selectionStart(), dstCursor.MoveAnchor)
-				dstCursor.movePosition(direction, dstCursor.MoveAnchor)
+				dstCursor.movePosition(dstCursor.StartOfWord, dstCursor.MoveAnchor)
+				dstCursor.movePosition(dstCursor.PreviousWord, dstCursor.MoveAnchor)
 			else:
-				direction = dstCursor.Right
-				print("RIGHT")
-				dstCursor.setPosition(dstCursor.selectionEnd(), dstCursor.MoveAnchor)
-				dstCursor.movePosition(direction, dstCursor.MoveAnchor)
-			
-			
+				dstCursor.movePosition(dstCursor.EndOfWord, dstCursor.MoveAnchor)
+				dstCursor.movePosition(dstCursor.NextWord, dstCursor.MoveAnchor)
 			
 			self.setTextCursor(dstCursor)
-			dstCursor = self.selectToken()
+			dstCursor.select(dstCursor.WordUnderCursor)
 		
 			if srcCursor != dstCursor:
 				w1 = srcCursor.selectedText()
@@ -206,8 +201,9 @@ class GTextEdit(QtWidgets.QTextEdit):
 		
 		# Marca a palavra debaixo do cursor se Ctrl estiver pressionado
 		if self.isPressed(QtCore.Qt.Key_Control):
-			print("Aqui")
-			newCursor = self.selectToken()
+			print("Aqui! CONTROL")
+			newCursor = self.textCursor()
+			newCursor.select(newCursor.WordUnderCursor)
 			self.highlighter.unsetMarkedForSub()
 			self.highlighter.setMarkedForSub(newCursor, newCursor)
 			self.highlighter.rehighlight()
@@ -232,7 +228,8 @@ class GTextEdit(QtWidgets.QTextEdit):
 
 
 	def completerHandler(self):
-		tc = self.selectToken()
+		tc = self.textCursor()
+		tc.select(tc.WordUnderCursor)
 		cr = self.cursorRect()
 		
 		word = tc.selectedText()
@@ -357,12 +354,14 @@ class GTextEdit(QtWidgets.QTextEdit):
 		old_cursor = self.textCursor()
 
 		# Pega a palavra 1
-		swapword1 = self.selectToken()
+		swapword1 = self.textCursor()
+		swapword1.select(swapword1.WordUnderCursor)
 		self.setTextCursor(swapword1)
 
 		# Pega a palavra 2
 		self.setTextCursor( self.cursorForPosition(event.pos()) )
-		swapword2 = self.selectToken()
+		swapword2 = self.textCursor()
+		swapword2.select(swapword1.WordUnderCursor)
 
 		# Remove a seleção da palavra 2
 		self.setTextCursor(self.cursorForPosition(event.pos()))

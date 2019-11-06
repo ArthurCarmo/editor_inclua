@@ -157,19 +157,22 @@ class GSyntaxHighlighter(QtGui.QSyntaxHighlighter):
 			self.setFormat(match.capturedStart()+1, match.capturedLength()-2, cmd)
 			
 		if self.markedForSub:
-			subWordFont = self.txtEdit.colorScheme().subWordFontColor()
-			subWordBackground = self.txtEdit.colorScheme().subWordBackgroundColor()
-			subFormat = QtGui.QTextCharFormat()
-			subFormat.setForeground(subWordFont)
-			subFormat.setBackground(subWordBackground)
+			self.subWordFont = self.txtEdit.colorScheme().subWordFontColor()
+			self.subWordBackground = self.txtEdit.colorScheme().subWordBackgroundColor()
+			self.subFormat = QtGui.QTextCharFormat()
+			self.subFormat.setForeground(self.subWordFont)
+			self.subFormat.setBackground(self.subWordBackground)
+			
+			print(self.block1)
 			
 			if self.currentBlock().blockNumber() == self.block1:
+				print("%d %d %d %d" % (self.cursor1.selectionStart(), self.cursor1.selectionEnd(), self.cursor1.positionInBlock(), len(self.cursor1.selectedText())))
 				self.cursor1.setPosition(self.cursor1.selectionStart(), self.cursor1.KeepAnchor)
-				self.setFormat(self.cursor1.positionInBlock(), len(self.cursor1.selectedText()), subFormat)
+				self.setFormat(self.cursor1.positionInBlock(), len(self.cursor1.selectedText()), self.subFormat)
 
 			if self.currentBlock().blockNumber() == self.block2:
 				self.cursor2.setPosition(self.cursor2.selectionStart(), self.cursor2.KeepAnchor)
-				self.setFormat(self.cursor2.positionInBlock(), len(self.cursor2.selectedText()), subFormat)
+				self.setFormat(self.cursor2.positionInBlock(), len(self.cursor2.selectedText()), self.subFormat)
 		
 	def setMarkedForSub(self, c1, c2):
 		self.cursor1 = QtGui.QTextCursor(c1)
