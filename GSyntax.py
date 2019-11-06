@@ -166,13 +166,14 @@ class GSyntaxHighlighter(QtGui.QSyntaxHighlighter):
 			print(self.block1)
 			
 			if self.currentBlock().blockNumber() == self.block1:
-				print("%d %d %d %d" % (self.cursor1.selectionStart(), self.cursor1.selectionEnd(), self.cursor1.positionInBlock(), len(self.cursor1.selectedText())))
+				self.arg = len(self.cursor1.selectedText())
 				self.cursor1.setPosition(self.cursor1.selectionStart(), self.cursor1.KeepAnchor)
-				self.setFormat(self.cursor1.positionInBlock(), len(self.cursor1.selectedText()), self.subFormat)
+				self.setFormat(self.cursor1.positionInBlock(), self.arg, self.subFormat)
 
 			if self.currentBlock().blockNumber() == self.block2:
+				self.arg = len(self.cursor2.selectedText())
 				self.cursor2.setPosition(self.cursor2.selectionStart(), self.cursor2.KeepAnchor)
-				self.setFormat(self.cursor2.positionInBlock(), len(self.cursor2.selectedText()), self.subFormat)
+				self.setFormat(self.cursor2.positionInBlock(), self.arg, self.subFormat)
 		
 	def setMarkedForSub(self, c1, c2):
 		self.cursor1 = QtGui.QTextCursor(c1)

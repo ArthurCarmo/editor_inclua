@@ -221,7 +221,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 		txt = newEvent.text()
 		
 		# Aparece o completer ao digitar uma letra, símbolo de tag ou comando, ou Ctrl+Espaço
-		if txt.isalpha() or txt.isdigit() or txt in ('_') or (self.isPressed(QtCore.Qt.Key_Control) and ek == QtCore.Qt.Key_Space):
+		if txt.isalpha() or txt.isdigit() or txt == '_' or (self.isPressed(QtCore.Qt.Key_Control) and ek == QtCore.Qt.Key_Space):
 			self.completerHandler()
 		else:
 			self.completer.popup().hide()	
