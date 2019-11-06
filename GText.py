@@ -93,7 +93,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 	
 	# QChar::QParagraphSeparator 	= chr(0x2029)
 	# QChar::LineSeparator 		= chr(0x2028)
-	def selectToken(self, stopChars = (' ','\t', '\n', '\r', '\n\r', chr(0x2029), chr(0x2028)), leftSeparators = ('<', '['), rightSeparators = ('=', '>', ']') ):
+	def selectToken(self, stopChars = (' ','\t', '\n', '\r', '\n\r', chr(0x2029), chr(0x2028)), leftSeparators = ('<', '['), rightSeparators = ('>', ']') ):
 		cursor = self.textCursor()
 		start = cursor.position()
 		
@@ -215,7 +215,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 		
 		# Cópia do evento, mas com o texto em maiúsculo
 		newEventText = event.text()
-		if not srcCursor.selectedText().startswith(('<', '__')):
+		if not srcCursor.selectedText().startswith(('<', '_')):
 			newEventText = newEventText.upper()
 		newEvent = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, event.key(), event.modifiers(), event.nativeScanCode(), event.nativeVirtualKey(), event.nativeModifiers(), newEventText, event.isAutoRepeat(), event.count())
 		

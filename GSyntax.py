@@ -122,7 +122,7 @@ class GSyntaxHighlighter(QtGui.QSyntaxHighlighter):
 		word  = QtCore.QRegularExpression(r"[^<>\[\]=\(\).,;\s\n]+")
 		tags  = QtCore.QRegularExpression(r"[<>\[\]]")
 		links = QtCore.QRegularExpression(r"=.+?>")
-		keywords = QtCore.QRegularExpression(r"(<[a-z0-9]+(=)?)|(<\\([a-z0-9]+)?)")
+		keywords = QtCore.QRegularExpression(r"(__[a-z0-9]+_[0-9])|(_[a-z0-9]+)__")
 
 		i = word.globalMatch(text)
 		while i.hasNext():

@@ -29,7 +29,7 @@ class GImageButton(QtWidgets.QPushButton):
     def __init__(self, img_url, index, parent=None):
         QtWidgets.QPushButton.__init__(self, parent)
         self.image = img_url
-        self.index = index
+        self.index = int(re.search(r'\d+$', os.path.splitext(self.image)[0]).group())
 
         self.parent = parent
 
@@ -87,8 +87,7 @@ class GImageButton(QtWidgets.QPushButton):
         return os.path.splitext(self.image)[1]
     
     def getIndex(self):
-        index = re.search(r'\d+$', os.path.splitext(self.image)[0])
-        return int(index.group())
+        return self.index
 
     def remove(self):
         os.remove(self.image)
@@ -224,7 +223,15 @@ class GImageGrid(QtWidgets.QScrollArea):
 			img.setSelection(True)
 			
 	def getImageButtonFromIndex(self, index):
-		return self.imgGrid.itemAtPosition(index // self.imagesPerRow, index % self.imagesPerRow).widget()
+		# Se for o index no grid utiliziar:
+		# return self.imgGrid.itemAtPosition(index // self.imagesPerRow, index % self.imagesPerRow).widget()
+	
+		# Se o índice for o nome da imagem:
+		for img in self.findChildren(GImageButton):
+			if img.getIndex() == index:
+				return img
+		
+		return None
 		
 	def getSelected(self):
 		l = []

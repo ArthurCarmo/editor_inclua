@@ -634,7 +634,7 @@ class Main(QtWidgets.QMainWindow):
 		if pos == GCustomImageDialog.NoImage:
 			return 
 		img = self.images_widget.getImageButtonFromIndex(index)
-		lc.insertText("<img%d=%d>%s<\\img%d>" % (pos, index, range_content, pos))
+		lc.insertText("__img%d_%d %s _img%d__" % (pos, index, range_content, pos))
 	
 	##################################
 	#
@@ -671,15 +671,22 @@ class Main(QtWidgets.QMainWindow):
 		if cursor.hasSelection():
 			text = cursor.selection().toPlainText()
 
-			matches = re.findall(r"(<img[0-9]=)([0-9]+)>", text)			
-			mentions = {"<img0=" : [], "<img1=" : [], "<img2=" : [], "<img3=" : [], }
+			matches = re.findall(r"(__img)([0-9])_([0-9]+)", text)			
+			mentions = {"__img0_" : [], "__img1_" : [], "__img2_" : [], "__img3_" : []}
 			for match in matches:
-				mentions[match[0]].append(match[1])
+				mentions[match[0]+match[1] + "_"].append(match[2])
 			
 			for key in mentions:
+				i = int(re.search(r'\d+', key).group())
 				for index in mentions[key]:
-					text = text.replace(key + index, key + "file://" + self.images_widget.getImageButtonFromIndex(int(index)).getImagePath())
+					text = text.replace(key + index, ("<img%d=" % i) + "file://" + self.images_widget.getImageButtonFromIndex(int(index)).getImagePath())
+				i += 1
 				
+			for i in range(0, 4):
+				text = text.replace("_img%d__" % i, "<\\img%d>" % i)
+				
+			print("UEITA !_-------------------______")
+			print(text)
 			self.server.send(text)
 		else:
 			text = self.text.toPlainText()
