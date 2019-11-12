@@ -35,6 +35,8 @@ class GImageButton(QtWidgets.QPushButton):
 
         self.selected = False
         
+        self.indexLabel = QtWidgets.QLabel(str(self.index))
+        
         self.pixmap = QtGui.QPixmap(img_url)
         print(img_url)
         self.setIcon(QtGui.QIcon(self.pixmap))
@@ -46,6 +48,7 @@ class GImageButton(QtWidgets.QPushButton):
         self.layout = QtWidgets.QVBoxLayout()
         self.checkbox = QtWidgets.QCheckBox()
         self.layout.addWidget(self.checkbox, alignment = self.default_alignment)
+        self.layout.addWidget(self.indexLabel, alignment = QtCore.Qt.AlignRight | QtCore.Qt.AlignBottom)
         self.setLayout(self.layout)
        
         self.checkbox.hide()
@@ -168,7 +171,7 @@ class GImageGrid(QtWidgets.QScrollArea):
 			label.onClick.connect(self.imageClicked)
 			label.deleted.connect(lambda : self.loadImages())
 			self.imgGrid.addWidget(label, self.n_images // self.imagesPerRow, self.n_images % self.imagesPerRow)
-			self.next_id  += self.raise_id
+			#self.next_id  += self.raise_id
 			self.n_images += 1
 		
 		self.raise_id = 0
@@ -242,6 +245,7 @@ class GImageGrid(QtWidgets.QScrollArea):
 	def onDeleteImage(self, img):
 		img.remove()
 		self.loadImages()
+		
 	def removeSelected(self):
 		for img in self.findChildren(GImageButton):
 			if img.isSelected():
