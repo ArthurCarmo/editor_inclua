@@ -34,12 +34,12 @@
 #########################################################################
 # TO DO
 #
+# -> Dividir texto em pacotes de 1024 bytes antes
+#    de enviar para o Avatar
+#
 # -> Bug com acentuação em consoantes
 #
 # -> Bug para trocar palavras com tags
-#
-# -> Bug na hora de criar os pacotes para enviar
-#    os texto para o Avatar
 #
 # -> Imagens
 #	-> Pausa ao mostrar imagens
