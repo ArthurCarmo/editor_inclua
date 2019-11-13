@@ -95,39 +95,24 @@ class GTextEdit(QtWidgets.QTextEdit):
 	# QChar::LineSeparator 		= chr(0x2028)
 	def selectToken(self, stopChars = (' ','\t', '\n', '\r', '\n\r', chr(0x2029), chr(0x2028)), leftSeparators = ('<', '['), rightSeparators = ('>', ']') ):
 		cursor = self.textCursor()
-		start = cursor.position()
+		cursor.select(cursor.WordUnderCursor)
 		
-		discardStopChars  = stopChars + leftSeparators
-		maintainStopChars = rightSeparators
-		while cursor.movePosition(cursor.Right, cursor.KeepAnchor):
-			if cursor.selectedText().endswith(discardStopChars):
-				cursor.movePosition(cursor.Left, cursor.KeepAnchor)
-				break
-			if cursor.selectedText().endswith(maintainStopChars):
-				break
-		print("Peguei 1: " + cursor.selectedText() + "|")		
+		ini = cursor.selectionStart()
+		end = cursor.selectionEnd()
 		
-		cursor.setPosition(cursor.position(), cursor.MoveAnchor)
-		cursor.setPosition(start, cursor.KeepAnchor)
+		cursor.setPosition(ini, cursor.MoveAnchor)
+		cursor.movePosition(cursor.Left, cursor.KeepAnchor)
+		if cursor.selectionStart() != ini and cursor.selectedText().startswith(leftSeparators):
+			ini = cursor.startPosition()
+			
+		cursor.setPosition(end, cursor.MoveAnchor)
+		cursor.movePosition(cursor.Right, cursor.KeepAnchor)
+		if cursor.selectionEnd() != end and cursor.selectedText().endswith(rightSeparators):
+			end = cursor.endPosition()
+			
+		cursor.setPosition(ini, cursor.MoveAnchor)
+		cursor.setPosition(end, cursor.KeepAnchor)
 		
-		
-		discardStopChars  = stopChars + rightSeparators
-		maintainStopChars = leftSeparators
-		if cursor.selectedText() != "" and cursor.selectedText().startswith(discardStopChars):
-			cursor.movePosition(cursor.Right, cursor.KeepAnchor)
-		
-		if cursor.selectedText() != "" and cursor.selectedText().startswith(maintainStopChars):
-			return cursor
-		
-		while cursor.movePosition(cursor.Left, cursor.KeepAnchor):
-			print("char:", ord(cursor.selectedText()[0]), "oi")
-			if cursor.selectedText().startswith(discardStopChars):
-				cursor.movePosition(cursor.Right, cursor.KeepAnchor)
-				break
-			if cursor.selectedText().startswith(maintainStopChars):
-				break
-				
-		print("Peguei 2: " + cursor.selectedText() + "|")
 		return cursor
 	
 	#########################################
@@ -189,8 +174,8 @@ class GTextEdit(QtWidgets.QTextEdit):
 				dstCursor.movePosition(dstCursor.NextWord, dstCursor.MoveAnchor)
 			
 			self.setTextCursor(dstCursor)
-			dstCursor.select(dstCursor.WordUnderCursor)
-		
+			#dstCursor.select(dstCursor.WordUnderCursor)
+			dstCursor = self.selectToken()
 			if srcCursor != dstCursor:
 				w1 = srcCursor.selectedText()
 				w2 = dstCursor.selectedText()
@@ -202,8 +187,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 		# Marca a palavra debaixo do cursor se Ctrl estiver pressionado
 		if self.isPressed(QtCore.Qt.Key_Control):
 			print("Aqui! CONTROL")
-			newCursor = self.textCursor()
-			newCursor.select(newCursor.WordUnderCursor)
+			newCursor = self.selectToken()
 			self.highlighter.unsetMarkedForSub()
 			self.highlighter.setMarkedForSub(newCursor, newCursor)
 			self.highlighter.rehighlight()
@@ -211,7 +195,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 		
 		# Cópia do evento, mas com o texto em maiúsculo
 		newEventText = event.text()
-		if not srcCursor.selectedText().startswith('_'):
+		if not srcCursor.selectedText().startswith(('<', '_')):
 			newEventText = newEventText.upper()
 		newEvent = QtGui.QKeyEvent(QtCore.QEvent.KeyPress, event.key(), event.modifiers(), event.nativeScanCode(), event.nativeVirtualKey(), event.nativeModifiers(), newEventText, event.isAutoRepeat(), event.count())
 		
