@@ -122,23 +122,17 @@ class GServer():
 				if msg == "":
 					continue
 				
-				msg = msg.encode('utf-8')
-				while len(msg) > 1024:
-					end = 1023
-					
-					# Para dividir os blocos sem cortar as palavras
-					# pode precisar de manutenção e provavelmente 
-					# há um jeito melhor de fazer isso
-					while msg[end] not in (' '.encode('utf-8')[0], '\n'.encode('utf-8')[0], '-'.encode('utf-8')[0], '\t'.encode('utf-8')[0]):
-						end -= 1
-						
-					self.sock.send(msg[0:end+1])
-					self.sock.recv(2048)
-					msg = msg[end+1:]
-					
-				self.sock.send(msg)
-				self.sock.recv(2048)			
+				msg = msg.replace('\n\r', '\n').replace(chr(0x2028), '\n').replace(chr(0x2029), '\n')
+				txts = msg.split('\n')
 				
+				for txt in txts:
+					if txt == "" or txt.isspace():
+						continue
+
+					txt = txt.encode('utf-8')
+					self.sock.send(txt)
+					self.sock.recv(2048)
+			
 			# Ao final da gravação o avatar envia mais uma mensagem
 			self.sock.recv(2048)
 			self.sender.finishedRecording.emit(vName)

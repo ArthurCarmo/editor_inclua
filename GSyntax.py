@@ -75,7 +75,7 @@ class GParser():
 		return l
 
 	def cleanText(self, text):
-		text = re.sub(r'[\n,\'; ]+', ' ', text)
+		text = re.sub(r'[,\'; ]+', ' ', text)
 		return text
 	
 	def getCommandBlocks(self, text):
