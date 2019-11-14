@@ -166,24 +166,21 @@ class Main(QtWidgets.QMainWindow):
 		edit.triggered.connect(self.openSettingsMenu)
 		menubar.addAction(edit)
 		
-		bar = QtWidgets.QMenuBar(menubar)
-		menubar.setCornerWidget(bar, QtCore.Qt.TopRightCorner)
-
 		self.voltar = QtWidgets.QAction(self.style().standardIcon(QtWidgets.QStyle.SP_ArrowBack), "", self)
 		self.voltar.setStatusTip("Voltar para a página inicial")
 		self.voltar.triggered.connect(lambda: self.homePage())
-		bar.addAction(self.voltar)
+		menubar.addAction(self.voltar)
 		self.voltar.setVisible(False)
 
 		help = QtWidgets.QAction("Ajuda", self)
 		help.setStatusTip("Manual do sistema")
 		help.triggered.connect(lambda: self.openPage("textos_padrao/ajuda"))
-		bar.addAction(help)
+		menubar.addAction(help)
 		
 		sobre = QtWidgets.QAction("Sobre o projeto", self)
 		sobre.setStatusTip("Conheça mais sobre o projeto")
 		sobre.triggered.connect(lambda: self.openPage("textos_padrao/sobre"))
-		bar.addAction(sobre)
+		menubar.addAction(sobre)
 
 		#btn_nxt.setText("Próxima linha")
 

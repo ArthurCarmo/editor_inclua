@@ -279,29 +279,6 @@ class GTextEdit(QtWidgets.QTextEdit):
 		cursor = self.textCursor()
 		cursor.select(cursor.WordUnderCursor)	
 		return cursor.selectedText(), cursor
-
-	
-	def mouseReleaseEvent(self, event):
-		super().mouseReleaseEvent(event)
-		
-		tc = self.textCursor()
-
-		if tc.atEnd() or tc.hasSelection():
-			return
-
-		tc.select(QtGui.QTextCursor.WordUnderCursor)
-		cr = self.cursorRect()
-		
-		if len(tc.selectedText()) > 0:
-			print(tc.selectedText())
-			self.completer.setCompletionPrefix(tc.selectedText())
-			popup = self.completer.popup()
-			popup.setCurrentIndex(self.completer.completionModel().index(0,0))
-			cr.setWidth(self.completer.popup().sizeHintForColumn(0)+self.completer.popup().verticalScrollBar().sizeHint().width())
-			self.completer.complete(cr)
-			popup.show()
-			if self.completer.completionCount() == 0:
-				self.completer.popup().hide()
 			
 	def wordSwap(self, event, swapword1, swapword2):
 		# Limpa o fundo da palavra 1
