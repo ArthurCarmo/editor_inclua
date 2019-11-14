@@ -95,21 +95,46 @@ class GTextEdit(QtWidgets.QTextEdit):
 	# QChar::LineSeparator 		= chr(0x2028)
 	def selectToken(self, stopChars = (' ','\t', '\n', '\r', '\n\r', chr(0x2029), chr(0x2028)), leftSeparators = ('<', '['), rightSeparators = ('>', ']') ):
 		cursor = self.textCursor()
-		cursor.select(cursor.WordUnderCursor)
 		
+		#cursor.select(cursor.WordUnderCursor)
+		
+		ini = cursor.position()
+		end = cursor.position()
+		
+		wordLeft = False
+		
+		# Confere se há palavra à esquerda
+		cursor.setPosition(ini, cursor.MoveAnchor)
+		if cursor.movePosition(cursor.Left, cursor.KeepAnchor):
+			if cursor.selectedText().startswith(stopChars):
+				cursor.movePosition(cursor.Right, cursor.KeepAnchor)
+		
+		leftStop = stopChars + rightSeparators
+		while cursor.movePosition(cursor.Left, cursor.KeepAnchor):
+			if cursor.selectedText().startswith(leftSeparators):
+				break
+			if cursor.selectedText().startswith(leftStop):
+				cursor.movePosition(cursor.Right, cursor.KeepAnchor)
+				break
+		
+			
 		ini = cursor.selectionStart()
+		
+		if cursor.selectedText() == "" and cursor.movePosition(cursor.Right, cursor.KeepAnchor):
+			if cursor.selectedText().endswith(stopChars):
+				cursor.movePosition(cursor.Left, cursor.KeepAnchor)
+			
+		
+		rightStop = stopChars + leftSeparators			
+		while cursor.movePosition(cursor.Right, cursor.KeepAnchor):
+			if cursor.selectedText().endswith(rightSeparators):
+				break
+			if cursor.selectedText().endswith(rightStop):
+				cursor.movePosition(cursor.Left, cursor.KeepAnchor)
+				break
+		
 		end = cursor.selectionEnd()
 		
-		cursor.setPosition(ini, cursor.MoveAnchor)
-		cursor.movePosition(cursor.Left, cursor.KeepAnchor)
-		if cursor.selectionStart() != ini and cursor.selectedText().startswith(leftSeparators):
-			ini = cursor.startPosition()
-			
-		cursor.setPosition(end, cursor.MoveAnchor)
-		cursor.movePosition(cursor.Right, cursor.KeepAnchor)
-		if cursor.selectionEnd() != end and cursor.selectedText().endswith(rightSeparators):
-			end = cursor.endPosition()
-			
 		cursor.setPosition(ini, cursor.MoveAnchor)
 		cursor.setPosition(end, cursor.KeepAnchor)
 		
@@ -159,18 +184,20 @@ class GTextEdit(QtWidgets.QTextEdit):
 			return
 		
 		moveWordFlag = False
-		srcCursor = self.textCursor()
-		srcCursor.select(srcCursor.WordUnderCursor)
+		#srcCursor = self.textCursor()
+		#srcCursor.select(srcCursor.WordUnderCursor)
+		srcCursor = self.selectToken()
 		if self.isPressed(QtCore.Qt.Key_Control) and ek in (QtCore.Qt.Key_Left, QtCore.Qt.Key_Right):
 			moveWordFlag = True
 		
-			dstCursor = self.textCursor()
+			#dstCursor = self.textCursor()
+			dstCursor = QtGui.QTextCursor(srcCursor)
 			
 			if ek == QtCore.Qt.Key_Left:
-				dstCursor.movePosition(dstCursor.StartOfWord, dstCursor.MoveAnchor)
+				dstCursor.setPosition(dstCursor.selectionStart(), dstCursor.MoveAnchor)
 				dstCursor.movePosition(dstCursor.PreviousWord, dstCursor.MoveAnchor)
 			else:
-				dstCursor.movePosition(dstCursor.EndOfWord, dstCursor.MoveAnchor)
+				dstCursor.setPosition(dstCursor.selectionEnd(), dstCursor.MoveAnchor)
 				dstCursor.movePosition(dstCursor.NextWord, dstCursor.MoveAnchor)
 			
 			self.setTextCursor(dstCursor)
@@ -179,6 +206,8 @@ class GTextEdit(QtWidgets.QTextEdit):
 			if srcCursor != dstCursor:
 				w1 = srcCursor.selectedText()
 				w2 = dstCursor.selectedText()
+				
+				print("OP: %s %s" % (w1, w2))
 				self.textCursor().beginEditBlock()
 				srcCursor.insertText(w2)
 				dstCursor.insertText(w1)
