@@ -241,8 +241,9 @@ class GTextEdit(QtWidgets.QTextEdit):
 
 
 	def completerHandler(self):
-		tc = self.textCursor()
-		tc.select(tc.WordUnderCursor)
+	#	tc = self.textCursor()
+	#	tc.select(tc.WordUnderCursor)
+		tc = self.selectToken()
 		cr = self.cursorRect()
 		
 		word = tc.selectedText()
@@ -305,8 +306,9 @@ class GTextEdit(QtWidgets.QTextEdit):
 	#
 	##########################################
 	def getClickedWord(self):
-		cursor = self.textCursor()
-		cursor.select(cursor.WordUnderCursor)	
+		#cursor = self.textCursor()
+		#cursor.select(cursor.WordUnderCursor)	
+		cursor = self.selectToken()
 		return cursor.selectedText(), cursor
 			
 	def wordSwap(self, event, swapword1, swapword2):
@@ -344,15 +346,17 @@ class GTextEdit(QtWidgets.QTextEdit):
 		old_cursor = self.textCursor()
 
 		# Pega a palavra 1
-		swapword1 = self.textCursor()
-		swapword1.select(swapword1.WordUnderCursor)
+		#swapword1 = self.textCursor()
+		#swapword1.select(swapword1.WordUnderCursor)
+		swapword1 = self.selectToken()
 		self.setTextCursor(swapword1)
 
 		# Pega a palavra 2
 		self.setTextCursor( self.cursorForPosition(event.pos()) )
-		swapword2 = self.textCursor()
-		swapword2.select(swapword1.WordUnderCursor)
-
+		#swapword2 = self.textCursor()
+		#swapword2.select(swapword1.WordUnderCursor)
+		swapword2 = self.selectToken()
+		
 		# Remove a seleção da palavra 2
 		self.setTextCursor(self.cursorForPosition(event.pos()))
 
