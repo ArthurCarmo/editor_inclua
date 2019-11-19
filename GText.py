@@ -187,7 +187,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 		#srcCursor = self.textCursor()
 		#srcCursor.select(srcCursor.WordUnderCursor)
 		srcCursor = self.selectToken()
-		if self.isPressed(QtCore.Qt.Key_Control) and ek in (QtCore.Qt.Key_Left, QtCore.Qt.Key_Right):
+		if self.isPressed(QtCore.Qt.Key_Control) and ek in (QtCore.Qt.Key_Left, QtCore.Qt.Key_Right) and srcCursor.selectedText() != "" and not srcCursor.selectedText().isspace():
 			moveWordFlag = True
 		
 			#dstCursor = self.textCursor()
@@ -213,15 +213,6 @@ class GTextEdit(QtWidgets.QTextEdit):
 				dstCursor.insertText(w1)
 				self.textCursor().endEditBlock()
 		
-		# Marca a palavra debaixo do cursor se Ctrl estiver pressionado
-		if self.isPressed(QtCore.Qt.Key_Control):
-			print("Aqui! CONTROL")
-			newCursor = self.selectToken()
-			self.highlighter.unsetMarkedForSub()
-			self.highlighter.setMarkedForSub(newCursor, newCursor)
-			self.highlighter.rehighlight()
-			print(srcCursor.selectedText())
-		
 		# Cópia do evento, mas com o texto em maiúsculo
 		newEventText = event.text()
 		if not srcCursor.selectedText().startswith(('<', '_')):
@@ -232,6 +223,16 @@ class GTextEdit(QtWidgets.QTextEdit):
 			QtWidgets.QTextEdit.keyPressEvent(self, newEvent)
 			
 		txt = newEvent.text()
+		
+		# Marca a palavra debaixo do cursor se Ctrl estiver pressionado
+		if self.isPressed(QtCore.Qt.Key_Control):
+			print("Aqui! CONTROL")
+			newCursor = self.selectToken()
+			print("%s|" % newCursor.selectedText())
+			self.highlighter.unsetMarkedForSub()
+			self.highlighter.setMarkedForSub(newCursor, newCursor)
+			self.highlighter.rehighlight()
+			print(srcCursor.selectedText())
 		
 		# Aparece o completer ao digitar uma letra, símbolo de tag ou comando, ou Ctrl+Espaço
 		if txt.isalpha() or txt.isdigit() or txt == '_' or (self.isPressed(QtCore.Qt.Key_Control) and ek == QtCore.Qt.Key_Space):
