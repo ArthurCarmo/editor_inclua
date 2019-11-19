@@ -38,7 +38,6 @@ class GImageButton(QtWidgets.QPushButton):
         self.indexLabel = QtWidgets.QLabel(str(self.index))
         
         self.pixmap = QtGui.QPixmap(img_url)
-        print(img_url)
         self.setIcon(QtGui.QIcon(self.pixmap))
         self.setIconSize(QtCore.QSize(self.default_width, self.default_height))
 #        self.setFixedSize(self.icon().actualSize(QtCore.QSize(self.default_width, self.default_height)))
@@ -73,12 +72,10 @@ class GImageButton(QtWidgets.QPushButton):
     def toggleSelected(self):
         self.selected = not self.selected
         self.checkbox.setChecked(self.selected)
-        print("Selected -> %d" % int(self.selected))
         
     def setSelected(self, selected):
         self.selected = selected
         self.checkbox.setChecked(self.selected)
-        print("Selected -> %d" % int(self.selected))
 
     def isSelected(self):
         return self.selected

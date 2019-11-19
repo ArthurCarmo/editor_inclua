@@ -152,10 +152,6 @@ class GTextEdit(QtWidgets.QTextEdit):
 		commitString  = event.commitString()
 		preeditString = event.preeditString()
 
-		print("UIA")
-		print("COMMIT: |" + commitString + "|")
-		print("PREDIT: |" + preeditString + "|")
-		
 		# Se for uma tecla morta que não invoca o keyPressEvent
 		# cria o evento na mão já com o caractere em maiúsculo
 		if commitString.upper() in GParser().getAccentedCharacters():
@@ -170,7 +166,6 @@ class GTextEdit(QtWidgets.QTextEdit):
 	#
 	####################################
 	def keyPressEvent(self, event):
-		print("KEY")
 		ek = event.key()
 		self.pressed[ek] = True
 
@@ -207,7 +202,6 @@ class GTextEdit(QtWidgets.QTextEdit):
 				w1 = srcCursor.selectedText()
 				w2 = dstCursor.selectedText()
 				
-				print("OP: %s %s" % (w1, w2))
 				self.textCursor().beginEditBlock()
 				srcCursor.insertText(w2)
 				dstCursor.insertText(w1)
@@ -226,13 +220,10 @@ class GTextEdit(QtWidgets.QTextEdit):
 		
 		# Marca a palavra debaixo do cursor se Ctrl estiver pressionado
 		if self.isPressed(QtCore.Qt.Key_Control):
-			print("Aqui! CONTROL")
 			newCursor = self.selectToken()
-			print("%s|" % newCursor.selectedText())
 			self.highlighter.unsetMarkedForSub()
 			self.highlighter.setMarkedForSub(newCursor, newCursor)
 			self.highlighter.rehighlight()
-			print(srcCursor.selectedText())
 		
 		# Aparece o completer ao digitar uma letra, símbolo de tag ou comando, ou Ctrl+Espaço
 		if txt.isalpha() or txt.isdigit() or txt == '_' or (self.isPressed(QtCore.Qt.Key_Control) and ek == QtCore.Qt.Key_Space):
@@ -249,7 +240,6 @@ class GTextEdit(QtWidgets.QTextEdit):
 		
 		word = tc.selectedText()
 		if len(word) > 0:
-			print("|->"+word)
 			self.completer.setCompletionPrefix(word)
 			popup = self.completer.popup()
 			popup.setCurrentIndex(self.completer.completionModel().index(0,0))
@@ -390,15 +380,3 @@ class GTextEdit(QtWidgets.QTextEdit):
 #		self.setTextCursor(self.cursorForPosition(event.pos()))
 		self.setTextCursor(old_cursor)
 
-		"""menu = QtWidgets.QMenu()
-		word, cursor = self.getClickedWord()
-		if word != "":
-			menu.addAction(word)
-			menu.addSeparator()
-			for signal in self.getDisambiguationList(word):
-				print(signal)
-				menu.addAction(signal)
-			
-			menu.triggered[QtWidgets.QAction].connect(lambda w: self.wordSubFunction(w, cursor))
-			menu.exec(event.globalPos())
-		"""

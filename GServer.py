@@ -113,8 +113,6 @@ class GServer():
 		text = GParser().cleanText(text)
 		blocks = GParser().getCommandBlocks(text)
 		try:		
-			print(blocks)
-			print("-----------------------------__")
 			for msg in blocks:
 				while msg[0] in (' ', '\n', '\t'):
 					msg = msg[1:]

@@ -163,8 +163,6 @@ class GSyntaxHighlighter(QtGui.QSyntaxHighlighter):
 			self.subFormat.setForeground(self.subWordFont)
 			self.subFormat.setBackground(self.subWordBackground)
 			
-			print(self.block1)
-			
 			if self.currentBlock().blockNumber() == self.block1:
 				self.arg = len(self.cursor1.selectedText())
 				self.cursor1.setPosition(self.cursor1.selectionStart(), self.cursor1.KeepAnchor)

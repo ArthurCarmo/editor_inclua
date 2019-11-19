@@ -64,8 +64,6 @@ class GDocument(QtWebEngineWidgets.QWebEngineView):
 		cmd = "unoconv -f pdf " + self.file
 		resp = subprocess.call(cmd, shell=True)
 		self.file = self.getOutputFileName()
-		print(self.file)
-		print("-------------------------------")
 		self.sender.convertionReady.emit(url)
 
 	def load(self, f, url = "file://"):
@@ -126,9 +124,7 @@ class GDocument(QtWebEngineWidgets.QWebEngineView):
 		self.rawText = s
 
 		i = 0
-		#print(os.listdir("media/images/"))
 		for filename in os.listdir("media/images/"): 
-			#print(filename)
 			dst ="IMG" + str(i) + ".JPG"
 			src ='media/images/'+ filename 
 			dst ='media/images/'+ dst 
@@ -294,15 +290,12 @@ class GEGLFile():
 			for _ in range(self.blockLen):
 				self.text += doc.readline()
 			
-			print(self.text)
-
 			self.parseIndex = int(doc.readline())
 			self.translationText = doc.read()
 			self.translationParagraphs = [line if line else '\n' for line in self.translationText.split(GTranslator.endl)]
 		self.raw = False
 		
 	def save(self, document):
-		print(self.translationParagraphs)
 		with open(document, "w") as doc:
 			# QChar::QParagraphSeparator 	= chr(0x2029)
 			# QChar::LineSeparator 		= chr(0x2028)
@@ -351,7 +344,7 @@ class GVideo():
 	def videoCreatorThread(self, vId, vFname, pngDir):
 		png = pngDir + "/" + vId + "/frame_%d.png"
 		cmd = "ffmpeg -y -v quiet -framerate 30 -i %s -pix_fmt yuv420p %s" % (png, vFname)
-		print(cmd)
+		
 		subprocess.run(cmd, shell=True)
 		self.sender.videoReady.emit(os.path.basename(vFname))
 		
