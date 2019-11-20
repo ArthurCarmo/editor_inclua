@@ -355,7 +355,7 @@ class GTextEdit(QtWidgets.QTextEdit):
 		self.highlighter.setMarkedForSub(swapword1, swapword2)
 		self.highlighter.rehighlight()
 
-		menu = self.createStandardContextMenu()
+		menu = QtWidgets.QMenu()
 		menu.addAction(QtGui.QIcon.fromTheme("view-refresh"), "Trocar Palavras", lambda:self.wordSwap(event, swapword1, swapword2))
 		menu.exec(event.globalPos())
 		

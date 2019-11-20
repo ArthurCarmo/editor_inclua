@@ -79,9 +79,27 @@ class Main(QtWidgets.QMainWindow):
 		fileSalvarComo.setStatusTip("Salvar arquivo da tradução como...")
 		fileSalvarComo.triggered.connect(self.saveTextFileAs)
 
-		fileExportar = QtWidgets.QAction("Exportar", self)
+		fileExportar = QtWidgets.QMenu("Exportar", self)
+
+		self.exportarTXT = QtWidgets.QAction("TXT")
+		self.exportarPDF = QtWidgets.QAction("PDF")
+		self.exportarDOCX= QtWidgets.QAction("DOCX (Microsoft Word)")
+		self.exportarODT = QtWidgets.QAction("ODT (Libre Office)")
+		
+		self.exportarTXT.triggered.connect(lambda : self.exportTextFile("txt"))
+		self.exportarPDF.triggered.connect(lambda : self.exportTextFile("pdf"))
+		self.exportarDOCX.triggered.connect(lambda : self.exportTextFile("docx"))
+		self.exportarODT.triggered.connect(lambda : self.exportTextFile("odt"))
+		
 		fileExportar.setStatusTip("Exportar tradução para...")
-		fileExportar.triggered.connect(self.exportTextFile)	
+		
+		fileExportar.addAction(self.exportarTXT)
+		fileExportar.addAction(self.exportarPDF)
+		fileExportar.addAction(self.exportarDOCX)
+		fileExportar.addAction(self.exportarODT)
+
+
+		#fileExportar.triggered.connect(self.exportTextFile)	
 
 		fileQuit = QtWidgets.QAction("Sair", self)
 		fileQuit.setShortcut("Ctrl+Q")
@@ -95,7 +113,7 @@ class Main(QtWidgets.QMainWindow):
 		file.addSeparator()
 		file.addAction(fileSalvar)
 		file.addAction(fileSalvarComo)
-		file.addAction(fileExportar)
+		file.addMenu(fileExportar)
 		file.addSeparator()
 		file.addAction(fileQuit)
 
@@ -165,22 +183,25 @@ class Main(QtWidgets.QMainWindow):
 		edit.setStatusTip("Opções de customização")
 		edit.triggered.connect(self.openSettingsMenu)
 		menubar.addAction(edit)
-		
+
+		bar = QtWidgets.QMenuBar(menubar)
+		menubar.setCornerWidget(bar, QtCore.Qt.TopRightCorner)
+
 		self.voltar = QtWidgets.QAction(self.style().standardIcon(QtWidgets.QStyle.SP_ArrowBack), "", self)
 		self.voltar.setStatusTip("Voltar para a página inicial")
 		self.voltar.triggered.connect(lambda: self.homePage())
-		menubar.addAction(self.voltar)
+		bar.addAction(self.voltar)
 		self.voltar.setVisible(False)
 
 		help = QtWidgets.QAction("Ajuda", self)
 		help.setStatusTip("Manual do sistema")
 		help.triggered.connect(lambda: self.openPage("textos_padrao/ajuda"))
-		menubar.addAction(help)
+		bar.addAction(help)
 		
 		sobre = QtWidgets.QAction("Sobre o projeto", self)
 		sobre.setStatusTip("Conheça mais sobre o projeto")
 		sobre.triggered.connect(lambda: self.openPage("textos_padrao/sobre"))
-		menubar.addAction(sobre)
+		bar.addAction(sobre)
 
 		#btn_nxt.setText("Próxima linha")
 
@@ -516,15 +537,21 @@ class Main(QtWidgets.QMainWindow):
 		self.text.setModified(False)
 		return True
 		
-	def exportTextFile(self):
+	def exportTextFile(self, fmt):
 		filename = QtWidgets.QFileDialog().getSaveFileName(caption="Exportar arquivo de tradução")
 		fname = filename[0]
 		if fname == "":
 			return False
 			
-		with open(fname, "w") as doc:
-			doc.write(self.text.toPlainText())
+		tmpFileName = ".tmpFileName"
 		
+		with open(tmpFileName, "w") as doc:
+			doc.write(self.text.toPlainText())
+
+		os.system("unoconv -f %s \"%s\"" % (fmt, tmpFileName))
+
+		os.system("mv \"%s.%s\" \"%s.%s\"" %  (tmpFileName, fmt, fname, fmt))
+
 		return True
 
 	def addNextTranslationParagraph(self):
