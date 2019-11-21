@@ -405,7 +405,10 @@ class Main(QtWidgets.QMainWindow):
 		
 		self.screenshotMenuWidget.hide()
 		self.screenshotMenuWidget.show()
-		
+
+		self.screenshotMenuWidget.setMinimumWidth(0)
+		self.screenshotMenuWidget.setMaximumWidth(5000)
+
 		self.hasOpenDocument = True
 		
 		return 0
