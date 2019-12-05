@@ -177,6 +177,15 @@ class GImageGrid(QtWidgets.QScrollArea):
 		view.setLayout(self.imgGrid)
 		self.setWidget(view)
 
+	def scanForImages(self, path = GDefaultValues.imgDir):
+		path += "/"
+		for filename in os.listdir(path): 
+			dst = GDefaultValues.imgPrefix + str(self.next_id) + ".JPG"
+			src = path + filename 
+			dst = path + dst 
+			os.rename(src, dst) 
+			self.next_id += 1
+
 	def imageClicked(self, index):
 		self.onClick.emit(index)
 		
@@ -202,10 +211,11 @@ class GImageGrid(QtWidgets.QScrollArea):
 	def onImageDownloaded(self):
 		self.loadImages()
 		self.dl_index += 1
+		self.next_id += 1
 	
 	def handle_web_image(self, src):
 		filename, file_extension = os.path.splitext(src)
-		cmd = "wget -O %s/%s%d%s %s" % (self.imagesDir, GDefaultValues.imgPrefix, self.next_id-1, file_extension, src)
+		cmd = "wget -O %s/%s%d%s %s" % (self.imagesDir, GDefaultValues.imgPrefix, self.next_id, file_extension, src)
 		subprocess.run(cmd, shell=True)
 		self.onDownloadFinished.emit()
 	

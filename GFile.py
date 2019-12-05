@@ -123,13 +123,20 @@ class GDocument(QtWebEngineWidgets.QWebEngineView):
 		retstr.close()
 		self.rawText = s
 
-		i = 0
-		for filename in os.listdir("media/images/"): 
-			dst ="IMG" + str(i) + ".JPG"
-			src ='media/images/'+ filename 
-			dst ='media/images/'+ dst 
-			os.rename(src, dst) 
-			i += 1
+	################################
+	##
+	## Essa função foi passada
+	## para a classe GImage
+	##
+	################################
+
+#		i = 0
+#		for filename in os.listdir("media/images/"): 
+#			dst ="IMG" + str(i) + ".JPG"
+#			src ='media/images/'+ filename 
+#			dst ='media/images/'+ dst 
+#			os.rename(src, dst) 
+#			i += 1
 
 		return self.rawText
 

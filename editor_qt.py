@@ -195,7 +195,7 @@ class Main(QtWidgets.QMainWindow):
 
 		help = QtWidgets.QAction("Ajuda", self)
 		help.setStatusTip("Manual do sistema")
-		help.triggered.connect(lambda: self.openPage("textos_padrao/ajuda"))
+		help.triggered.connect(lambda: self.openPage("textos_padrao/ajuda.html"))
 		bar.addAction(help)
 		
 		sobre = QtWidgets.QAction("Sobre o projeto", self)
@@ -415,6 +415,7 @@ class Main(QtWidgets.QMainWindow):
 
 	
 	def onPDFTextReady(self):
+		self.images_widget.scanForImages(GDefaultValues.imgDir)
 		self.images_widget.loadImages()
 		box = QtWidgets.QMessageBox()
 		box.setIcon(QtWidgets.QMessageBox.Question)
