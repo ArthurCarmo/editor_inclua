@@ -305,6 +305,7 @@ class GSettingsMenu(QtWidgets.QWidget):
 			self.config.read(GDefaultValues.ini_filename)
 			
 			self.currentFont = QtGui.QFont(self.config['FONTES']['fonte'])
+			self.currentFont.setPointSize(int(self.config['FONTES']['fonte'].split(',')[1]))
 			self.currentFont.setStyleName(self.config['FONTES']['fonte'].split(',')[10])
 			
 		else:
