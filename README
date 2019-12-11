@@ -13,10 +13,11 @@
 # pyqt5
 # pyqtwebengine
 # pyahocorasick
-# natsort
+# natsort 
 # Cython
 # vlibras-translate 
 # pdfminer.six
+# Pillow
 # unidecode
 #
 #
